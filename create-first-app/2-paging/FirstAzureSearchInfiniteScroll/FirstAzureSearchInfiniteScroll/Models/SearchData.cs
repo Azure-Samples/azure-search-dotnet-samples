@@ -39,22 +39,20 @@ namespace FirstAzureSearchInfiniteScroll.Models
 
         public string paging { get; set; }
 
-        public void AddHotel(string name, string desc, double rate, string bedoption, string[] tags)
+        public void AddHotel(string name, string desc, double rate, string bedOption, string[] tags)
         {
             // Populate a new Hotel class, but only with the data that has been provided.
             Hotel hotel = new Hotel();
             hotel.HotelName = name;
             hotel.Description = desc;
-            hotel.Tags = new string[tags.Length];
-            for (int i = 0; i < tags.Length; i++)
-            {
-                hotel.Tags[i] = new string(tags[i]);
-            }
+            hotel.Tags = tags;
 
-            // Create just a single room for the hotel, containing the sample rate and room description.
-            Room room = new Room();
-            room.BaseRate = rate;
-            room.BedOptions = bedoption;
+            // Create a single room for the hotel, containing the sample rate and room description.
+            Room room = new Room
+            {
+                BaseRate = rate,
+                BedOptions = bedOption
+            };
 
             hotel.Rooms = new Room[1];
             hotel.Rooms[0] = room;
@@ -64,28 +62,24 @@ namespace FirstAzureSearchInfiniteScroll.Models
 
         public Hotel GetHotel(int index)
         {
-            Hotel h = (Hotel)hotels[index];
-            return h;
+            return (Hotel)hotels[index];
         }
 
         public string GetFullHotelDescription(int index)
         {
             Hotel h = (Hotel)hotels[index];
-            // Combine the tag data into a comma-delimited string
+
+            // Combine the tag data into a comma-delimited string.
             string tagData = string.Join(", ", h.Tags);
             string description = h.Description;
 
+            // Add highlights only if there are any.
             if (tagData.Length > 0)
             {
-                description += "\nHighlights: " + tagData;
+                description += $"\nHighlights: {tagData}";
             }
 
-            // Get the sample room data and combine into one string.
-            var fullDescription = "Sample room: ";
-            fullDescription += h.Rooms[0].BedOptions;
-            fullDescription += " $" + h.Rooms[0].BaseRate;
-            fullDescription += "\n" + description;
-            return fullDescription;
+            return $"Sample room: {h.Rooms[0].BedOptions} ${h.Rooms[0].BaseRate}\n{description}";
         }
     }
 }
