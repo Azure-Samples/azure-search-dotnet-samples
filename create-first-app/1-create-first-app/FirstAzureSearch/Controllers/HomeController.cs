@@ -40,57 +40,7 @@ namespace FirstAzureSearch.Controllers
                 return View("Error", new ErrorViewModel { RequestId = "1" });
             }
             return View(model);
-        }
-        
-        public async Task<ActionResult> Next(SearchData model)
-        {
-            try
-            {
-                // Increment the current page.
-                int page = 1 + (int)TempData["page"];
-
-                // Recover the search text.
-                model.searchText = TempData["searchfor"].ToString();
-
-                // Make the Azure Search call.
-                await RunQueryAsync(model, page);
-
-                // Ensure temporary data is stored for the next call.
-                TempData["page"] = page;
-                TempData["searchfor"] = model.searchText;
-            }
-
-            catch
-            {
-                return View("Error", new ErrorViewModel { RequestId = "2" });
-            }
-            return View("Index", model);
-        }
-
-        public async Task<ActionResult> Prev(SearchData model)
-        {
-            try
-            {
-                // Decrement the current page.
-                int page = (int)TempData["page"] - 1;
-
-                // Recover the search text.
-                model.searchText = TempData["searchfor"].ToString();
-
-                // Make the Azure Search call.
-                await RunQueryAsync(model, page);
-
-                // Ensure temporary data is stored for the next call.
-                TempData["page"] = page;
-                TempData["searchfor"] = model.searchText;
-            }
-
-            catch
-            {
-                return View("Error", new ErrorViewModel { RequestId = "3" });
-            }
-            return View("Index", model);
-        }
+        }      
 
         public IActionResult About()
         {
@@ -157,45 +107,11 @@ namespace FirstAzureSearch.Controllers
 
             if (results.Results == null)
             {
-                model.resultCount = 0;
+                throw new Exception("Null results");
             }
             else
             {
-                // Record the total number of results.
-                model.resultCount = (int)results.Results.Count;
-
-                // Calcuate the range of current page results.
-                int start = page * GlobalVariables.ResultsPerPage;
-                int end = Math.Min(model.resultCount, (page + 1) * GlobalVariables.ResultsPerPage);
-
-                for (int i = start; i < end; i++)
-                {
-                    // Check for hotels with no room data provided.
-                    if (results.Results[i].Document.Rooms.Length > 0)
-                    {
-                        // Add a hotel with sample room data (an example of a "complex type").
-                        model.AddHotel(results.Results[i].Document.HotelName,
-                             results.Results[i].Document.Description,
-                             (double)results.Results[i].Document.Rooms[0].BaseRate,
-                             results.Results[i].Document.Rooms[0].BedOptions,
-                             results.Results[i].Document.Tags);
-                    }
-                    else
-                    {
-                        // Add a hotel with no sample room data.
-                        model.AddHotel(results.Results[i].Document.HotelName,
-                            results.Results[i].Document.Description,
-                            0d,
-                            "No room data provided",
-                            results.Results[i].Document.Tags);
-                    }
-                }
-
-                // Calculate the page count.
-                model.pageCount = (model.resultCount + GlobalVariables.ResultsPerPage - 1) / GlobalVariables.ResultsPerPage;
-
-                // Set the current page.
-                model.currentPage = page;
+                model.resultList = results;
             }
 
             // Display the results.

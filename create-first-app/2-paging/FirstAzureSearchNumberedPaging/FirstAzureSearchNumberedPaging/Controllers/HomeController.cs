@@ -144,7 +144,11 @@ namespace FirstAzureSearchNumberedPaging.Controllers
                {
                    // Enter Hotel property names into this list so only these values will be returned.
                    // If Select is empty, all values will be returned, which can be inefficient.
-                   Select = new[] { "HotelName", "Description", "Tags", "Rooms" }
+                   Select = new[] { "HotelName", "Description", "Tags", "Rooms" },
+                   SearchMode = SearchMode.All,
+                   Skip = page * GlobalVariables.ResultsPerPage,
+                   Top = GlobalVariables.ResultsPerPage,
+                   IncludeTotalResultCount = true,
                };
 
             // For efficiency, the search call should ideally be asynchronous, so we use the
@@ -157,14 +161,14 @@ namespace FirstAzureSearchNumberedPaging.Controllers
             }
             else
             {
-                // Record the total number of results.
-                model.resultCount = (int)results.Results.Count;
+                // Record the number of results.
+                // Note results.Count           is the total number of results available.
+                //      results.Results.Count   is the number of results returned, not the same as results.Count.
 
-                // Calculate the range of current page results.
-                int start = page * GlobalVariables.ResultsPerPage;
-                int end = Math.Min(model.resultCount, (page + 1) * GlobalVariables.ResultsPerPage);
+                // This variable communicates the total number of results to the view.
+                model.resultCount = (int)results.Count;
 
-                for (int i = start; i < end; i++)
+                for (int i = 0; i < results.Results.Count; i++)
                 {
                     // Check for hotels with no room data provided.
                     if (results.Results[i].Document.Rooms.Length > 0)
@@ -187,12 +191,13 @@ namespace FirstAzureSearchNumberedPaging.Controllers
                     }
                 }
 
-                // Calculate the page count.
-                model.pageCount = (model.resultCount + GlobalVariables.ResultsPerPage - 1) / GlobalVariables.ResultsPerPage;
-
-                // Calculate the range of page numbers to display.
+                // This variable communicates the total number of pages to the view.
+                model.pageCount = ( (int)results.Count + GlobalVariables.ResultsPerPage - 1) / GlobalVariables.ResultsPerPage;  
+                
+                // This variable communicates the page number being displayed to the view.
                 model.currentPage = page;
 
+                // Calculate the range of page numbers to display.
                 if (page == 0)
                 {
                     leftMostPage = 0;

@@ -76,20 +76,6 @@
             margin: 10px;
             outline: 0;
         }
-
-        .pageButton {
-            border: none;
-            color: darkblue;
-            font-weight: normal;
-            width: 50px;
-        }
-
-        .pageButtonDisabled {
-            border: none;
-            color: lightgray;
-            font-weight: bold;
-            width: 50px;
-        }
     </style>
 </head>
 <body>
@@ -109,60 +95,16 @@
         {
             // Show the result count.
             <p class="sampleText">
-                @Html.DisplayFor(m => m.resultCount) Results
+                @Html.DisplayFor(m => m.resultList.Results.Count) Results
             </p>
 
-            // Show the hotel data. All pages will have ResultsPerPage entries, except for the last page.
-            @for (var i = 0; i < Model.hotels.Count; i++)
+            @for (var i = 0; i < Model.resultList.Results.Count; i++)
             {
                 // Display the hotel name.
-                @Html.TextAreaFor(m => Model.GetHotel(i).HotelName, new { @class = "box1" })
-
-                // Display the hotel sample room and description.
-                @Html.TextArea("desc", Model.GetFullHotelDescription(i), new { @class = "box2" })
+                @Html.TextAreaFor(m => Model.resultList.Results[i].Document.HotelName, new { @class = "box1" })
+                @Html.TextArea("desc", Model.resultList.Results[i].Document.Description, new { @class = "box2" })
             }
         }
     }
 
-    @if (Model != null && Model.pageCount > 1)
-    {
-        // If there is more than one page of results, show the paging buttons.
-        <table>
-            <tr>
-                <td>
-                    @using (Html.BeginForm("Prev", "Home", FormMethod.Post))
-                    {
-                        // Previous (<<) page button.
-                        @if (Model.currentPage > 0)
-                        {
-                            <input id="prev" type="submit" value="&#171;" class="pageButton">
-                        }
-                        else
-                        {
-                            // Show an inactive button, so the buttons remain in the same place on the view.
-                            <input id="prev" type="submit" value="&#171;" disabled class="pageButtonDisabled">
-                        }
-
-                    }
-                </td>
-
-                <!-- Aid navigation by showing the current page and how many pages of results there are. -->
-                <td>&nbsp;&nbsp;Page @(Model.currentPage + 1) of @Model.pageCount&nbsp;&nbsp;</td>
-                <td>
-                    @using (Html.BeginForm("Next", "Home", FormMethod.Post))
-                    {
-                        // Next (>>) page button.
-                        @if (Model.currentPage < Model.pageCount - 1)
-                        {
-                            <input id="next" type="submit" value="&#187;" class="pageButton">
-                        }
-                        else
-                        {
-                            <input id="next" type="submit" value="&#187;" disabled class="pageButtonDisabled">
-                        }
-                    }
-                </td>
-            </tr>
-        </table>
-    }
 </body>

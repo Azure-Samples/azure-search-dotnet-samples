@@ -48,14 +48,24 @@ namespace FirstAzureSearchInfiniteScroll.Controllers
                     page = 0;
                 }
 
-                // Setup the search parameters.
-                SearchParameters sp = new SearchParameters()
-                {
-                    Select = new[] { "HotelName", "Description", "Tags", "Rooms" },
-                    SearchMode = SearchMode.All,
-                };
+                SearchParameters parameters;
+                DocumentSearchResult<Hotel> results;
 
-                DocumentSearchResult<Hotel> results = await _indexClient.Documents.SearchAsync<Hotel>(model.searchText, sp);
+                parameters =
+                   new SearchParameters()
+                   {
+                       // Enter Hotel property names into this list so only these values will be returned.
+                       // If Select is empty, all values will be returned, which can be inefficient.
+                       Select = new[] { "HotelName", "Description", "Tags", "Rooms" },
+                       SearchMode = SearchMode.All,
+                       Skip = page * GlobalVariables.ResultsPerPage,
+                       Top = GlobalVariables.ResultsPerPage,
+                       IncludeTotalResultCount = true,
+                   };
+
+                // For efficiency, the search call should ideally be asynchronous, so we use the
+                // SearchAsync call rather than the Search call.
+                results = await _indexClient.Documents.SearchAsync<Hotel>(model.searchText, parameters);
 
                 if (results.Results == null)
                 {
@@ -63,13 +73,14 @@ namespace FirstAzureSearchInfiniteScroll.Controllers
                 }
                 else
                 {
-                    // Record the total number of results.
-                    model.resultCount = (int)results.Results.Count;
+                    // Record the number of results.
+                    // Note results.Count           is the total number of results available.
+                    //      results.Results.Count   is the number of results returned, not the same as results.Count.
 
-                    int start = page * GlobalVariables.ResultsPerPage;
-                    int end = Math.Min(model.resultCount, (page + 1) * GlobalVariables.ResultsPerPage);
+                    // This variable communicates the total number of results to the view.
+                    model.resultCount = (int)results.Count;
 
-                    for (int i = start; i < end; i++)
+                    for (int i = 0; i < results.Results.Count; i++)
                     {
                         // Check for hotels with no room data provided.
                         if (results.Results[i].Document.Rooms.Length > 0)
@@ -91,6 +102,12 @@ namespace FirstAzureSearchInfiniteScroll.Controllers
                                 results.Results[i].Document.Tags);
                         }
                     }
+
+                    // This variable communicates the total number of pages to the view.
+                    model.pageCount = ((int)results.Count + GlobalVariables.ResultsPerPage - 1) / GlobalVariables.ResultsPerPage;
+
+                    // This variable communicates the page number being displayed to the view.
+                    model.currentPage = page;
 
                     // Ensure Temp data is stored for the next call.
                     TempData["page"] = page;
