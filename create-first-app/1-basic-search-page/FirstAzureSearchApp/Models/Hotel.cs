@@ -4,7 +4,7 @@ using Microsoft.Azure.Search.Models;
 using Microsoft.Spatial;
 using Newtonsoft.Json;
 
-namespace FirstAzureSearch.Models
+namespace FirstAzureSearchApp.Models
 {
     public partial class Hotel
     {

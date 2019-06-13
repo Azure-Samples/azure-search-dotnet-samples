@@ -1,19 +1,7 @@
-﻿using System.Collections;
-using Microsoft.Azure.Search.Models;
+﻿using Microsoft.Azure.Search.Models;
 
-namespace FirstAzureSearch.Models
+namespace FirstAzureSearchApp.Models
 {
-    public static class GlobalVariables
-    {
-        public static int ResultsPerPage
-        {
-            get
-            {
-                return 3;
-            }
-        }
-    }
-
     public class SearchData
     {
         public SearchData()

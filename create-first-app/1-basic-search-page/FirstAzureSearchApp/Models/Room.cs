@@ -2,7 +2,7 @@
 using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 
-namespace FirstAzureSearch.Models
+namespace FirstAzureSearchApp.Models
 {
     public partial class Room
     {

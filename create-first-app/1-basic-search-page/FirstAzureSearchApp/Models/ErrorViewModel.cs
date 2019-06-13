@@ -1,6 +1,6 @@
 using System;
 
-namespace FirstAzureSearch.Models
+namespace FirstAzureSearchApp.Models
 {
     public class ErrorViewModel
     {

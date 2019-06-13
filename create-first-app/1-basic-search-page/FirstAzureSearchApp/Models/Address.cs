@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Search;
 
-namespace FirstAzureSearch.Models
+namespace FirstAzureSearchApp.Models
 {
     public partial class Address
     {

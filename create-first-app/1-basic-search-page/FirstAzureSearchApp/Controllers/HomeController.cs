@@ -2,12 +2,13 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using FirstAzureSearch.Models;
+using FirstAzureSearchApp.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 
-namespace FirstAzureSearch.Controllers
+// FirstAzureSearchApp
+namespace FirstAzureSearchApp.Controllers
 {
     public class HomeController : Controller
     {
@@ -28,11 +29,11 @@ namespace FirstAzureSearch.Controllers
                 }
 
                 // Make the Azure Search call for the first page.
-                await RunQueryAsync(model, 0);
-                
+                await RunQueryAsync(model);
+
                 // Ensure temporary data is stored for the next call.
-                TempData["page"] = 0;
-                TempData["searchfor"] = model.searchText;
+                //TempData["page"] = 0;
+                //TempData["searchfor"] = model.searchText;
             }
 
             catch
@@ -40,7 +41,7 @@ namespace FirstAzureSearch.Controllers
                 return View("Error", new ErrorViewModel { RequestId = "1" });
             }
             return View(model);
-        }      
+        }
 
         public IActionResult About()
         {
@@ -82,7 +83,7 @@ namespace FirstAzureSearch.Controllers
             return serviceClient;
         }
 
-        private async Task<ActionResult> RunQueryAsync(SearchData model, int page)
+        private async Task<ActionResult> RunQueryAsync(SearchData model)
         {
             // Use static variables to set up the configuration and Azure service and index clients, for efficiency.
             _builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
@@ -98,7 +99,7 @@ namespace FirstAzureSearch.Controllers
                {
                    // Enter Hotel property names into this list so only these values will be returned.
                    // If Select is empty, all values will be returned, which can be inefficient.
-                   Select = new[] { "HotelName", "Description", "Tags", "Rooms" }
+                   Select = new[] { "HotelName", "Description" }
                };
 
             // For efficiency, the search call should be asynchronous, so we use the
