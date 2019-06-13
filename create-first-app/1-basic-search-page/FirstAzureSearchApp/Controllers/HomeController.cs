@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 
-// FirstAzureSearchApp
 namespace FirstAzureSearchApp.Controllers
 {
     public class HomeController : Controller
@@ -28,12 +27,8 @@ namespace FirstAzureSearchApp.Controllers
                     model.searchText = "";
                 }
 
-                // Make the Azure Search call for the first page.
+                // Make the Azure Search call.
                 await RunQueryAsync(model);
-
-                // Ensure temporary data is stored for the next call.
-                //TempData["page"] = 0;
-                //TempData["searchfor"] = model.searchText;
             }
 
             catch
@@ -41,25 +36,6 @@ namespace FirstAzureSearchApp.Controllers
                 return View("Error", new ErrorViewModel { RequestId = "1" });
             }
             return View(model);
-        }
-
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -73,47 +49,34 @@ namespace FirstAzureSearchApp.Controllers
         private static IConfigurationBuilder _builder;
         private static IConfigurationRoot _configuration;
 
-        private static SearchServiceClient CreateSearchServiceClient(IConfigurationRoot configuration)
+        private void InitSearch()
         {
-            // Pull these values from the appsettings.json file.
-            string searchServiceName = configuration["SearchServiceName"];
-            string queryApiKey = configuration["SearchServiceQueryApiKey"];
+            // Create a configuration using the appsettings file.
+            _builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
+            _configuration = _builder.Build();
 
-            SearchServiceClient serviceClient = new SearchServiceClient(searchServiceName, new SearchCredentials(queryApiKey));
-            return serviceClient;
+            // Pull the values from the appsettings.json file.
+            string searchServiceName = _configuration["SearchServiceName"];
+            string queryApiKey = _configuration["SearchServiceQueryApiKey"];
+
+            // Create a service and index client.
+            _serviceClient = new SearchServiceClient(searchServiceName, new SearchCredentials(queryApiKey));
+            _indexClient = _serviceClient.Indexes.GetClient("hotels");
         }
 
         private async Task<ActionResult> RunQueryAsync(SearchData model)
         {
-            // Use static variables to set up the configuration and Azure service and index clients, for efficiency.
-            _builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
-            _configuration = _builder.Build();
-            _serviceClient = CreateSearchServiceClient(_configuration);
-            _indexClient = _serviceClient.Indexes.GetClient("hotels");
+            InitSearch();           
 
-            SearchParameters parameters;
-            DocumentSearchResult<Hotel> results;
-
-            parameters =
-               new SearchParameters()
-               {
-                   // Enter Hotel property names into this list so only these values will be returned.
-                   // If Select is empty, all values will be returned, which can be inefficient.
-                   Select = new[] { "HotelName", "Description" }
-               };
-
-            // For efficiency, the search call should be asynchronous, so we use the
-            // SearchAsync call rather than the Search call.
-            results = await _indexClient.Documents.SearchAsync<Hotel>(model.searchText, parameters);
-
-            if (results.Results == null)
+            var parameters = new SearchParameters
             {
-                throw new Exception("Null results");
-            }
-            else
-            {
-                model.resultList = results;
-            }
+                // Enter Hotel property names into this list so only these values will be returned.
+                // If Select is empty, all values will be returned, which can be inefficient.
+                Select = new[] { "HotelName", "Description" }
+            };
+
+            // For efficiency, the search call should be asynchronous, so use SearchAsync rather than Search.
+            model.resultList = await _indexClient.Documents.SearchAsync<Hotel>(model.searchText, parameters);
 
             // Display the results.
             return View("Index", model);

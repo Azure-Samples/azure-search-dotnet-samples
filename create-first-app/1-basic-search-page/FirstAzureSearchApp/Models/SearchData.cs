@@ -4,15 +4,10 @@ namespace FirstAzureSearchApp.Models
 {
     public class SearchData
     {
-        public SearchData()
-        {
-        }
-
-        [System.ComponentModel.DataAnnotations.Key]
-
-        // The text to search for in the hotels data.
+        // The text to search for.
         public string searchText { get; set; }
 
+        // The list of results.
         public DocumentSearchResult<Hotel> resultList;
     }
 }

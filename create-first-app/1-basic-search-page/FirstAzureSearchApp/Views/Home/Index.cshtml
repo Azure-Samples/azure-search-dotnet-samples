@@ -27,11 +27,10 @@
 
             @for (var i = 0; i < Model.resultList.Results.Count; i++)
             {
-                // Display the hotel name.
+                // Display the hotel name and description.
                 @Html.TextAreaFor(m => Model.resultList.Results[i].Document.HotelName, new { @class = "box1" })
                 @Html.TextArea("desc", Model.resultList.Results[i].Document.Description, new { @class = "box2" })
             }
         }
     }
-
 </body>
