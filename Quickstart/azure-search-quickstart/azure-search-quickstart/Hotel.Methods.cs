@@ -29,7 +29,7 @@
             {
                 builder.AppendFormat("Description (French): {0}\n", DescriptionFr);
             }
-            
+
             if (!String.IsNullOrEmpty(Category))
             {
                 builder.AppendFormat("Category: {0}\n", Category);

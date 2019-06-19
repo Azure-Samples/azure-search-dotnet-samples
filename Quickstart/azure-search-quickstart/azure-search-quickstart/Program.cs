@@ -171,22 +171,22 @@
             ),
          };
 
-        var batch = IndexBatch.New(actions);
+            var batch = IndexBatch.New(actions);
 
-        try
-        {
-            indexClient.Documents.Index(batch);
-        }
-        catch (IndexBatchException e)
-        {
-            // When a service is under load, indexing might fail for some documents in the batch. 
-            // Depending on your application, you can compensate by delaying and retrying. 
-            // For this simple demo, we just log the failed document keys and continue.
-            Console.WriteLine("Failed to index some of the documents: {0}",
-                String.Join(", ", e.IndexingResults.Where(r => !r.Succeeded).Select(r => r.Key)));
-        }
+            try
+            {
+                indexClient.Documents.Index(batch);
+            }
+            catch (IndexBatchException e)
+            {
+                // When a service is under load, indexing might fail for some documents in the batch. 
+                // Depending on your application, you can compensate by delaying and retrying. 
+                // For this simple demo, we just log the failed document keys and continue.
+                Console.WriteLine("Failed to index some of the documents: {0}",
+                    String.Join(", ", e.IndexingResults.Where(r => !r.Succeeded).Select(r => r.Key)));
+            }
 
-        // Wait 2 seconds before starting queries
+            // Wait 2 seconds before starting queries
             Console.WriteLine("Waiting for indexing...\n");
             Thread.Sleep(2000);
         }
@@ -197,63 +197,59 @@
             SearchParameters parameters;
             DocumentSearchResult<Hotel> results;
 
-            // Query 0 - hint, there are no results for this query
-            Console.WriteLine("Query 0: Search for term 'Toronto' and return a total");
+            // Query 1 
+            Console.WriteLine("Query 1: Search for term 'Atlanta' with no result trimming");
             parameters = new SearchParameters();
-            results = indexClient.Documents.Search<Hotel>("Toronto", parameters);
-            Console.WriteLine("Total results: {0} \n", String.Join(", ", results.Count));
+            results = indexClient.Documents.Search<Hotel>("Atlanta", parameters);
             WriteDocuments(results);
 
-            // Query 1
-            //hotels wifi&$count=true&$select=HotelId,HotelName' 
-            Console.WriteLine("Query 1: Search for the terms 'hotel' and 'wifi', return only the HotelId and HotelName fields:\n");
+
+            // Query 2
+            Console.WriteLine("Query 2: Search on the term 'Atlanta', with trimming");
+            Console.WriteLine("Returning only these fields: HotelName, Tags, Address:\n");
             parameters =
                 new SearchParameters()
                 {
-                    Select = new[] { "HotelId", "HotelName" }
+                    Select = new[] { "HotelName", "Tags", "Address" },
                 };
-            results = indexClient.Documents.Search<Hotel>("hotel, wifi", parameters);
+            results = indexClient.Documents.Search<Hotel>("Atlanta", parameters);
             WriteDocuments(results);
 
-            // Query 2 -filtered query
-            // '&search=*&$filter=Rating gt 4&$select=HotelId,HotelName,Description,Rating' 
-            Console.WriteLine("Query 2: Filter on ratings greater than 4");
-            Console.WriteLine("Returning only these fields: HotelId, HotelName, Description, Rating:\n");
+            // Query 3
+            Console.WriteLine("Query 3: Search for the terms 'restaurant' and 'wifi'");
+            Console.WriteLine("Return only these fields: HotelName, Description, and Tags:\n");
+            parameters =
+                new SearchParameters()
+                {
+                    Select = new[] { "HotelName", "Description", "Tags" }
+                };
+            results = indexClient.Documents.Search<Hotel>("restaurant, wifi", parameters);
+            WriteDocuments(results);
+
+            // Query 4 -filtered query
+            Console.WriteLine("Query 4: Filter on ratings greater than 4");
+            Console.WriteLine("Returning only these fields: HotelName, Rating:\n");
             parameters =
                 new SearchParameters()
                 {
                     Filter = "Rating gt 4",
-                    Select = new[] { "HotelId", "HotelName", "Description", "Rating" }
+                    Select = new[] { "HotelName", "Rating" }
                 };
             results = indexClient.Documents.Search<Hotel>("*", parameters);
             WriteDocuments(results);
 
-            // Query 3 - top 2 results
-            // '&search=boutique&$top=2&$select=HotelId,HotelName,Description,Category' 
-            Console.WriteLine("Query 3: Search on term 'boutique'");
+            // Query 5 - top 2 results
+            Console.WriteLine("Query 5: Search on term 'boutique'");
             Console.WriteLine("Sort by rating in descending order, taking the top two results");
-            Console.WriteLine("Returning only these fields: HotelId, HotelName, Description, Category:\n");
+            Console.WriteLine("Returning only these fields: HotelId, HotelName, Category, Rating:\n");
             parameters =
                 new SearchParameters()
                 {
                     OrderBy = new[] { "Rating desc" },
-                    Select = new[] { "HotelId", "HotelName", "Description", "Category" },
+                    Select = new[] { "HotelId", "HotelName", "Category", "Rating" },
                     Top = 2
                 };
             results = indexClient.Documents.Search<Hotel>("boutique", parameters);
-            WriteDocuments(results);
-
-            // Query 4
-            //'&search=pool&$orderby=Address/City&$select=HotelId, HotelName, Address/City, Address/StateProvince, Tags' 
-            Console.WriteLine("Query 4: Search on the term 'pool'");
-            Console.WriteLine("Sort results by City in descending order a-z");
-            Console.WriteLine("Returning only these fields: HotelId, HotelName, City, StateProvince, Tags:\n");
-            new SearchParameters()
-            {
-                OrderBy = new[] { "Address/City desc" },
-                Select = new[] { "HotelId", "HotelName", "Address/City", "Address/StateProvince", "Tags" },
-            };
-            results = indexClient.Documents.Search<Hotel>("pool", parameters);
             WriteDocuments(results);
         }
 
