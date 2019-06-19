@@ -1,0 +1,72 @@
+﻿textarea.box1 {
+    width: 648px;
+    height: 30px;
+    border: none;
+    background-color: azure;
+    font-size: 14pt;
+    color: blue;
+    padding-left: 5px;
+}
+
+textarea.box2 {
+    width: 648px;
+    height: 100px;
+    border: none;
+    background-color: azure;
+    font-size: 12pt;
+    padding-left: 5px;
+    margin-bottom: 24px;
+}
+
+.sampleTitle {
+    font: 32px/normal 'Segoe UI Light',Arial,Helvetica,Sans-Serif;
+    margin: 20px 0;
+    font-size: 32px;
+    text-align: left;
+}
+
+.sampleText {
+    font: 16px/bold 'Segoe UI Light',Arial,Helvetica,Sans-Serif;
+    margin: 20px 0;
+    font-size: 14px;
+    text-align: left;
+    height: 30px;
+}
+
+.searchBoxForm {
+    width: 648px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 2px 4px 0 rgba(0,0,0,.16);
+    background-color: #fff;
+    display: inline-block;
+    border-collapse: collapse;
+    border-spacing: 0;
+    list-style: none;
+    color: #666;
+}
+
+.searchBox {
+    width: 568px;
+    font-size: 16px;
+    margin: 5px 0 1px 20px;
+    padding: 0 10px 0 0;
+    border: 0;
+    max-height: 30px;
+    outline: none;
+    box-sizing: content-box;
+    height: 35px;
+    vertical-align: top;
+}
+
+.searchBoxSubmit {
+    background-color: #fff;
+    border-color: #fff;
+    background-image: url(/images/search.png);
+    background-repeat: no-repeat;
+    height: 20px;
+    width: 20px;
+    text-indent: -99em;
+    border-width: 0;
+    border-style: solid;
+    margin: 10px;
+    outline: 0;
+}
