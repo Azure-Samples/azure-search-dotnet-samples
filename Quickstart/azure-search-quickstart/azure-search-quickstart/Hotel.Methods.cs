@@ -5,7 +5,10 @@
 
     public partial class Hotel
     {
-        // This implementation of ToString() is used to structure results when writing to the console.
+        // This implementation of ToString() is only for the purposes of the sample console application.
+        // You can override ToString() in your own model class if you want, but you don't need to in order
+        // to use the Azure Search .NET SDK.
+
         public override string ToString()
         {
             var builder = new StringBuilder();
