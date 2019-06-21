@@ -1,4 +1,4 @@
-﻿namespace azure_search_quickstart
+﻿namespace AzureSearchQuickstart
 {
     using System;
     using System.Text;
@@ -10,17 +10,22 @@
         // You can override ToString() in your own model class if you want, but you don't need to in order
         // to use the Azure Search .NET SDK.
 
-        public override string ToString()
-        {
-            var builder = new StringBuilder();
+        public override string ToString() =>
+            IsEmpty ?
+                string.Empty :
+                $"{StreetAddress}\n{City}, {StateProvince} {PostalCode}\n{Country}";
 
-            if (!IsEmpty)
-            {
-                builder.AppendFormat("{0}\n{1}, {2} {3}\n{4}", StreetAddress, City, StateProvince, PostalCode, Country);
-            }
+        //public override string ToString()
+        //{
+        //    var builder = new StringBuilder();
 
-            return builder.ToString();
-        }
+        //    if (!IsEmpty)
+        //    {
+        //        builder.AppendFormat("{0}\n{1}, {2} {3}\n{4}", StreetAddress, City, StateProvince, PostalCode, Country);
+        //    }
+
+        //    return builder.ToString();
+        //}
 
         [JsonIgnore]
         public bool IsEmpty => String.IsNullOrEmpty(StreetAddress) &&

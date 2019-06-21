@@ -1,7 +1,7 @@
-﻿using Microsoft.Azure.Search;
-
-namespace azure_search_quickstart
+﻿namespace AzureSearchQuickstart
 {
+    using Microsoft.Azure.Search;
+
     public partial class Address
     {
         [IsSearchable]

@@ -1,4 +1,4 @@
-﻿namespace azure_search_quickstart
+﻿namespace AzureSearchQuickstart
 {
     using System;
     using Microsoft.Azure.Search;
