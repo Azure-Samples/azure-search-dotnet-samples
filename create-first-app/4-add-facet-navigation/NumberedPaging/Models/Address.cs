@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Search;
 
-namespace FacetNav.Models
+namespace NumberedPaging.Models
 {
     public partial class Address
     {

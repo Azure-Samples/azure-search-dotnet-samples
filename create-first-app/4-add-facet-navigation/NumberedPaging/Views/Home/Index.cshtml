@@ -1,11 +1,10 @@
-﻿@model FacetNav.Models.SearchData
+﻿@model NumberedPaging.Models.SearchData
 @{
     ViewData["Title"] = "Home Page";
 }
 <head>
-    <link rel="stylesheet" href="~/css/hotels.css?v1.1" />
+    <link rel="stylesheet" href="~/css/hotels.css?v1.4" />
 </head>
-
 <body>
 
     @using (Html.BeginForm("Index", "Home", FormMethod.Post))
@@ -33,15 +32,43 @@
 
             <tr>
                 <td valign="top">
-                    <div id="facetplace" class="facetchecks">
-                        <h5>Filter by Category:</h5>
-                        <ul class="facetlist">
-                            @for (var i = 0; i < Model.facetText.Length; i++)
+                        <div id="facetplace" class="facetchecks">
+
+                            @if (Model != null && Model.resultList != null)
                             {
-                                <li> @Html.CheckBoxFor(m => m.facetOn[i], new { @id = "check" + i.ToString() }) @Model.facetText[i] </li>
+                                List<string> categories = Model.resultList.Facets["Category"].Select(x => x.Value.ToString()).ToList();
+
+                                if (categories.Count > 0)
+                                {
+                                    <h5 class="facetheader">Category:</h5>
+                                    <ul class="facetlist">
+                                        @for (var c = 0; c < categories.Count; c++)
+                                        {
+                                            var facetLink = $"{categories[c]} ({Model.resultList.Facets["Category"][c].Count})";
+                                        <li>                                            
+                                            @Html.ActionLink(facetLink, "Facet", "Home", new { facetFilter = $"Category eq '{categories[c]}'" }, null)
+                                        </li>
+                                        }
+                                    </ul>
+                                }
+
+                                List<string> tags = Model.resultList.Facets["Tags"].Select(x => x.Value.ToString()).ToList();
+
+                                if (tags.Count > 0)
+                                {
+                                    <h5 class="facetheader">Amenities:</h5>
+                                    <ul class="facetlist">
+                                        @for (var c = 0; c < tags.Count; c++)
+                                        {
+                                            var facetLink = $"{tags[c]} ({Model.resultList.Facets["Tags"][c].Count})";
+                                            <li>
+                                                @Html.ActionLink(facetLink, "Facet", "Home", new { facetFilter = $"Tags/any(t: t eq '{tags[c]}')" }, null)
+                                            </li>
+                                        }
+                                    </ul>
+                                }
                             }
-                        </ul>
-                    </div>
+                        </div>
                 </td>
                 <td valign="top">
                     <div id="resultsplace">
@@ -54,9 +81,15 @@
 
                             @for (var i = 0; i < Model.resultList.Results.Count; i++)
                             {
+                                string amenities = string.Join(", ", Model.resultList.Results[i].Document.Tags);
+
+                                string fullDescription = Model.resultList.Results[i].Document.Description;
+                                fullDescription += $"\nCategory: {Model.resultList.Results[i].Document.Category}";
+                                fullDescription += $"\nAmenities: {amenities}";
+
                                 // Display the hotel name and description.
                                 @Html.TextAreaFor(m => Model.resultList.Results[i].Document.HotelName, new { @class = "box1" })
-                                @Html.TextArea("desc", Model.resultList.Results[i].Document.Description + "\nCategory:  " + Model.resultList.Results[i].Document.Category, new { @class = "box2" })
+                                @Html.TextArea("desc", fullDescription, new { @class = "box2" })
                             }
                         }
                     </div>

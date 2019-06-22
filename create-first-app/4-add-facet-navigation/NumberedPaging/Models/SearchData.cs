@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Search.Models;
-using System.Collections.Generic;
-namespace FacetNav.Models
+
+namespace NumberedPaging.Models
 {
     public static class GlobalVariables
     {
@@ -29,27 +29,6 @@ namespace FacetNav.Models
     }
     public class SearchData
     {
-        public SearchData()
-        {
-        }
-
-        // Constructor to initialize the list of facets sent from the controller.
-        public SearchData(List<string> facets)
-        {
-            facetText = new string[facets.Count];
-
-            for (int i = 0; i < facets.Count; i++)
-            {
-                facetText[i] = facets[i];
-            }
-        }
-
-        // Array to hold the text for each facet.
-        public string[] facetText { get; set; }
-
-        // Array to hold the check box setting.
-        public bool[] facetOn { get; set; }
-
         // The text to search for.
         public string searchText { get; set; }
 
@@ -67,6 +46,9 @@ namespace FacetNav.Models
 
         // Used when page numbers, or next or prev buttons, have been selected.
         public string paging { get; set; }
+
+        // Property, and text of a facet (such as "Budget"). Used to communicate this text to the controller.
+        public string facetFilter { get; set; }
 
         // The list of results.
         public DocumentSearchResult<Hotel> resultList;

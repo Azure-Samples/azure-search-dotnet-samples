@@ -4,11 +4,11 @@
 }
 <head>
     <meta charset="utf-8">
-    <title>Autocomplete demo</title>
-    <link href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+    <title>Typeahead demo</title>
+    <link href="https://code.jquery.com/ui/1.12.1/themes/start/jquery-ui.css"
           rel="stylesheet">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <link rel="stylesheet" href="~/css/hotels.css" />
 </head>
 <body>
@@ -24,12 +24,12 @@
         </div>
 
         <div id="searchinput" class="searchBoxForm" style="position: relative; left: 0; top: -39px">
-            @Html.TextBoxFor(m => m.searchText, new { @class = "searchBox", @id = "azuresuggesthighlights" }) <input value="" class="searchBoxSubmit" type="submit">
+            @Html.TextBoxFor(m => m.searchText, new { @class = "searchBox", @id = "azureautocomplete" }) <input value="" class="searchBoxSubmit" type="submit">
         </div>
 
         <script>
             $("#azureautosuggest").autocomplete({
-                source: "/Home/Suggest?highlights=false&fuzzy=true",
+                source: "/Home/Suggest?highlights=false&fuzzy=false",
                 minLength: 2,
                 position: {
                     my: "left top",

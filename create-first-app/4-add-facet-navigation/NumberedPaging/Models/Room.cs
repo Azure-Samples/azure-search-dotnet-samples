@@ -2,7 +2,7 @@
 using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 
-namespace FacetNav.Models
+namespace NumberedPaging.Models
 {
     public partial class Room
     {

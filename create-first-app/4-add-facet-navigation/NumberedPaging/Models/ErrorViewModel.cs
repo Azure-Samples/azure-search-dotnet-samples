@@ -1,6 +1,6 @@
 using System;
 
-namespace FacetNav.Models
+namespace NumberedPaging.Models
 {
     public class ErrorViewModel
     {

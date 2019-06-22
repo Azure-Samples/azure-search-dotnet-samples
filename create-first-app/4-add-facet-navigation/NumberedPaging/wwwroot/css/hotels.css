@@ -18,6 +18,12 @@ textarea.box2 {
     margin-bottom: 24px;
 }
 
+textarea.box3 {
+    border: none;
+    background-color: lightgoldenrodyellow;
+    font-size: 10pt;
+}
+
 .sampleTitle {
     font: 32px/normal 'Segoe UI Light',Arial,Helvetica,Sans-Serif;
     margin: 20px 0;
@@ -93,14 +99,21 @@ textarea.box2 {
     font-weight: bold;
     width: 50px;
 }
+
 .facetlist {
     list-style: none;
 }
 
 .facetchecks {
-    width: 200px;
-    background-color: lightgoldenrodyellow;
+    width: 250px;
     display: normal;
     color: #666;
     margin: 10px;
+    padding: 5px;
+}
+
+.facetheader {
+    font-size: 10pt;
+    font-weight: bold;
+    color: darkgreen;    
 }

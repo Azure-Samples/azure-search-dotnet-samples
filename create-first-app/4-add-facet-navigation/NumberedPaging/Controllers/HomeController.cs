@@ -2,75 +2,21 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using FacetNav.Models;
+using NumberedPaging.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 using System.Collections.Generic;
-using System.Linq;
-namespace FacetNav.Controllers
+
+namespace NumberedPaging.Controllers
 {
     public class HomeController : Controller
     {
-        public async Task<ActionResult> Index()
+        public IActionResult Index()
         {
-            InitSearch();
-
-            // Set up the facets call in the search parameters.
-            SearchParameters sp = new SearchParameters()
-            {
-                // Search for up to 20 categories.
-                // Field names specified here must be marked as "IsFacetable" in the model, or the search call will throw an exception.
-                Facets = new List<string> { "Category,count:20" },
-            };
-
-            DocumentSearchResult<Hotel> searchResult = await _indexClient.Documents.SearchAsync<Hotel>("*", sp);
-
-            // Convert the results to a list that can be displayed in the client.
-            List<string> categories = searchResult.Facets["Category"].Select(x => x.Value.ToString()).ToList();
-
-            // Initiate a model with a list of facets for the first view.
-            SearchData model = new SearchData(categories);
-
-            // Save the facet text for the next view.
-            SaveFacets(model);
-
-            // Render the view including the facets.
-            return View(model);
-        }
-        // Save the facet text to temporary storage, optionally saving the state of the check boxes.
-        private void SaveFacets(SearchData model, bool saveChecks = false)
-        {
-            for (int i = 0; i < model.facetText.Length; i++)
-            {
-                TempData["facet" + i.ToString()] = model.facetText[i];
-                if (saveChecks)
-                {
-                    TempData["faceton" + i.ToString()] = model.facetOn[i];
-                }
-            }
-            TempData["facetcount"] = model.facetText.Length;
+            return View();
         }
 
-        // Recover the facet text to a model, optionally recoving the state of the check boxes.
-        private void RecoverFacets(SearchData model, bool recoverChecks = false)
-        {
-            // Create arrays of the appropriate length.
-            model.facetText = new string[(int)TempData["facetcount"]];
-            if (recoverChecks)
-            {
-                model.facetOn = new bool[(int)TempData["facetcount"]];
-            }
-
-            for (int i = 0; i < (int)TempData["facetcount"]; i++)
-            {
-                model.facetText[i] = TempData["facet" + i.ToString()].ToString();
-                if (recoverChecks)
-                {
-                    model.facetOn[i] = (bool)TempData["faceton" + i.ToString()];
-                }
-            }
-        }
         [HttpPost]
         public async Task<ActionResult> Index(SearchData model)
         {
@@ -82,19 +28,14 @@ namespace FacetNav.Controllers
                     model.searchText = "";
                 }
 
-                // Recover the facet text.
-                RecoverFacets(model);
-
                 // Make the search call for the first page.
-                await RunQueryAsync(model, 0, 0);
+                await RunQueryAsync(model, 0, 0, "");
 
                 // Ensure temporary data is stored for the next call.
                 TempData["page"] = 0;
                 TempData["leftMostPage"] = 0;
                 TempData["searchfor"] = model.searchText;
-
-                // Facets
-                SaveFacets(model, true);
+                TempData["facetFilter"] = "";
             }
 
             catch
@@ -102,6 +43,40 @@ namespace FacetNav.Controllers
                 return View("Error", new ErrorViewModel { RequestId = "1" });
             }
             return View(model);
+        }
+
+        public async Task<ActionResult> Facet(SearchData model)
+        {
+            try
+            {
+                // Recover any existing filter.
+                string filter = TempData["facetFilter"].ToString();
+                if (filter.Length > 0)
+                {
+                    // If there is more than one selected facet, logically AND them together.
+                    filter += " and ";
+                }
+                // Add the new filter.
+                filter += $"({model.facetFilter})";
+
+                // Recover the search text.
+                model.searchText = TempData["searchfor"].ToString();
+
+                // Initiate a new search.
+                await RunQueryAsync(model, 0, 0, filter);
+
+                // Ensure Temp data is stored for the next call.
+                TempData["page"] = 0;
+                TempData["leftMostPage"] = 0;
+                TempData["searchfor"] = model.searchText;               
+                TempData["facetFilter"] = filter;
+            }
+
+            catch
+            {
+                return View("Error", new ErrorViewModel { RequestId = "2" });
+            }
+            return View("Index", model);
         }
 
         public async Task<ActionResult> Page(SearchData model)
@@ -125,24 +100,21 @@ namespace FacetNav.Controllers
                         break;
                 }
 
-                // Recover the leftMostPage.
+                // Recover the leftMostPage, and the filter.
                 int leftMostPage = (int)TempData["leftMostPage"];
+                string filter = TempData["facetFilter"].ToString();
 
-                // Recover the search text and search for the data for the new page.
+                // Recover the search text.
                 model.searchText = TempData["searchfor"].ToString();
 
-                // Recover facet text and check marks.
-                RecoverFacets(model, true);
+                // Search for the new page.
+                await RunQueryAsync(model, page, leftMostPage, filter);
 
-                await RunQueryAsync(model, page, leftMostPage);
-
-                // Ensure Temp data is stored for next call, as TempData only stored for one call.
-                TempData["page"] = (object)page;
-                TempData["searchfor"] = model.searchText;
+                // Ensure Temp data is stored for the next call.
+                TempData["page"] = page;
                 TempData["leftMostPage"] = model.leftMostPage;
-
-                // Save facets and check marks.
-                SaveFacets(model, true);
+                TempData["searchfor"] = model.searchText;                
+                TempData["facetFilter"] = filter;
             }
 
             catch
@@ -178,34 +150,20 @@ namespace FacetNav.Controllers
             _indexClient = _serviceClient.Indexes.GetClient("hotels");
         }
 
-        private async Task<ActionResult> RunQueryAsync(SearchData model, int page, int leftMostPage)
+        private async Task<ActionResult> RunQueryAsync(SearchData model, int page, int leftMostPage, string facetFilter)
         {
             InitSearch();
 
-            // Create a filter for selected facets.
-            string selectedFacets = "";
-
-            for (int f = 0; f < model.facetText.Length; f++)
-            {
-                if (model.facetOn[f])
-                {
-                    if (selectedFacets.Length > 0)
-                    {
-                        // If there is more than one selected facet, logically OR them together.
-                        selectedFacets += " or ";
-                    }
-                    selectedFacets += "(Category eq \'" + model.facetText[f] + "\')";
-                }
-            }
-
             var parameters = new SearchParameters
             {
-                // Facets: add the filter.
-                Filter = selectedFacets,
+                Filter = facetFilter,
 
-                // Enter Hotel property names into this list so only these values will be returned.
-                // If Select is empty, all values will be returned, which can be inefficient.
-                Select = new[] { "HotelName", "Description", "Category" },
+                // Return information on the text, and number, of facets in the data.
+                Facets = new List<string> { "Category,count:20", "Tags,count:20" },
+
+                // Enter Hotel property names into this list, so only these values will be returned.
+                Select = new[] { "HotelName", "Description", "Category", "Tags" },
+
                 SearchMode = SearchMode.All,
 
                 // Skip past results that have already been returned.
@@ -242,13 +200,12 @@ namespace FacetNav.Controllers
             if (page >= leftMostPage + GlobalVariables.MaxPageRange - 1)
             {
                 // Trigger a switch to a higher page range.
-                leftMostPage = Math.Min(leftMostPage + GlobalVariables.PageRangeDelta, model.pageCount - GlobalVariables.MaxPageRange);
+                leftMostPage = Math.Min(page - GlobalVariables.PageRangeDelta, model.pageCount - GlobalVariables.MaxPageRange);
             }
             model.leftMostPage = leftMostPage;
 
             // Calculate the number of page numbers to display.
             model.pageRange = Math.Min(model.pageCount - leftMostPage, GlobalVariables.MaxPageRange);
-
             return View("Index", model);
         }
     }
