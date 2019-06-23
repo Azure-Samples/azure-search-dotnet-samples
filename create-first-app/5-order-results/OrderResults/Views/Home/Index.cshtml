@@ -1,0 +1,66 @@
+﻿@model OrderResults.Models.SearchData
+@{
+    ViewData["Title"] = "Home Page";
+}
+<head>
+    <link rel="stylesheet" href="~/css/hotels.css?v1.5" />
+</head>
+<body>
+    <h1 class="sampleTitle">
+        <img src="~/images/azure-logo.png" width="80" />
+        Hotels Search - Order Results
+    </h1>
+
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        // Display the search text box, with the search icon to the right of it.
+        <div class="searchBoxForm">
+            @Html.TextBoxFor(m => m.searchText, new { @class = "searchBox" }) <input class="searchBoxSubmit" type="submit" value="">
+        </div>
+
+        @if (Model != null)
+        {
+            // Show the result count.
+            <p class="sampleText">
+                @Html.DisplayFor(m => m.resultList.Count) Results
+            </p>
+
+            <div id="myDiv" style="width: 800px; height: 450px; overflow-y: scroll;" onscroll="scrolled()">
+
+                <!-- Show the hotel data. -->
+                @for (var i = 0; i < Model.resultList.Results.Count; i++)
+                {
+                    var rateText = $"Rates from ${Model.resultList.Results[i].Document.cheapest} to ${Model.resultList.Results[i].Document.expensive}";
+                    var lastRenovatedText = $"Last renovated: { Model.resultList.Results[i].Document.LastRenovationDate.Value.Year}";
+                    var ratingText = $"Rating: {Model.resultList.Results[i].Document.Rating}";
+
+                    // Display the hotel details.
+                    @Html.TextArea("name", Model.resultList.Results[i].Document.HotelName, new { @class = "box1A" })
+                    @Html.TextArea("rating", ratingText, new { @class = "box1B" })
+                    @Html.TextArea("rates", rateText, new { @class = "box2A" })
+                    @Html.TextArea("renovation", lastRenovatedText, new { @class = "box2B" })
+                    @Html.TextArea("desc", Model.resultList.Results[i].Document.Description, new { @class = "box3" })
+                }
+            </div>
+
+            <script>
+                function scrolled() {
+                    if (myDiv.offsetHeight + myDiv.scrollTop >= myDiv.scrollHeight) {
+                        $.getJSON("/Home/Next", function (data) {
+                            var div = document.getElementById('myDiv');
+
+                            // Append the returned data to the current list of hotels.
+                            for (var i = 0; i < data.length; i += 5) {
+                                div.innerHTML += '\n<textarea class="box1A">' + data[i] + '</textarea>';
+                                div.innerHTML += '<textarea class="box1B">' + data[i + 1] + '</textarea>';
+                                div.innerHTML += '\n<textarea class="box2A">' + data[i + 2] + '</textarea>';
+                                div.innerHTML += '<textarea class="box2B">' + data[i + 3] + '</textarea>';
+                                div.innerHTML += '\n<textarea class="box3">' + data[i + 4] + '</textarea>';
+                            }
+                        });
+                    }
+                }
+            </script>
+        }
+    }
+</body>
