@@ -1,12 +1,12 @@
-﻿namespace AzureSearchQuickstart
-{
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using Microsoft.Azure.Search;
-    using Microsoft.Azure.Search.Models;
-    using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using Microsoft.Azure.Search;
+using Microsoft.Azure.Search.Models;
+using Microsoft.Extensions.Configuration;
 
+namespace AzureSearchQuickstart
+{
     class Program
     {
         // Demonstrates index delete, create, load, and query
@@ -58,11 +58,10 @@
             }
         }
 
-        // Create an index with a single call to "Indexes.Create"
-        // This method takes as a parameter an Index object that defines an Azure Search index
-        // 
-        // Set the Fields property of the Index object to an array of Field objects.
-        // The field array is defined in the Hotels class, which subsumes the Address class.
+        // Create an index whose fields correspond to the properties of the Hotel class.
+        // The Address property of Hotel will be modeled as a complex field.
+        // The properties of the Address class in turn correspond to sub-fields of the Address complex field.
+        // The fields of the index are defined by calling the FieldBuilder.BuildForType() method.
         private static void CreateIndex(string indexName, SearchServiceClient serviceClient)
         {
             var definition = new Index()
