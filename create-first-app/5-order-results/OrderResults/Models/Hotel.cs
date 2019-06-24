@@ -47,7 +47,7 @@ namespace OrderResults.Models
         public Room[] Rooms { get; set; }
 
         // Room rate range
-        public double cheapest;
-        public double expensive;
+        public double cheapest { get; set; }
+        public double expensive { get; set; }
     }
 }

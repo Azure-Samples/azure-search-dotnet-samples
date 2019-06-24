@@ -20,7 +20,7 @@
 
         @if (Model != null)
         {
-            // Show the result count.
+            // Show the total result count.
             <p class="sampleText">
                 @Html.DisplayFor(m => m.resultList.Count) Results
             </p>
@@ -35,11 +35,11 @@
                     var ratingText = $"Rating: {Model.resultList.Results[i].Document.Rating}";
 
                     // Display the hotel details.
-                    @Html.TextArea("name", Model.resultList.Results[i].Document.HotelName, new { @class = "box1A" })
-                    @Html.TextArea("rating", ratingText, new { @class = "box1B" })
-                    @Html.TextArea("rates", rateText, new { @class = "box2A" })
-                    @Html.TextArea("renovation", lastRenovatedText, new { @class = "box2B" })
-                    @Html.TextArea("desc", Model.resultList.Results[i].Document.Description, new { @class = "box3" })
+                    @Html.TextArea($"name{i}", Model.resultList.Results[i].Document.HotelName, new { @class = "box1A" })
+                    @Html.TextArea($"rating{i}", ratingText, new { @class = "box1B" })
+                    @Html.TextArea($"rates{i}" , rateText, new { @class = "box2A" })
+                    @Html.TextArea($"renovation{i}", lastRenovatedText, new { @class = "box2B" })
+                    @Html.TextArea($"desc{i}", Model.resultList.Results[i].Document.Description, new { @class = "box3" })
                 }
             </div>
 

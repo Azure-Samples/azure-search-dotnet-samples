@@ -89,7 +89,7 @@
 
                                 // Display the hotel name and description.
                                 @Html.TextAreaFor(m => Model.resultList.Results[i].Document.HotelName, new { @class = "box1" })
-                                @Html.TextArea("desc", fullDescription, new { @class = "box2" })
+                                @Html.TextArea($"desc{i}", fullDescription, new { @class = "box2" })
                             }
                         }
                     </div>

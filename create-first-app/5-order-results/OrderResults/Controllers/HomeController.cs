@@ -76,7 +76,27 @@ namespace OrderResults.Controllers
                 TempData["searchfor"] = model.searchText;
 
                 // Calculate the room rate ranges.
-                model.CalcRateRange();
+                for (int n = 0; n < model.resultList.Results.Count; n++)
+                {
+                    // Calculate room rates.
+                    var cheapest = 10000d;
+                    var expensive = 0d;
+
+                    for (var r = 0; r < model.resultList.Results[n].Document.Rooms.Length; r++)
+                    {
+                        var rate = model.resultList.Results[n].Document.Rooms[r].BaseRate;
+                        if (rate < cheapest)
+                        {
+                            cheapest = (double)rate;
+                        }
+                        if (rate > expensive)
+                        {
+                            expensive = (double)rate;
+                        }
+                    }
+                    model.resultList.Results[n].Document.cheapest = cheapest;
+                    model.resultList.Results[n].Document.expensive = expensive;
+                }
             }
             catch
             {
