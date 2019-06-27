@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28917.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureSearchMultipleDataSources", "src\AzureSearchMultipleDataSources.csproj", "{89AAEE95-4FA7-45E9-A896-7CC23A4BC34C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{89AAEE95-4FA7-45E9-A896-7CC23A4BC34C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89AAEE95-4FA7-45E9-A896-7CC23A4BC34C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89AAEE95-4FA7-45E9-A896-7CC23A4BC34C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89AAEE95-4FA7-45E9-A896-7CC23A4BC34C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4F004DCB-36F3-43D0-97E6-84FEB515A93A}
+	EndGlobalSection
+EndGlobal
