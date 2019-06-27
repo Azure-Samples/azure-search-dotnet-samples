@@ -7,14 +7,70 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OrderResults.Controllers
-{ 
+{
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            return View();
+            InitSearch();
+
+            // Set up the facets call in the search parameters.
+            SearchParameters sp = new SearchParameters()
+            {
+                // Search for up to 20 amenities.
+                Facets = new List<string> { "Tags,count:20" },
+            };
+
+            DocumentSearchResult<Hotel> searchResult = await _indexClient.Documents.SearchAsync<Hotel>("*", sp);
+
+            // Convert the results to a list that can be displayed in the client.
+            List<string> facets = searchResult.Facets["Tags"].Select(x => x.Value.ToString()).ToList();
+
+            // Initiate a model with a list of facets for the first view.
+            SearchData model = new SearchData(facets);
+
+            // Save the facet text for the next view.
+            SaveFacets(model, false);
+
+            // Render the view including the facets.
+            return View(model);
+        }
+
+        // Save the facet text to temporary storage, optionally saving the state of the check boxes.
+        private void SaveFacets(SearchData model, bool saveChecks = false)
+        {
+            for (int i = 0; i < model.facetText.Length; i++)
+            {
+                TempData["facet" + i.ToString()] = model.facetText[i];
+                if (saveChecks)
+                {
+                    TempData["faceton" + i.ToString()] = model.facetOn[i];
+                }
+            }
+            TempData["facetcount"] = model.facetText.Length;
+        }
+
+        // Recover the facet text to a model, optionally recoving the state of the check boxes.
+        private void RecoverFacets(SearchData model, bool recoverChecks = false)
+        {
+            // Create arrays of the appropriate length.
+            model.facetText = new string[(int)TempData["facetcount"]];
+            if (recoverChecks)
+            {
+                model.facetOn = new bool[(int)TempData["facetcount"]];
+            }
+
+            for (int i = 0; i < (int)TempData["facetcount"]; i++)
+            {
+                model.facetText[i] = TempData["facet" + i.ToString()].ToString();
+                if (recoverChecks)
+                {
+                    model.facetOn[i] = (bool)TempData["faceton" + i.ToString()];
+                }
+            }
         }
 
         [HttpPost]
@@ -23,11 +79,14 @@ namespace OrderResults.Controllers
             try
             {
                 InitSearch();
-
+               
                 int page;
 
                 if (model.paging != null && model.paging == "next")
                 {
+                    // Recover the facet text, and the facet check box settings.
+                    RecoverFacets(model, true);
+
                     // Increment the page.
                     page = (int)TempData["page"] + 1;
 
@@ -36,26 +95,80 @@ namespace OrderResults.Controllers
                 }
                 else
                 {
-                    // First call. Check for valid text input.
+                    // First search with text. 
+                    // Recover the facet text, but ignore the check box settings, and use the current model settings.
+                    RecoverFacets(model,false);
+
+                    // First call. Check for valid text input, and valid scoring profile.
                     if (model.searchText == null)
                     {
                         model.searchText = "";
                     }
+                    if (model.scoring == null)
+                    {
+                        model.scoring = "Default";
+                    }
                     page = 0;
+                }
+
+                // Set empty defaults for ordering and scoring parameters.
+                var orderby = new List<string>();
+                string profile = "";
+                var scoringParams = new List<ScoringParameter>();
+
+                // Set the ordering based on the user's radio button selection.
+                switch (model.scoring)
+                {
+                    case "RatingRenovation":
+                        orderby.Add("Rating desc");
+                        orderby.Add("LastRenovationDate desc");
+                        break;
+
+                    case "boostAmenities":
+                        {
+                            profile = model.scoring;
+                            var setAmenities = new List<string>();
+
+                            // Create a string list of amenities that have been clicked.
+                            for (int a = 0; a < model.facetOn.Length; a++)
+                            {
+                                if (model.facetOn[a])
+                                {
+                                    setAmenities.Add(model.facetText[a]);
+                                }
+                            }
+                            if (setAmenities.Count > 0)
+                            {
+                                // Only set scoring parameters if there are any.
+                                var sp = new ScoringParameter("amenities", setAmenities);
+                                scoringParams.Add(sp);
+                            }
+                            else
+                            {
+                                // No amenities selected, so set profile back to default.
+                                profile = "";
+                            }
+                        }
+                        break;
+
+                    case "renovatedAndHighlyRated":
+                        profile = model.scoring;
+                        break;
+
+                    default:
+                        break;
                 }
 
                 // Setup the search parameters.
                 var parameters = new SearchParameters
                 {
-                    //Filter = $"geo.distance(Location, geography'POINT({SanFrancisoLon} {SanFranciscoLat})') le {goeRadius}",
-                    //OrderBy = new[] { $"geo.distance(Location, geography'POINT({model.lon} {model.lat})') asc" },
+                    // Set the ordering/scoring parameters.
+                    OrderBy = orderby,
+                    ScoringProfile = profile,
+                    ScoringParameters = scoringParams,
 
-                    // If OrderBy is not specified, the returned order is simply as the data is found.
-                    OrderBy = new[] { "Rating desc", "LastRenovationDate desc" },
-
-                    // Enter Hotel property names into this list so only these values will be returned.
-                    // If Select is empty, all values will be returned, which can be inefficient.
-                    Select = new[] { "HotelName", "Description", "Rooms", "Rating", "LastRenovationDate" },
+                    // Select the data properties to be returned.
+                    Select = new[] { "HotelName", "Description", "Tags", "Rooms", "Rating", "LastRenovationDate" },
                     SearchMode = SearchMode.All,
 
                     // Skip past results that have already been returned.
@@ -74,11 +187,12 @@ namespace OrderResults.Controllers
                 // Ensure TempData is stored for the next call.
                 TempData["page"] = page;
                 TempData["searchfor"] = model.searchText;
+                TempData["scoring"] = model.scoring;
+                SaveFacets(model,true);
 
                 // Calculate the room rate ranges.
                 for (int n = 0; n < model.resultList.Results.Count; n++)
                 {
-                    // Calculate room rates.
                     var cheapest = 0d;
                     var expensive = 0d;
 
@@ -104,11 +218,13 @@ namespace OrderResults.Controllers
             }
             return View("Index", model);
         }
-
+        
         public async Task<ActionResult> Next(SearchData model)
         {
             // Set the next page setting, and call the Index(model) action.
             model.paging = "next";
+            model.scoring = TempData["scoring"].ToString();
+
             await Index(model);
 
             // Create an empty list.
@@ -121,12 +237,16 @@ namespace OrderResults.Controllers
                 var rateText = $"Rates from ${model.resultList.Results[n].Document.cheapest} to ${model.resultList.Results[n].Document.expensive}";
                 var lastRenovatedText = $"Last renovated: {model.resultList.Results[n].Document.LastRenovationDate.Value.Year}";
 
+                string amenities = string.Join(", ", model.resultList.Results[n].Document.Tags);
+                string fullDescription = model.resultList.Results[n].Document.Description;
+                fullDescription += $"\nAmenities: {amenities}";
+
                 // Add strings to the list.
                 nextHotels.Add(model.resultList.Results[n].Document.HotelName);
                 nextHotels.Add(ratingText);
                 nextHotels.Add(rateText);
                 nextHotels.Add(lastRenovatedText);
-                nextHotels.Add(model.resultList.Results[n].Document.Description);
+                nextHotels.Add(fullDescription);
             }
 
             // Rather than return a view, return the list of data.

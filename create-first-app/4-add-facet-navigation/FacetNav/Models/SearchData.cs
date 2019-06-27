@@ -48,7 +48,8 @@ namespace FacetNav.Models
         public string paging { get; set; }
 
         // Property, and text of a facet (such as "Budget"). Used to communicate this text to the controller.
-        public string facetFilter { get; set; }
+        public string categoryFilter { get; set; }
+        public string amenityFilter { get; set; }
 
         // The list of results.
         public DocumentSearchResult<Hotel> resultList;

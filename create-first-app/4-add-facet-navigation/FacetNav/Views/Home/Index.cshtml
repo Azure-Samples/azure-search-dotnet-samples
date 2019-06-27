@@ -5,8 +5,8 @@
 <head>
     <link rel="stylesheet" href="~/css/hotels.css?v1.4" />
 </head>
-<body>
 
+<body>
     @using (Html.BeginForm("Index", "Home", FormMethod.Post))
     {
         <table>
@@ -46,7 +46,7 @@
                                     {
                                         var facetLink = $"{categories[c]} ({Model.resultList.Facets["Category"][c].Count})";
                                         <li>
-                                            @Html.ActionLink(facetLink, "Facet", "Home", new { facetFilter = $"Category eq '{categories[c]}'" }, null)
+                                            @Html.ActionLink(facetLink, "Facet", "Home", new { categoryFilter = $"Category eq '{categories[c]}'" }, null)
                                         </li>
                                     }
                                 </ul>
@@ -62,7 +62,7 @@
                                     {
                                         var facetLink = $"{tags[c]} ({Model.resultList.Facets["Tags"][c].Count})";
                                         <li>
-                                            @Html.ActionLink(facetLink, "Facet", "Home", new { facetFilter = $"Tags/any(t: t eq '{tags[c]}')" }, null)
+                                            @Html.ActionLink(facetLink, "Facet", "Home", new { amenityFilter = $"Tags/any(t: t eq '{tags[c]}')" }, null)
                                         </li>
                                     }
                                 </ul>

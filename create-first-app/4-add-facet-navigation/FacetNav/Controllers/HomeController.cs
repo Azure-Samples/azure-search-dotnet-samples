@@ -29,13 +29,7 @@ namespace FacetNav.Controllers
                 }
 
                 // Make the search call for the first page.
-                await RunQueryAsync(model, 0, 0, "");
-
-                // Ensure temporary data is stored for the next call.
-                TempData["page"] = 0;
-                TempData["leftMostPage"] = 0;
-                TempData["searchfor"] = model.searchText;
-                TempData["facetFilter"] = "";
+                await RunQueryAsync(model, 0, 0, "", "");
             }
 
             catch
@@ -49,27 +43,30 @@ namespace FacetNav.Controllers
         {
             try
             {
-                // Recover any existing filter.
-                string filter = TempData["facetFilter"].ToString();
-                if (filter.Length > 0)
+                // Filters set by the model override those stored in temporary data.
+                string catFilter;
+                string ameFilter;
+                if (model.categoryFilter != null)
                 {
-                    // If there is more than one selected facet, logically AND them together.
-                    filter += " and ";
+                    catFilter = model.categoryFilter;
+                } else
+                {
+                    catFilter = TempData["categoryFilter"].ToString();
                 }
-                // Add the new filter.
-                filter += $"({model.facetFilter})";
+
+                if (model.amenityFilter != null)
+                {
+                    ameFilter = model.amenityFilter;
+                } else
+                {
+                    ameFilter = TempData["amenityFilter"].ToString();
+                }
 
                 // Recover the search text.
                 model.searchText = TempData["searchfor"].ToString();
 
                 // Initiate a new search.
-                await RunQueryAsync(model, 0, 0, filter);
-
-                // Ensure Temp data is stored for the next call.
-                TempData["page"] = 0;
-                TempData["leftMostPage"] = 0;
-                TempData["searchfor"] = model.searchText;
-                TempData["facetFilter"] = filter;
+                await RunQueryAsync(model, 0, 0, catFilter, ameFilter);
             }
 
             catch
@@ -85,6 +82,7 @@ namespace FacetNav.Controllers
             {
                 int page;
 
+                // Calculate the page that should be displayed.
                 switch (model.paging)
                 {
                     case "prev":
@@ -100,21 +98,18 @@ namespace FacetNav.Controllers
                         break;
                 }
 
-                // Recover the leftMostPage, and the filter.
+                // Recover the leftMostPage.
                 int leftMostPage = (int)TempData["leftMostPage"];
-                string filter = TempData["facetFilter"].ToString();
+
+                // Recover the filters.
+                string catFilter = TempData["categoryFilter"].ToString();
+                string ameFilter = TempData["amenityFilter"].ToString();
 
                 // Recover the search text.
                 model.searchText = TempData["searchfor"].ToString();
 
                 // Search for the new page.
-                await RunQueryAsync(model, page, leftMostPage, filter);
-
-                // Ensure Temp data is stored for the next call.
-                TempData["page"] = page;
-                TempData["leftMostPage"] = model.leftMostPage;
-                TempData["searchfor"] = model.searchText;
-                TempData["facetFilter"] = filter;
+                await RunQueryAsync(model, page, leftMostPage, catFilter, ameFilter);
             }
 
             catch
@@ -150,9 +145,21 @@ namespace FacetNav.Controllers
             _indexClient = _serviceClient.Indexes.GetClient("hotels");
         }
 
-        private async Task<ActionResult> RunQueryAsync(SearchData model, int page, int leftMostPage, string facetFilter)
+        private async Task<ActionResult> RunQueryAsync(SearchData model, int page, int leftMostPage, string catFilter, string ameFilter)
         {
             InitSearch();
+
+            string facetFilter = "";
+
+            if (catFilter.Length > 0 && ameFilter.Length > 0)
+            {
+                // Both facets apply.
+                facetFilter = $"{catFilter} and {ameFilter}"; 
+            } else
+            {
+                // One, or zero, facets apply.
+                facetFilter = $"{catFilter}{ameFilter}";
+            }
 
             var parameters = new SearchParameters
             {
@@ -206,6 +213,15 @@ namespace FacetNav.Controllers
 
             // Calculate the number of page numbers to display.
             model.pageRange = Math.Min(model.pageCount - leftMostPage, GlobalVariables.MaxPageRange);
+
+            // Ensure Temp data is stored for the next call.
+            TempData["page"] = page;
+            TempData["leftMostPage"] = model.leftMostPage;
+            TempData["searchfor"] = model.searchText;
+            TempData["categoryFilter"] = catFilter;
+            TempData["amenityFilter"] = ameFilter;
+
+            // Return the new view.
             return View("Index", model);
         }
     }
