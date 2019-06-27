@@ -121,7 +121,5 @@ namespace InfiniteScroll.Controllers
             _serviceClient = new SearchServiceClient(searchServiceName, new SearchCredentials(queryApiKey));
             _indexClient = _serviceClient.Indexes.GetClient("hotels");
         }
-
-
     }
 }

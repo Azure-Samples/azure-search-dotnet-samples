@@ -1,0 +1,182 @@
+﻿@model FacetNav.Models.SearchData
+@{
+    ViewData["Title"] = "Home Page";
+}
+<head>
+    <link rel="stylesheet" href="~/css/hotels.css?v1.4" />
+</head>
+
+<body>
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        <table>
+            <tr>
+                <td></td>
+                <td>
+                    <h1 class="sampleTitle">
+                        <img src="~/images/azure-logo.png" width="80" />
+                        Hotels Search - Facet Navigation
+                    </h1>
+                </td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td>
+                    <!-- Display the search text box, with the search icon to the right of it.-->
+                    <div class="searchBoxForm">
+                        @Html.TextBoxFor(m => m.searchText, new { @class = "searchBox" }) <input value="" class="searchBoxSubmit" type="submit">
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td valign="top">
+                    <div id="facetplace" class="facetchecks">
+
+                        @if (Model != null && Model.resultList != null)
+                        {
+                            List<string> categories = Model.resultList.Facets["Category"].Select(x => x.Value.ToString()).ToList();
+
+                            if (categories.Count > 0)
+                            {
+                                <h5 class="facetheader">Category:</h5>
+                                <ul class="facetlist">
+                                    @for (var c = 0; c < categories.Count; c++)
+                                    {
+                                        var facetLink = $"{categories[c]} ({Model.resultList.Facets["Category"][c].Count})";
+                                        <li>
+                                            @Html.ActionLink(facetLink, "Facet", "Home", new { categoryFilter = $"Category eq '{categories[c]}'" }, null)
+                                        </li>
+                                    }
+                                </ul>
+                            }
+
+                            List<string> tags = Model.resultList.Facets["Tags"].Select(x => x.Value.ToString()).ToList();
+
+                            if (tags.Count > 0)
+                            {
+                                <h5 class="facetheader">Amenities:</h5>
+                                <ul class="facetlist">
+                                    @for (var c = 0; c < tags.Count; c++)
+                                    {
+                                        var facetLink = $"{tags[c]} ({Model.resultList.Facets["Tags"][c].Count})";
+                                        <li>
+                                            @Html.ActionLink(facetLink, "Facet", "Home", new { amenityFilter = $"Tags/any(t: t eq '{tags[c]}')" }, null)
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        }
+                    </div>
+                </td>
+                <td valign="top">
+                    <div id="resultsplace">
+                        @if (Model != null && Model.resultList != null)
+                        {
+                            // Show the result count.
+                            <p class="sampleText">
+                                @Html.DisplayFor(m => m.resultList.Count) Results
+                            </p>
+
+                            @for (var i = 0; i < Model.resultList.Results.Count; i++)
+                            {
+                                string amenities = string.Join(", ", Model.resultList.Results[i].Document.Tags);
+
+                                string fullDescription = Model.resultList.Results[i].Document.Description;
+                                fullDescription += $"\nCategory: {Model.resultList.Results[i].Document.Category}";
+                                fullDescription += $"\nAmenities: {amenities}";
+
+                                // Display the hotel name and description.
+                                @Html.TextAreaFor(m => Model.resultList.Results[i].Document.HotelName, new { @class = "box1" })
+                                @Html.TextArea($"desc{i}", fullDescription, new { @class = "box2" })
+                            }
+                        }
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td valign="top">
+                    @if (Model != null && Model.pageCount > 1)
+                    {
+                        // If there is more than one page of results, show the paging buttons.
+                        <table>
+                            <tr>
+                                <td class="tdPage">
+                                    @if (Model.currentPage > 0)
+                                    {
+                                        <p class="pageButton">
+                                            @Html.ActionLink("|<", "Page", "Home", new { paging = "0" }, null)
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="pageButtonDisabled">|&lt;</p>
+                                    }
+                                </td>
+
+                                <td class="tdPage">
+                                    @if (Model.currentPage > 0)
+                                    {
+                                        <p class="pageButton">
+                                            @Html.ActionLink("<", "Page", "Home", new { paging = "prev" }, null)
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="pageButtonDisabled">&lt;</p>
+                                    }
+                                </td>
+
+                                @for (var pn = Model.leftMostPage; pn < Model.leftMostPage + Model.pageRange; pn++)
+                                {
+                                    <td class="tdPage">
+                                        @if (Model.currentPage == pn)
+                                        {
+                                            // Convert displayed page numbers to 1-based and not 0-based.
+                                            <p class="pageSelected">@(pn + 1)</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="pageButton">
+                                                @Html.ActionLink((pn + 1).ToString(), "Page", "Home", new { paging = @pn }, null)
+                                            </p>
+                                        }
+                                    </td>
+                                }
+
+                                <td class="tdPage">
+                                    @if (Model.currentPage < Model.pageCount - 1)
+                                    {
+                                        <p class="pageButton">
+                                            @Html.ActionLink(">", "Page", "Home", new { paging = "next" }, null)
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="pageButtonDisabled">&gt;</p>
+                                    }
+                                </td>
+
+                                <td class="tdPage">
+                                    @if (Model.currentPage < Model.pageCount - 1)
+                                    {
+                                        <p class="pageButton">
+                                            @Html.ActionLink(">|", "Page", "Home", new { paging = Model.pageCount - 1 }, null)
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="pageButtonDisabled">&gt;|</p>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                </td>
+            </tr>
+        </table>
+    }
+</body>

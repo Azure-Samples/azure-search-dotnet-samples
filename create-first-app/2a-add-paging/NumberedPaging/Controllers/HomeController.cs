@@ -156,7 +156,7 @@ namespace NumberedPaging.Controllers
             if (page >= leftMostPage + GlobalVariables.MaxPageRange - 1)
             {
                 // Trigger a switch to a higher page range.
-                leftMostPage = Math.Min(leftMostPage + GlobalVariables.PageRangeDelta, model.pageCount - GlobalVariables.MaxPageRange);
+                leftMostPage = Math.Min(page - GlobalVariables.PageRangeDelta, model.pageCount - GlobalVariables.MaxPageRange);
             }
             model.leftMostPage = leftMostPage;
 
