@@ -1,0 +1,126 @@
+{
+    "Id": "10",
+    "HotelName": "Countryside Hotel",
+    "Rooms": [
+      {
+        "Description": "Suite, 1 King Bed (Amenities)",
+        "Description_fr": "Suite, 1 très grand lit (Services)",
+        "Type": "Suite",
+        "BaseRate": 244.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "coffee maker" ]
+      },
+      {
+        "Description": "Budget Room, 1 Queen Bed (Amenities)",
+        "Description_fr": "Chambre Économique, 1 grand lit (Services)",
+        "Type": "Budget Room",
+        "BaseRate": 76.99,
+        "BedOptions": "1 Queen Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": false,
+        "Tags": [ "coffee maker" ]
+      },
+      {
+        "Description": "Deluxe Room, 2 Double Beds (Cityside)",
+        "Description_fr": "Chambre Deluxe, 2 lits doubles (Cityside)",
+        "Type": "Deluxe Room",
+        "BaseRate": 145.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": false,
+        "Tags": [ "vcr/dvd", "coffee maker" ]
+      },
+      {
+        "Description": "Deluxe Room, 1 King Bed (Waterfront View)",
+        "Description_fr": "Chambre Deluxe, 1 très grand lit (vue sur le front de mer)",
+        "Type": "Deluxe Room",
+        "BaseRate": 167.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": false,
+        "Tags": [ "suite", "bathroom shower" ]
+      },
+      {
+        "Description": "Deluxe Room, 2 Queen Beds (Amenities)",
+        "Description_fr": "Chambre Deluxe, 2 grands lits (Services)",
+        "Type": "Deluxe Room",
+        "BaseRate": 150.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": false,
+        "Tags": [ "tv", "bathroom shower", "vcr/dvd" ]
+      },
+      {
+        "Description": "Suite, 2 Queen Beds (Cityside)",
+        "Description_fr": "Suite, 2 grands lits (côté ville)",
+        "Type": "Suite",
+        "BaseRate": 238.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": true,
+        "Tags": [ "tv" ]
+      },
+      {
+        "Description": "Suite, 2 Queen Beds (Amenities)",
+        "Description_fr": "Suite, 2 grands lits (Services)",
+        "Type": "Suite",
+        "BaseRate": 256.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": true,
+        "Tags": [ "suite" ]
+      },
+      {
+        "Description": "Budget Room, 1 Queen Bed (City View)",
+        "Description_fr": "Chambre Économique, 1 grand lit (vue sur la ville)",
+        "Type": "Budget Room",
+        "BaseRate": 64.99,
+        "BedOptions": "1 Queen Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "bathroom shower", "jacuzzi tub" ]
+      },
+      {
+        "Description": "Standard Room, 1 King Bed (City View)",
+        "Description_fr": "Chambre Standard, 1 très grand lit (vue ville)",
+        "Type": "Standard Room",
+        "BaseRate": 122.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "Room Tags", "coffee maker" ]
+      },
+      {
+        "Description": "Deluxe Room, 2 Double Beds (Cityside)",
+        "Description_fr": "Chambre Deluxe, 2 lits doubles (Cityside)",
+        "Type": "Deluxe Room",
+        "BaseRate": 142.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "bathroom shower", "jacuzzi tub" ]
+      },
+      {
+        "Description": "Standard Room, 2 Queen Beds (Mountain View)",
+        "Description_fr": "Chambre Standard, 2 grands lits (Mountain View)",
+        "Type": "Standard Room",
+        "BaseRate": 117.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": false,
+        "Tags": [ "tv", "jacuzzi tub" ]
+      },
+      {
+        "Description": "Deluxe Room, 2 Queen Beds (Amenities)",
+        "Description_fr": "Chambre Deluxe, 2 grands lits (Services)",
+        "Type": "Deluxe Room",
+        "BaseRate": 129.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": false,
+        "Tags": [ "coffee maker", "coffee maker" ]
+      }
+    ]
+}

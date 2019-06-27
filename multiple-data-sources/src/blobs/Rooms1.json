@@ -1,0 +1,136 @@
+{
+	"Id": "1",
+	"HotelName": "Secret Point Motel",
+	"Rooms": [
+		{
+		"Description": "Budget Room, 1 Queen Bed (Cityside)",
+		"Description_fr": "Chambre Économique, 1 grand lit (côté ville)",
+		"Type": "Budget Room",
+		"BaseRate": 96.99,
+		"BedOptions": "1 Queen Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": true,
+		"Tags": [ "vcr/dvd" ]
+		},
+		{
+		"Description": "Budget Room, 1 King Bed (Mountain View)",
+		"Description_fr": "Chambre Économique, 1 très grand lit (Mountain View)",
+		"Type": "Budget Room",
+		"BaseRate": 80.99,
+		"BedOptions": "1 King Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": true,
+		"Tags": [ "vcr/dvd", "jacuzzi tub" ]
+		},
+		{
+		"Description": "Deluxe Room, 2 Double Beds (City View)",
+		"Description_fr": "Chambre Deluxe, 2 lits doubles (vue ville)",
+		"Type": "Deluxe Room",
+		"BaseRate": 150.99,
+		"BedOptions": "2 Double Beds",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "suite", "bathroom shower", "coffee maker" ]
+		},
+		{
+		"Description": "Standard Room, 1 King Bed (Amenities)",
+		"Description_fr": "Chambre Standard, 1 très grand lit (Services)",
+		"Type": "Standard Room",
+		"BaseRate": 110.99,
+		"BedOptions": "1 King Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "Room Tags", "bathroom shower", "bathroom shower" ]
+		},
+		{
+		"Description": "Suite, 1 Queen Bed (Mountain View)",
+		"Description_fr": "Suite, 1 grand lit (vue sur la montagne)",
+		"Type": "Suite",
+		"BaseRate": 243.99,
+		"BedOptions": "1 Queen Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "Room Tags" ]
+		},
+		{
+		"Description": "Suite, 2 Queen Beds (Mountain View)",
+		"Description_fr": "Suite, 2 grands lits (vue sur la montagne)",
+		"Type": "Suite",
+		"BaseRate": 229.99,
+		"BedOptions": "2 Queen Beds",
+		"SleepsCount": 4,
+		"SmokingAllowed": true,
+		"Tags": [ "vcr/dvd" ]
+		},
+		{
+		"Description": "Budget Room, 1 King Bed (Waterfront View)",
+		"Description_fr": "Chambre Économique, 1 très grand lit (vue sur le front de mer)",
+		"Type": "Budget Room",
+		"BaseRate": 87.99,
+		"BedOptions": "1 King Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "tv" ]
+		},
+		{
+		"Description": "Suite, 1 King Bed (Waterfront View)",
+		"Description_fr": "Suite, 1 très grand lit (vue sur le front de mer)",
+		"Type": "Suite",
+		"BaseRate": 262.99,
+		"BedOptions": "1 King Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "vcr/dvd", "vcr/dvd" ]
+		},
+		{
+		"Description": "Suite, 2 Double Beds (Mountain View)",
+		"Description_fr": "Suite, 2 lits doubles (vue sur la montagne)",
+		"Type": "Suite",
+		"BaseRate": 248.99,
+		"BedOptions": "2 Double Beds",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "coffee maker", "coffee maker", "coffee maker" ]
+		},
+		{
+		"Description": "Suite, 1 King Bed (Mountain View)",
+		"Description_fr": "Suite, 1 très grand lit (vue sur la montagne)",
+		"Type": "Suite",
+		"BaseRate": 234.99,
+		"BedOptions": "1 King Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": true,
+		"Tags": [ "tv" ]
+		},
+		{
+		"Description": "Deluxe Room, 1 King Bed (City View)",
+		"Description_fr": "Chambre Deluxe, 1 très grand lit (vue ville)",
+		"Type": "Deluxe Room",
+		"BaseRate": 146.99,
+		"BedOptions": "1 King Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "bathroom shower" ]
+		},
+		{
+		"Description": "Standard Room, 1 King Bed (Waterfront View)",
+		"Description_fr": "Chambre Standard, 1 très grand lit (vue sur le front de mer)",
+		"Type": "Standard Room",
+		"BaseRate": 121.99,
+		"BedOptions": "1 King Bed",
+		"SleepsCount": 2,
+		"SmokingAllowed": false,
+		"Tags": [ "bathroom shower", "vcr/dvd" ]
+		},
+		{
+		"Description": "Standard Room, 2 Double Beds (City View)",
+		"Description_fr": "Chambre Standard, 2 lits doubles (vue ville)",
+		"Type": "Standard Room",
+		"BaseRate": 128.99,
+		"BedOptions": "2 Double Beds",
+		"SleepsCount": 2,
+		"SmokingAllowed": true,
+		"Tags": [ "suite", "coffee maker", "jacuzzi tub" ]
+		}
+	]
+}
