@@ -11,7 +11,7 @@ products:
 urlFragment: csharp-quickstart
 ---
 
-# Quickstart for Azure Search in .NET
+# Quickstart sample for Azure Search in .NET
 
 This solution uses the Azure Search .NET SDK to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
 
