@@ -2,7 +2,7 @@
 page_type: sample
 languages:
   - csharp
-name: Azure Search C# Quickstart
+name: Quickstart in C#
 description: |
   .NET Core console C# sample for Azure Search, demonstrating index definition, data ingestion, and query execution.
 products:
