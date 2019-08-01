@@ -2,9 +2,9 @@
 page_type: sample
 languages:
   - csharp
-name: Azure Search multiple data source indexing
+name: Indexing multiple data sources in Azure Search
 description: |
-  Simple Azure Search C# console application demonstrating indexing from multiple Azure data sources.
+  C# console application demonstrating indexing from multiple Azure data sources, including Cosmos DB and Blob storage.
 products:
   - azure
   - azure-search

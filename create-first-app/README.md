@@ -2,9 +2,9 @@
 page_type: sample
 languages:
   - csharp
-name: Azure Search First App
+name: Create your first search app
 description: |
-  Create a search page layout with pagination controls, filters and facets, and typeahead query support.
+  ASP.NET Core MVC application demonstraing a search page layout with pagination controls, filters and facets, and typeahead query support.
 products:
   - azure
   - azure-search
