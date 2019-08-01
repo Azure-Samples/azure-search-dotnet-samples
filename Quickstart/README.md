@@ -4,7 +4,7 @@ languages:
   - csharp
 name: Azure Search C# Quickstart
 description: |
-  Simple C# sample for Azure Search demonstrating index definition, data ingestion, and query execution.
+  .NET Core console C# sample for Azure Search, demonstrating index definition, data ingestion, and query execution.
 products:
   - azure
   - azure-search
@@ -15,7 +15,7 @@ urlFragment: csharp-quickstart
 
 This solution uses the Azure Search .NET SDK to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
 
-This .NET Core console application is featured in [Quickstart: Create your first app - Azure Search](https://docs.microsoft.com/azure/search/tutorial-csharp-create-first-app). When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries. This sample runs on an Azure Search service using connection information that you provide.
+This .NET Core console application is featured in [Quickstart: Create your first app - Azure Search](https://docs.microsoft.com/azure/search/tutorial-csharp-create-first-app). When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries. This sample uses the [].NET SDK](https://docs.microsoft.com/dotnet/api/?term=microsoft.azure.search) and runs on an Azure Search service using connection information that you provide.
 
 ## Contents
 
