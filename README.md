@@ -5,8 +5,7 @@ platforms: dotnet
 languages:
   - csharp
 name: Azure Search C# samples
-description: |
-  Find C# samples for Azure Search in this repository.
+description: "Find C# samples for Azure Search in this repository."
 products:
   - azure
   - azure-search

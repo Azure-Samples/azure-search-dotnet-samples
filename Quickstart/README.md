@@ -3,8 +3,7 @@ page_type: sample
 languages:
   - csharp
 name: Quickstart in C#
-description: |
-  .NET Core console C# sample for Azure Search, demonstrating index definition, data ingestion, and query execution.
+description: "Learn basic steps in C# for creating, loading, and querying an Azure Search index in a .NET Core console application."
 products:
   - azure
   - azure-search
@@ -12,6 +11,8 @@ urlFragment: csharp-quickstart
 ---
 
 # Quickstart sample for Azure Search in .NET
+
+![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
 Demonstrates using the Azure Search .NET SDK to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
 
@@ -42,3 +43,7 @@ This .NET Core console application is featured in [Quickstart: Create your first
 1. Open the AzureSearchQuickstart.sln project in Visual Studio
 1. Update the appsettings.json with the service and api details of your Azure Search service
 1. Compile and Run the project
+
+## Next steps
+
+You can learn more about Azure Search on the [official documentation site](https://docs.microsoft.com/azure/search).

@@ -3,8 +3,7 @@ page_type: sample
 languages:
   - csharp
 name: Index multiple data sources in Azure Search
-description: |
-  C# console application demonstrating indexing from multiple Azure data sources, including Cosmos DB and Blob storage.
+description: "Demonstrates indexing from multiple Azure data sources, including Cosmos DB and Blob storage. This example builds a C# console application using the Azure Search .NET SDK."
 products:
   - azure
   - azure-search
@@ -14,6 +13,8 @@ urlFragment: multiple-data-sources
 ---
 
 # Index multiple data sources using Azure Search indexers
+
+![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
 Demonstrates Azure Search indexing from Azure Cosmos DB and Azure Blob storage, populating an index by combining data from different data sources.
 
@@ -53,3 +54,7 @@ This .NET Core console application is featured in [C# Tutorial: Combine data fro
 1. Build and run the app. 
 
 After a successful run, you should see a new index names hotel-rooms-sample in your Azure Search Service, containing the combined hotel and room data for all 7 hotels.
+
+## Next steps
+
+You can learn more about Azure Search on the [official documentation site](https://docs.microsoft.com/azure/search).
