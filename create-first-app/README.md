@@ -3,8 +3,7 @@ page_type: sample
 languages:
   - csharp
 name: Build your first Azure Search app
-description: |
-  Learn how to create a search page, and then enhance it with pagination controls, filters and facets, and typeahead query support. This example builds an ASP.NET Core MVC application using the Azure Search .NET SDK.
+description: "Learn how to create a search page, and then enhance it with pagination controls, filters and facets, and typeahead query support. This example builds an ASP.NET Core MVC application using the Azure Search .NET SDK."
 products:
   - azure
   - azure-search

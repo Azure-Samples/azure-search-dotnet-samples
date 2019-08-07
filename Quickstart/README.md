@@ -3,8 +3,7 @@ page_type: sample
 languages:
   - csharp
 name: Quickstart in C#
-description: |
-  Learn basic steps in C# for creating, loading, and querying an Azure Search index in a .NET Core console application.
+description: "Learn basic steps in C# for creating, loading, and querying an Azure Search index in a .NET Core console application."
 products:
   - azure
   - azure-search
