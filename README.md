@@ -27,3 +27,8 @@ This MVC sample is a collection of projects that demonstrate a user experience u
 ## Multiple data sources
 
 This .NET Core console app uses Azure Search indexers and the .NET SDK to import data from Azure Cosmos DB and Azure Blob storage, combing data from two sources into one Azure Search index.
+
+## Backup and restore an index
+
+This .NET Core console app uses the .NET SDK and Azure Cognitive Search REST API to backup an index (schema and documents) to your computer and then uses the stored back up to recreate the index in a target search service that you specify.  This tool is useful if you want to move an index into a different pricing tier. For example, you may use the Basic or Free pricing tier to develop your index, and then want to move it to the Standard or higher tier for production use. You can also use it to backup the index to your computer, so you can restore it at a later time, if needed.
+
