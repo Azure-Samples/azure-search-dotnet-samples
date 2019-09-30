@@ -53,7 +53,7 @@ Also, as an extra precaution, it is best if there are no changes being made to t
 1. By default, this application will copy the source index to the target search service using the target index name you provide. 
     - If you only want to back up the index and not restore it immediately, do this:
         - Comment out the code in the **Main** method after the **BackupIndexAndDocuments** method call.
-        - Comment out the last two lines of the**ConfigurationSetup** method that set the _TargetServiceClient_ and _TargetIndexClient_.
+        - Comment out the last two lines of the **ConfigurationSetup** method that set the _TargetServiceClient_ and _TargetIndexClient_.
     - If you want to restore a index that you previously backed up, do this:
         - Make sure that the the _BackupDirectory_ in the appsettings.json file is pointing to to the backup location.
         - Comment out the **BackupIndexAndDocuments** method call and the the line that checks the _targetCount_ in the **Main** method.
@@ -63,7 +63,7 @@ Also, as an extra precaution, it is best if there are no changes being made to t
 
     - The source search service name (SourceSearchServiceName) and key (SourceAdminKey) and the name of the index that you want to restore/copy.
     - The target search service name (TargetSearchServiceName) and key (TargetAdminKey) and the name of the restored/copied index in the target service.
-    - The location on your computer where you want to store the backup index schema and documents (BackupDirectory). The location must be non-admin write permission.
+    - The location on your computer where you want to store the backup index schema and documents (BackupDirectory). The location must be have non-admin write permission. Include escape characters in directory paths. Example: C:\\users\<your-account-name>\indexBackup\\"
 
 1. Compile and Run the project.
 
