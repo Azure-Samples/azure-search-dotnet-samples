@@ -48,6 +48,8 @@ This MVC sample is featured in [C# tutorial: Create your first app - Azure Searc
 1. Update the appsettings.json with the service and api details of your Azure Search service
 1. Compile and Run the project
 
+The solutions in this sample have template modifications. Methods in Startup.cs have been reordered, with app.UseCookiePolicy() relocated below app.UseMvc(...). This change addresses a known issue in .NET Core 2.x MVC apps where TempData is not persisted.
+
 ## Next steps
 
 You can learn more about Azure Search on the [official documentation site](https://docs.microsoft.com/azure/search).
