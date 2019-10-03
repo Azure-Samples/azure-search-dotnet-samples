@@ -17,9 +17,10 @@ urlFragment: azure-search-backup-restore-index
 
 This application copies an index from one service to another, and in the process, creates JSON files on your computer with the index schema and documents. This tool is useful when you have been using a Basic or Free pricing tier to develop your index, and then want to move it to the Standard or higher tier for production use. It is also useful if you want to back up your index to your computer and restore the index at a later time.
 
-## Important note
+## IMPORTANT - PLEASE READ
+Search indexes are different from other datastores because they are constantly ranking and scoring results and data may shift. If you page through search results or even use continuation tokens as this tool does, it is possible to miss some data during data extraction.
 
-Search indexes are different from other datastores because they are constantly ranking and scoring results and data may shift. If you page through search results or even using continuation tokens as this tool does, it is possible to miss some data during data extraction. 
+As an example, assume that you are searching for documents and a document with ID 101 is part of page 5 of the search results. Then, as you are extracting data from page to page, and move from page 4 to page 5, it is possible that now ID 101 is actually part of page 4. This means that when you look at page 5, it is no longer there and you have missed that document.
 
 For this reason, this tool compares the number of index documents in the original index and the index copy. If the numbers don't match, the copy may be missing data. Although this safeguard does not provide a perfect solution, it does help you help prevent you from missing data.
 
