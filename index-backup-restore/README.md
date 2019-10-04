@@ -26,7 +26,7 @@ For this reason, this tool compares the number of index documents in the origina
 
 Also, as an extra precaution, it is best if there are no changes being made to the search index when you use run this tool.
 
-## Contents
+**If your index has more than 100,000 documents**, this sample, as written, will not work. This is because the REST API $skip feature, that is used for paging, has a 100K document limit. However, you can work around this limitation by adding code to iterate over, and filter on, a facet with less that 100K documents per facet value.
 
 | File/folder | Description |
 |-------------|-------------|
