@@ -49,15 +49,15 @@ This .NET Core console application is featured in [C# Tutorial: Combine data fro
    + In the [Azure portal](https://portal.azure.com), create an Azure Cosmos DB account for the **Core (SQL)** API. 
    + Create a new database named "hotel-rooms-db".
    + In Data Explorer, open the "hotel-rooms-db", create a new container named "hotels".
-   + Open hotels, select Items, select **Upload Item**, and then select the file *src/cosmosdb/HotelsDataSubset_CosmosDB.json*. This contains data for seven hotels, but no rooms data. You should now have seven documents in the database.
+   + Open "hotels", select **Items**, select **Upload Item**, and then select the *src/cosmosdb/HotelsDataSubset_CosmosDB.json* file. It contains data for seven hotels, but no rooms data.
    + In the left pane, go to **Settings > Keys** and get the primary connection string. You will need this value for the *appsettings.json* file in the project.
 
 1. Create and populate a Blob container with rooms information:
 
    + In the [Azure portal](https://portal.azure.com), create an Azure Storage account for blob content. 
    + Create a new blob storage container named "hotel-rooms".
-   + Select this container, click **Upload**, and then upload all of the JSON files in the *src/blobs* folder, ranging from *Rooms1.json* through *Rooms15.json*. These files contain room details for each of the 7 hotels.
-  + In the left pane, go to **Settings > Access Keys** and get the connection string for key1. It also goes into the project's *appsettings.json* file.
+   + Select this container, click **Upload**, and then upload all of the JSON files in the *src/blobs* folder, ranging from *Rooms1.json* through *Rooms15.json*. These files contain room details for each of the seven hotels.
+   + In the left pane, go to **Settings > Access Keys** and get the connection string for key1. It also goes into the project's *appsettings.json* file.
 
 ## Run the sample
 
