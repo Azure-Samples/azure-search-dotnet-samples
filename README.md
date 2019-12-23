@@ -1,24 +1,10 @@
----
-topic: sample
-services: azure-search
-platforms: dotnet
-languages:
-  - csharp
-name: Azure Search C# samples
-description: "Find C# samples for Azure Search in this repository."
-products:
-  - azure
-  - azure-search
-urlFragment: dotnet-csharp-samples
----
+# Azure Cognitive Search .NET Samples
 
-# Azure Search .NET Samples
-
-This repository contains C# sample code used in Azure Search quickstarts, tutorials, and examples. All samples run on the shared (free) Azure Search service.  
+This repository contains C# sample code used in Azure Cognitive Search quickstarts, tutorials, and examples. All samples run on the shared (free) Azure Cognitive Search service.  
 
 ## Quickstart
 
-This .NET Core console app uses the Azure Search .NET SDK to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
+This .NET Core console app uses the Azure Cognitive Search .NET SDK to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
 
 ## Create your first app
 
@@ -26,7 +12,7 @@ This MVC sample is a collection of projects that demonstrate a user experience u
 
 ## Multiple data sources
 
-This .NET Core console app uses Azure Search indexers and the .NET SDK to import data from Azure Cosmos DB and Azure Blob storage, combing data from two sources into one Azure Search index.
+This .NET Core console app uses Azure Cognitive Search indexers and the .NET SDK to import data from Azure Cosmos DB and Azure Blob storage, combing data from two sources into one search index.
 
 ## Backup and restore an index
 

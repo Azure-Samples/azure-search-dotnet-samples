@@ -11,7 +11,7 @@ namespace AzureSearch.SDKHowTo
 {
     public sealed class Program
     {
-        // This sample shows how to create an Azure Search index, and how to index and merge data
+        // This sample shows how to create a search index, and how to index and merge data
         // from two different data sources.
 
         static IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
@@ -24,7 +24,7 @@ namespace AzureSearch.SDKHowTo
 
             string indexName = "hotel-rooms-sample";
 
-            // Next, create the Azure Search index
+            // Next, create the search index
             Console.WriteLine("Deleting index...\n");
             await DeleteIndexIfExists(indexName, searchService);
 
