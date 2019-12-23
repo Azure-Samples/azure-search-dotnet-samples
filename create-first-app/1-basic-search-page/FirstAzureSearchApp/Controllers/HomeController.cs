@@ -27,7 +27,7 @@ namespace FirstAzureSearchApp.Controllers
                     model.searchText = "";
                 }
 
-                // Make the Azure Search call.
+                // Make the Azure Cognitive Search call.
                 await RunQueryAsync(model);
             }
 

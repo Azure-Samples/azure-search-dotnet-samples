@@ -1,4 +1,4 @@
-﻿// This is a prototype tool that allows for extraction of data from an Azure Search index
+﻿// This is a prototype tool that allows for extraction of data from a search index
 // Since this tool is still under development, it should not be used for production usage
 
 using Microsoft.Azure.Search;

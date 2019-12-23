@@ -2,12 +2,12 @@
 page_type: sample
 languages:
   - csharp
-name: Back up and restore an Azure Search index
+name: Back up and restore an Azure Cognitive Search index
 description: "This application backs up a 'source' index schema and its documents to a JSON files on your computer, and then uses those files to recreate a 'target' index copy in the 'target' search service that you specify. Depending on your needs, you can use all or part of this application to backup your index files and/or move an index from one search service to another. 
 For example, you may use the Basic or Free pricing tier to develop your index, and then want to move it to the Standard or higher tier for production use."
 products:
   - azure
-  - azure-search
+  - cognitive-search
 urlFragment: azure-search-backup-restore-index
 ---
 
@@ -39,7 +39,7 @@ Also, as an extra precaution, it is best if there are no changes being made to t
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
-- [Azure Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
+- [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
 
 ## Setup
 
@@ -70,4 +70,4 @@ Also, as an extra precaution, it is best if there are no changes being made to t
 
 ## Next steps
 
-You can learn more about Azure Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).
