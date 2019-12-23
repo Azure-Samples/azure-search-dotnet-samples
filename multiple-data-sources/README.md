@@ -41,19 +41,43 @@ This .NET Core console application is featured in [C# Tutorial: Combine data fro
 ## Setup
 
 1. Clone or download this sample repository.
+
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
 
-### Running multiple-data-sources
+1. Create and populate a Cosmos DB data source with hotels information:
 
-1. In the Azure portal, create an Azure Cosmos DB database named "hotel-rooms-db" and a new collection in it called "hotels". 
-1. In the Cosmos Data Explorer, select the hotels collection, click Upload, and then select the file src/cosmosdb/HotelsDataSubset_CosmosDB.json. This contains data for 7 hotels, but no rooms data.
-1. In your Azure Storage account, create a new blob storage container named hotel-rooms. 
-1. Select this container, click Upload, and then upload all of the JSON files in the src/blobs folder, ranging from Rooms1.json through Rooms15.json. These files contain room details for each of the 7 hotels.
+   + In the [Azure portal](https://portal.azure.com), create an Azure Cosmos DB account for the **Core (SQL)** API. 
+   + Create a new database named "hotel-rooms-db".
+   + In Data Explorer, open the "hotel-rooms-db", create a new container named "hotels".
+   + Open hotels, select Items, select **Upload Item**, and then select the file *src/cosmosdb/HotelsDataSubset_CosmosDB.json*. This contains data for seven hotels, but no rooms data. You should now have seven documents in the database.
+   + In the left pane, go to **Settings > Keys** and get the primary connection string. You will need this value for the *appsettings.json* file in the project.
+
+1. Create and populate a Blob container with rooms information:
+
+   + In the [Azure portal](https://portal.azure.com), create an Azure Storage account for blob content. 
+   + Create a new blob storage container named "hotel-rooms".
+   + Select this container, click **Upload**, and then upload all of the JSON files in the *src/blobs* folder, ranging from *Rooms1.json* through *Rooms15.json*. These files contain room details for each of the 7 hotels.
+  + In the left pane, go to **Settings > Access Keys** and get the connection string for key1. It also goes into the project's *appsettings.json* file.
+
+## Run the sample
+
 1. Open the sample solution in Visual Studio 2019.
-1. Edit the file appsettings.json and fill in the appropriate account names, keys, and connection strings.
-1. Build and run the app. 
 
-After a successful run, you should see a new index names hotel-rooms-sample in your search service, containing the combined hotel and room data for all 7 hotels.
+1. Edit the  *appsettings.json* and fill in the appropriate account names, keys, and connection strings:
+
+   + SearchServiceName and SearchServiceAdminKey can be found in Overview and Keys portal pages of your Azure Cognitive Search service.
+   + Blob storage and Cosmos DB connection information can be found in the key pages.
+   + For Blob storage, you also need the name of the storage account.
+
+1. Press F5 to build and run the app. Status messages appear in the console window.
+
+## Verify results
+
+After a successful run, you should see a new index named "hotel-rooms-sample" in your search service, containing the combined hotel and room data for all seven hotels. 
+
+   + In the [Azure portal](https://portal.azure.com), open the search service Overview page.
+   + In Indexes, select the new "hotel-rooms-sample" index containing seven documents.
+   + By default, the index opens in the **Search explorer** tab. Click **Search** to execute an empty search, returning all documents. Scroll down or use CTRL-F to verify that each hotel now has a "Rooms" collection with descriptions, rates, and other room-specific information.
 
 ## Next steps
 
