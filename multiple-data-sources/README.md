@@ -6,7 +6,7 @@ name: Index multiple data sources in Azure Cognitive Search
 description: "Demonstrates indexing from multiple Azure data sources, including Cosmos DB and Blob storage. This example builds a C# console application using the Azure Cognitive Search .NET SDK."
 products:
   - azure
-  - cognitive-search
+  - azure-cognitive-search
   - azure-cosmos-db
   - azure-storage
 urlFragment: multiple-data-sources
