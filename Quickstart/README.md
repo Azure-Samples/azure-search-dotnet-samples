@@ -6,7 +6,7 @@ name: Quickstart in C#
 description: "Learn basic steps in C# for creating, loading, and querying an Azure Cognitive Search index in a .NET Core console application."
 products:
   - azure
-  - cognitive-search
+  - azure-cognitive-search
 urlFragment: csharp-quickstart
 ---
 

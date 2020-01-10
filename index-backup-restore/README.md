@@ -7,7 +7,7 @@ description: "This application backs up a 'source' index schema and its document
 For example, you may use the Basic or Free pricing tier to develop your index, and then want to move it to the Standard or higher tier for production use."
 products:
   - azure
-  - cognitive-search
+  - azure-cognitive-search
 urlFragment: azure-search-backup-restore-index
 ---
 
