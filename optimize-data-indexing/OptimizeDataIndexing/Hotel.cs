@@ -3,8 +3,9 @@ using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 using Newtonsoft.Json;
 
-namespace AzSearchPerformance
+namespace OptimizeDataIndexing
 {
+    [Serializable]
     public partial class Hotel
     {
         [System.ComponentModel.DataAnnotations.Key]

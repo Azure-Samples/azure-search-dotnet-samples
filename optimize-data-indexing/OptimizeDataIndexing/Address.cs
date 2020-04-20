@@ -1,7 +1,9 @@
 ﻿using Microsoft.Azure.Search;
+using System;
 
-namespace AzSearchPerformance
+namespace OptimizeDataIndexing
 {
+    [Serializable]
     public partial class Address
     {
         [IsSearchable]
