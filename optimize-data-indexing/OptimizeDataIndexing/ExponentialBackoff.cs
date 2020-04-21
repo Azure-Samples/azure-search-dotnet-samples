@@ -15,7 +15,7 @@ namespace OptimizeDataIndexing
         private static async Task<DocumentIndexResult> ExponentialBackoffAsync(ISearchIndexClient indexClient, List<Hotel> hotels, int id)
         {
             // Create batch of documents for indexing
-            var batch = IndexBatch.Upload(hotels);
+            IndexBatch<Hotel> batch = IndexBatch.Upload(hotels);
 
             // Define parameters for exponential backoff
             int attempts = 0;
@@ -34,8 +34,8 @@ namespace OptimizeDataIndexing
                 catch (IndexBatchException ex)
                 {
                     Console.WriteLine("BATCH STARTING AT DOC {0}:", id);
-                    Console.WriteLine("[Attempt: {0} of {1} Failed] [{2}]", attempts, maxRetryAttempts, ex.Response.StatusCode);
-                    Console.WriteLine("Error: {0}", ex.Message);
+                    Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts, ex.Message);
+
 
                     if (attempts == maxRetryAttempts)
                     {
@@ -53,10 +53,8 @@ namespace OptimizeDataIndexing
 
                     Console.WriteLine("Retrying failed documents using exponential backoff...\n");
 
-                    // Get all failed results and update the batch to just those
-                    var failedItems = ex.IndexingResults.Where(x => x.Succeeded == false).Select(y => y.Key);
-                    var newBatch = hotels.Where(x => failedItems.Any(x2 => x2 == x.HotelId));
-                    batch = IndexBatch.Upload(newBatch);
+                    // Find the failed items and create a new batch to retry
+                    batch = ex.FindFailedActionsToRetry(batch, x => x.HotelId);
 
                     Task.Delay(delay).Wait();
                     delay = delay * 2;
