@@ -33,10 +33,8 @@ namespace OptimizeDataIndexing
             Console.WriteLine("{0}", "Finding optimal batch size...\n");
             TestBatchSizes(indexClient, numTries: 3);
 
-            DataGenerator dg = new DataGenerator();
+            //DataGenerator dg = new DataGenerator();
             //List<Hotel> hotels = dg.GetHotels(100000, "large");
-
-            //Console.WriteLine(EstimateObjectSize(hotels));
 
             //Console.WriteLine("{0}", "Uploading using exponential backoff...\n");
             //ExponentialBackoff.IndexData(indexClient, hotels, 1000, 8).Wait();
@@ -101,7 +99,7 @@ namespace OptimizeDataIndexing
         {
             DataGenerator dg = new DataGenerator();
 
-            Console.WriteLine("Batch Size\t Size in MB \t Avg Time (ms)\t MB/second");
+            Console.WriteLine("Batch Size \t Size in MB \t MB / Doc \t Time (ms) \t MB / Second");
             for (int numDocs = min; numDocs <= max; numDocs += step)
             {
                 List<TimeSpan> durations = new List<TimeSpan>();
@@ -122,7 +120,7 @@ namespace OptimizeDataIndexing
                 var avgDurationInSeconds = avgDuration / 1000;
                 var mbPerSecond = sizeInMb / avgDurationInSeconds;
 
-                Console.WriteLine("{0} \t\t {1} \t\t {2} \t {3}", numDocs, Math.Round(sizeInMb, 3), Math.Round(avgDuration, 3), Math.Round(mbPerSecond, 3));
+                Console.WriteLine("{0} \t\t {1} \t\t {2} \t\t {3} \t {4}", numDocs, Math.Round(sizeInMb, 3), Math.Round(sizeInMb / numDocs, 3), Math.Round(avgDuration, 3), Math.Round(mbPerSecond, 3));
 
                 // Pausing 2 seconds to let the search service catch its breath
                 Thread.Sleep(2000);
