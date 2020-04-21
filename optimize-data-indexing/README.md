@@ -26,6 +26,10 @@ The app shows how to:
 
 The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
 
+> **Note:**  Depending on your network transfer speeds, you may need to run this sample from within your Azure Environment to get the most out of Azure Cognitive Search's indexing speed. 
+>
+>Spinning up an [Azure VM](https://azure.microsoft.com/en-us/services/virtual-machines/) that comes with Visual Studio installed, such as a [Data Science VM](https://azure.microsoft.com/en-us/services/virtual-machines/data-science-virtual-machines/) is an easy way to do this. Be sure to deploy the VM in the same data center as your search service. 
+
 ## Contents
 
 | File/folder | Description |

@@ -34,8 +34,7 @@ namespace OptimizeDataIndexing
                 catch (IndexBatchException ex)
                 {
                     Console.WriteLine("BATCH STARTING AT DOC {0}:", id);
-                    Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts, ex.Message);
-
+                    Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2}", attempts, maxRetryAttempts, ex.Message);
 
                     if (attempts == maxRetryAttempts)
                     {
@@ -51,10 +50,9 @@ namespace OptimizeDataIndexing
                         Console.WriteLine("[Status Code {0}] - {1} documents", s, count);
                     }
 
-                    Console.WriteLine("Retrying failed documents using exponential backoff...\n");
-
                     // Find the failed items and create a new batch to retry
                     batch = ex.FindFailedActionsToRetry(batch, x => x.HotelId);
+                    Console.WriteLine("Retrying failed documents using exponential backoff...\n");
 
                     Task.Delay(delay).Wait();
                     delay = delay * 2;
@@ -85,11 +83,11 @@ namespace OptimizeDataIndexing
 
             DateTime startTime = DateTime.Now;
             Console.WriteLine("Started at: {0} \n", startTime);
-
             Console.WriteLine("Creating {0} threads...\n", numThreads);
 
             // Creating a list to hold active tasks
             List<Task<DocumentIndexResult>> uploadTasks = new List<Task<DocumentIndexResult>>();
+
             for (int i = 0; i < numDocs; i += batchSize)
             {
                 List<Hotel> hotelBatch = hotels.GetRange(i, batchSize);

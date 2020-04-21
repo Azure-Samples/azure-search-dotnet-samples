@@ -43,7 +43,7 @@ namespace OptimizeDataIndexing
                     }
                 };
             }
-            // 100,000 large hotels is approximately 70mb in the search index
+            // 100,000 large hotels is approximately 65mb in the search index
             else
             {
                 hotel = new Hotel()
