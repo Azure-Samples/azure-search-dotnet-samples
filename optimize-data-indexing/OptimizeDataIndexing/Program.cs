@@ -38,7 +38,7 @@ namespace OptimizeDataIndexing
             //List<Hotel> hotels = dg.GetHotels(100000, "large");
 
             //Console.WriteLine("{0}", "Uploading using exponential backoff...\n");
-            //ExponentialBackoff.IndexData(indexClient, hotels, 1000, 8).Wait();
+            //ExponentialBackoff.IndexData(indexClient, hotels, 1000, 12).Wait();
 
             Console.WriteLine("{0}", "Complete.  Press any key to end application...\n");
             Console.ReadKey();
