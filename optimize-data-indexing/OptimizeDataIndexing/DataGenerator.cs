@@ -16,10 +16,9 @@ namespace OptimizeDataIndexing
 
         private Hotel GetNewHotel(string size = "small")
         {
-
             Hotel hotel;
 
-            // 100,000 small hotels is approximately 12mb in the search index
+            // 100,000 small hotels takes up ~12MB in the search index
             if (size == "small")
             {
                 hotel = new Hotel()
@@ -43,7 +42,7 @@ namespace OptimizeDataIndexing
                     }
                 };
             }
-            // 100,000 large hotels is approximately 70mb in the search index
+            // 100,000 large hotels takes up ~70MB in the search index
             else
             {
                 hotel = new Hotel()

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,7 @@ namespace OptimizeDataIndexing
 {
     class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
             IConfigurationRoot configuration = builder.Build();
@@ -25,13 +26,13 @@ namespace OptimizeDataIndexing
             ISearchIndexClient indexClient = serviceClient.Indexes.GetClient(indexName);
 
             Console.WriteLine("{0}", "Deleting index...\n");
-            DeleteIndexIfExists(indexName, serviceClient);
+            await DeleteIndexIfExists(indexName, serviceClient);
 
             Console.WriteLine("{0}", "Creating index...\n");
-            CreateIndex(indexName, serviceClient);
+            await CreateIndex(indexName, serviceClient);
 
             Console.WriteLine("{0}", "Finding optimal batch size...\n");
-            TestBatchSizes(indexClient, numTries: 3);
+            await TestBatchSizes(indexClient, numTries: 3);
 
             //DataGenerator dg = new DataGenerator();
             //List<Hotel> hotels = dg.GetHotels(100000, "large");
@@ -55,35 +56,33 @@ namespace OptimizeDataIndexing
         }
 
         // Delete an existing index to reuse its name
-        private static void DeleteIndexIfExists(string indexName, SearchServiceClient serviceClient)
+        private static async Task DeleteIndexIfExists(string indexName, SearchServiceClient serviceClient)
         {
             if (serviceClient.Indexes.Exists(indexName))
             {
-                serviceClient.Indexes.Delete(indexName);
+                await serviceClient.Indexes.DeleteAsync(indexName);
             }
         }
 
-        // Create an index whose fields correspond to the properties of the Hotel class.
-        // The Address property of Hotel will be modeled as a complex field.
-        // The properties of the Address class in turn correspond to sub-fields of the Address complex field.
-        // The fields of the index are defined by calling the FieldBuilder.BuildForType() method.
-        private static void CreateIndex(string indexName, SearchServiceClient serviceClient)
+        private static async Task CreateIndex(string indexName, SearchServiceClient searchService)
         {
+            // Create a new search index structure that matches the properties of the Hotel class.
+            // The Address class is referenced from the Hotel class. The FieldBuilder
+            // will enumerate these to create a complex data structure for the index.
             var definition = new Index()
             {
                 Name = indexName,
                 Fields = FieldBuilder.BuildForType<Hotel>()
             };
-
-            serviceClient.Indexes.Create(definition);
+            await searchService.Indexes.CreateAsync(definition);
         }
 
-        public static void UploadDocuments(ISearchIndexClient indexClient, List<Hotel> hotels)
+        public static async Task UploadDocuments(ISearchIndexClient indexClient, List<Hotel> hotels)
         {
             var batch = IndexBatch.Upload(hotels);
             try
             {
-                indexClient.Documents.Index(batch);
+                await indexClient.Documents.IndexAsync(batch);
             }
             catch (IndexBatchException e)
             {
@@ -95,7 +94,7 @@ namespace OptimizeDataIndexing
             }
         }
 
-        public static void TestBatchSizes(ISearchIndexClient indexClient, int min = 100, int max = 1000, int step = 100, int numTries = 3)
+        public static async Task TestBatchSizes(ISearchIndexClient indexClient, int min = 100, int max = 1000, int step = 100, int numTries = 3)
         {
             DataGenerator dg = new DataGenerator();
 
@@ -109,7 +108,7 @@ namespace OptimizeDataIndexing
                     List<Hotel> hotels = dg.GetHotels(numDocs, "large");
 
                     DateTime startTime = DateTime.Now;
-                    UploadDocuments(indexClient, hotels);
+                    await UploadDocuments(indexClient, hotels);
                     DateTime endTime = DateTime.Now;
                     durations.Add(endTime - startTime);
 
