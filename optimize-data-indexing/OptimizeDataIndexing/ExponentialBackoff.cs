@@ -82,7 +82,7 @@ namespace OptimizeDataIndexing
             Console.WriteLine("Uploading {0} documents...\n", numDocs.ToString());
 
             DateTime startTime = DateTime.Now;
-            Console.WriteLine("Started at: {0} \n", startTime);
+            //Console.WriteLine("Started at: {0} \n", startTime);
             Console.WriteLine("Creating {0} threads...\n", numThreads);
 
             // Creating a list to hold active tasks

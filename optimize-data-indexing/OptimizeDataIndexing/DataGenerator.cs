@@ -18,7 +18,6 @@ namespace OptimizeDataIndexing
         {
             Hotel hotel;
 
-            // 100,000 small hotels takes up ~12MB in the search index
             if (size == "small")
             {
                 hotel = new Hotel()
@@ -42,7 +41,6 @@ namespace OptimizeDataIndexing
                     }
                 };
             }
-            // 100,000 large hotels takes up ~65MB in the search index
             else
             {
                 hotel = new Hotel()
@@ -72,7 +70,7 @@ namespace OptimizeDataIndexing
         }
 
 
-        public List<Hotel> GetHotels(int count, string size = "small")
+        public List<Hotel> GetHotels(long count, string size = "small")
         {
             List<Hotel> hotelList = new List<Hotel>();
             for (int i = 0; i < count; i++)

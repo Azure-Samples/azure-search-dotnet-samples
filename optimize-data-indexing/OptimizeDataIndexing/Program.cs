@@ -34,11 +34,15 @@ namespace OptimizeDataIndexing
             Console.WriteLine("{0}", "Finding optimal batch size...\n");
             await TestBatchSizes(indexClient, numTries: 3);
 
+            //long numDocuments = 100000;
             //DataGenerator dg = new DataGenerator();
-            //List<Hotel> hotels = dg.GetHotels(100000, "large");
+            //List<Hotel> hotels = dg.GetHotels(numDocuments);
 
             //Console.WriteLine("{0}", "Uploading using exponential backoff...\n");
-            //ExponentialBackoff.IndexData(indexClient, hotels, 1000, 12).Wait();
+            //ExponentialBackoff.IndexData(indexClient, hotels, 1000, 8).Wait();
+
+            //Console.WriteLine("{0}", "Validating all data was indexed...\n");
+            //ValidateIndex(serviceClient, indexName, numDocuments);
 
             Console.WriteLine("{0}", "Complete.  Press any key to end application...\n");
             Console.ReadKey();
@@ -145,6 +149,31 @@ namespace OptimizeDataIndexing
             double sizeInMb = (double)Array.Length / 1000000;
 
             return sizeInMb;
+        }
+
+        public static void ValidateIndex(SearchServiceClient serviceClient, string indexName, long numDocsIndexed)
+        {
+            ISearchIndexClient indexClient = serviceClient.Indexes.GetClient(indexName);
+
+            long indexDocCount = indexClient.Documents.Count();
+            while (indexDocCount != numDocsIndexed)
+            {
+                Console.WriteLine("Waiting for document count to update...\n");
+                Thread.Sleep(2000);
+                indexDocCount = indexClient.Documents.Count();
+            }
+            Console.WriteLine("Document Count is {0}\n", indexDocCount);
+
+
+            IndexGetStatisticsResult indexStats = serviceClient.Indexes.GetStatistics(indexName);
+            while (indexStats.DocumentCount != numDocsIndexed)
+            {
+                Console.WriteLine("Waiting for service statistics to update...\n");
+                Thread.Sleep(10000);
+                indexStats = serviceClient.Indexes.GetStatistics(indexName);
+            }
+            Console.WriteLine("Index Statistics: Document Count is {0}", indexStats.DocumentCount);
+            Console.WriteLine("Index Statistics: Storage Size is {0}\n", indexStats.StorageSize);
         }
 
     }
