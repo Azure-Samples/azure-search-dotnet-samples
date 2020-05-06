@@ -20,3 +20,6 @@ This .NET Core console app uses the .NET SDK and Azure Cognitive Search REST API
 
 **IMPORTANT** Search indexes are different from other datastores because they are constantly ranking and scoring results and data may shift. It is possible to miss some data during data extraction. This sample code also only works for indexes with less than 100,000 documents. However, it can be amended for larger indexes. See the README in the index-backup-restore folder for more details.
 
+## Optimize data indexing
+
+This .NET Core console app builds off of the code used in the Quickstart and uses the Azure Cognitive Search .NET SDK to create an index, and efficiently load it with documents. The app allows users to test various batch sizes to understand the optimal batch size and then demonstrates how to efficiently upload 100,000 documents to a search index. This is done by splitting the data into batches, and spinning up several threads to upload the documents. Any failures are monitored and then retried using the exponential backoff retry strategy. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
