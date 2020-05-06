@@ -23,3 +23,7 @@ This .NET Core console app uses the .NET SDK and Azure Cognitive Search REST API
 ## Optimize data indexing
 
 This .NET Core console app builds off of the code used in the Quickstart and uses the Azure Cognitive Search .NET SDK to create an index, and efficiently load it with documents. The app allows users to test various batch sizes to understand the optimal batch size and then demonstrates how to efficiently upload 100,000 documents to a search index. This is done by splitting the data into batches, and spinning up several threads to upload the documents. Any failures are monitored and then retried using the exponential backoff retry strategy. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
+
+## AI Enrichment
+
+This .NET Core console app creates an AI enrichment pipeline consisting of an index, indexer, data source, and skillset. The skillset calls Azure Cognitive Services image analysis, natural language processing, and OCR to extract information and structure from heterogeneous blob content, making it searchable in Azure Cognitive Search.
