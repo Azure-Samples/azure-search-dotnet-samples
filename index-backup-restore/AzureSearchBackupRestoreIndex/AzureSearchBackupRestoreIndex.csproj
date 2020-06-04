@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Search" Version="10.0.0" />
+    <PackageReference Include="Azure.Search.Documents" Version="1.0.0-preview.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.20" />

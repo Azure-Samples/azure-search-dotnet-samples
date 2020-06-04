@@ -1,8 +1,9 @@
 ﻿// This is a prototype tool that allows for extraction of data from a search index
 // Since this tool is still under development, it should not be used for production usage
 
-using Microsoft.Azure.Search;
-using Microsoft.Azure.Search.Models;
+using Azure;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -12,12 +13,10 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 namespace AzureSearchBackupRestore
 {
     class Program
     {
-
         private static string SourceSearchServiceName;
         private static string SourceAdminKey;
         private static string SourceIndexName;
@@ -26,27 +25,29 @@ namespace AzureSearchBackupRestore
         private static string TargetIndexName;
         private static string BackupDirectory;
 
-        private static SearchServiceClient SourceSearchClient;
-        private static ISearchIndexClient SourceIndexClient;
-        private static SearchServiceClient TargetSearchClient;
-        private static ISearchIndexClient TargetIndexClient;
+        private static Uri SourceSearchServiceUri;
+        private static Uri TargetSearchServiceUri;
 
-        private static int MaxBatchSize = 500;          // JSON files will contain this many documents / file and can be up to 1000
-        private static int ParallelizedJobs = 10;       // Output content in parallel jobs
+        private static SearchServiceClient SourceSearchClient;
+        private static SearchClient SourceIndexClient;
+        private static SearchServiceClient TargetSearchClient;
+        private static SearchClient TargetIndexClient;
+
+        private static readonly int MaxBatchSize = 500;          // JSON files will contain this many documents / file and can be up to 1000
+        private static readonly int ParallelizedJobs = 10;       // Output content in parallel jobs
 
         static void Main(string[] args)
         {
-
             //Get source and target search service info and index names from appsettings.json file
             //Set up source and target search service clients
             ConfigurationSetup();
 
             //Backup the source index
-            Console.WriteLine("\nSTART INDEX BACKUP");
+            Console.WriteLine("\n START INDEX BACKUP");
             BackupIndexAndDocuments();
 
             //Recreate and import content to target index
-            Console.WriteLine("\nSTART INDEX RESTORE");
+            Console.WriteLine("\n START INDEX RESTORE");
             DeleteIndex();
             CreateTargetIndex();
             ImportFromJSON();
@@ -67,7 +68,6 @@ namespace AzureSearchBackupRestore
 
         static void ConfigurationSetup()
         {
-
             IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json");
             IConfigurationRoot configuration = builder.Build();
 
@@ -84,71 +84,98 @@ namespace AzureSearchBackupRestore
             Console.WriteLine("\n  Target service and index: {0}, {1}", TargetSearchServiceName, TargetIndexName);
             Console.WriteLine("\n  Backup directory: " + BackupDirectory);
 
-            SourceSearchClient = new SearchServiceClient(SourceSearchServiceName, new SearchCredentials(SourceAdminKey));
-            SourceIndexClient = SourceSearchClient.Indexes.GetClient(SourceIndexName);
+            SourceSearchServiceUri = new Uri($"https://{SourceSearchServiceName}.search.windows.net/");
+            SourceSearchClient = new SearchServiceClient(SourceSearchServiceUri, new AzureKeyCredential(SourceAdminKey));
+            SourceIndexClient = SourceSearchClient.GetSearchClient(SourceIndexName);
 
-
-            TargetSearchClient = new SearchServiceClient(TargetSearchServiceName, new SearchCredentials(TargetAdminKey));
-            TargetIndexClient = TargetSearchClient.Indexes.GetClient(TargetIndexName);
-
+            TargetSearchServiceUri = new Uri($"https://{TargetSearchServiceName}.search.windows.net/");
+            TargetSearchClient = new SearchServiceClient(TargetSearchServiceUri, new AzureKeyCredential(TargetAdminKey));
+            TargetIndexClient = TargetSearchClient.GetSearchClient(TargetIndexName);
         }
+
         static void BackupIndexAndDocuments()
         {
             // Backup the index schema to the specified backup directory
             Console.WriteLine("\n  Backing up source index schema to {0}\r\n", BackupDirectory + SourceIndexName + ".schema");
 
-            File.WriteAllText(BackupDirectory + SourceIndexName + ".schema", GetIndexSchema());
+            string GetIndexSchema()
+            {
+                // Extract the schema for this index
+                // We use REST here because we can take the response as-is
+                HttpClient HttpClient = new HttpClient();
+                HttpClient.DefaultRequestHeaders.Add("api-key", SourceAdminKey);
+
+                string schema = string.Empty;
+
+                try
+                {
+                    Uri uri = new Uri(SourceSearchServiceUri, "/indexes/" + SourceIndexName);
+
+                    HttpResponseMessage response = AzureSearchHelper.SendSearchRequest(HttpClient, HttpMethod.Get, uri);
+                    AzureSearchHelper.EnsureSuccessfulSearchResponse(response);
+                    schema = response.Content.ReadAsStringAsync().Result.ToString();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error: {0}", ex.Message.ToString());
+                }
+
+                return schema;
+            };
+
+            string indexSchema = GetIndexSchema();
+
+            File.WriteAllText(BackupDirectory + SourceIndexName + ".schema", indexSchema);
 
             // Extract the content to JSON files 
-            int SourceDocCount = GetCurrentDocCount(SourceIndexClient);
-            WriteIndexDocuments(SourceDocCount);     // Output content from index to json files
+            int sourceDocCount = GetCurrentDocCount(SourceIndexClient);
 
+            WriteIndexDocuments(sourceDocCount);     // Output content from index to json files
         }
-    
-        static void WriteIndexDocuments(int CurrentDocCount)
+
+        static void WriteIndexDocuments(int currentDocCount)
         {
             // Write document files in batches (per MaxBatchSize) in parallel
-            string IDFieldName = GetIDFieldName();
-            int FileCounter = 0;
-            for (int batch = 0; batch <= (CurrentDocCount / MaxBatchSize); batch += ParallelizedJobs)
+            int fileCounter = 0;
+
+            for (int batch = 0; batch <= ((currentDocCount / MaxBatchSize) * ParallelizedJobs); batch++)
             {
-
                 List<Task> tasks = new List<Task>();
-                for (int job = 0; job < ParallelizedJobs; job++)
+                fileCounter++;
+
+                if ((fileCounter - 1) * MaxBatchSize < currentDocCount)
                 {
-                    FileCounter++;
-                    int fileCounter = FileCounter;
-                    if ((fileCounter - 1) * MaxBatchSize < CurrentDocCount)
-                    {
-                        Console.WriteLine("  Backing up source documents to {0} - (batch size = {1})", BackupDirectory + SourceIndexName + fileCounter + ".json", MaxBatchSize);
+                    Console.WriteLine("Backing up source documents to {0} - (batch size = {1})", BackupDirectory + SourceIndexName + fileCounter + ".json", MaxBatchSize);
 
-                        tasks.Add(Task.Factory.StartNew(() =>
-                            ExportToJSON((fileCounter - 1) * MaxBatchSize, IDFieldName, BackupDirectory + SourceIndexName + fileCounter + ".json")
-                        ));
-                    }
+                    int skip = (fileCounter - 1) * MaxBatchSize;
+                    string fileName = BackupDirectory + SourceIndexName + fileCounter + ".json";
 
+                    tasks.Add(Task.Run(() => ExportToJSON(skip, fileName)));
                 }
+
                 Task.WaitAll(tasks.ToArray());  // Wait for all the stored procs in the group to complete
             }
 
             return;
         }
 
-        static void ExportToJSON(int Skip, string IDFieldName, string FileName)
+        static void ExportToJSON(int skip, string fileName)
         {
             // Extract all the documents from the selected index to JSON files in batches of 500 docs / file
             string json = string.Empty;
+
             try
             {
-                SearchParameters sp = new SearchParameters()
+                SearchOptions searchOptions = new SearchOptions()
                 {
                     SearchMode = SearchMode.All,
-                    Top = MaxBatchSize,
-                    Skip = Skip
+                    Size = MaxBatchSize,
+                    Skip = skip
                 };
-                DocumentSearchResult<Document> response = SourceIndexClient.Documents.Search("*", sp);
 
-                foreach (var doc in response.Results)
+                SearchResults<SearchDocument> searchResults = SourceIndexClient.Search("*", searchOptions);
+
+                foreach (var doc in searchResults.GetResults())
                 {
                     json += JsonConvert.SerializeObject(doc.Document) + ",";
                     // Geospatial is formatted such that it needs to be changed for reupload
@@ -181,93 +208,38 @@ namespace AzureSearchBackupRestore
                     json = json.Replace("\"Longitude\":", "");
                     json = json.Replace(",\"IsEmpty\":false,\"Z\":null,\"M\":null,\"CoordinateSystem\":{\"EpsgId\":4326,\"Id\":\"4326\",\"Name\":\"WGS84\"}", "]");
                     json += "\r\n";
-
-                    //{ "type": "Point", "coordinates": [-122.131577, 47.678581] }
-                    //{"Latitude":41.113,"Longitude":-95.6269}
-                    //json += "\r\n";
-
                 }
 
                 // Output the formatted content to a file
                 json = json.Substring(0, json.Length - 3); // remove trailing comma
-                File.WriteAllText(FileName, "{\"value\": [");
-                File.AppendAllText(FileName, json);
-                File.AppendAllText(FileName, "]}");
-                Console.WriteLine("  Total documents: {0}", response.Results.Count.ToString());
+                File.WriteAllText(fileName, "{\"value\": [");
+                File.AppendAllText(fileName, json);
+                File.AppendAllText(fileName, "]}");
+                Console.WriteLine("  Total documents: {0}", searchResults.TotalCount);
                 json = string.Empty;
-
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error: {0}", ex.Message.ToString());
             }
+
             return;
-        }
-
-        static string GetIDFieldName()
-        {
-            // Find the id field of this index
-            string IDFieldName = string.Empty;
-            try
-            {
-                var schema = SourceSearchClient.Indexes.Get(SourceIndexName);
-                foreach (var field in schema.Fields)
-                {
-                    if (field.IsKey== true)
-                    {
-                        IDFieldName = Convert.ToString(field.Name);
-                        break;
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: {0}", ex.Message.ToString());
-            }
-            return IDFieldName;
-        }
-
-        static string GetIndexSchema()
-        {
-
-            // Extract the schema for this index
-            // We use REST here because we can take the response as-is
-
-            Uri ServiceUri = new Uri("https://" + SourceSearchServiceName + ".search.windows.net");
-            HttpClient HttpClient = new HttpClient();
-            HttpClient.DefaultRequestHeaders.Add("api-key", SourceAdminKey);
-
-            string Schema = string.Empty;
-            try
-            {
-                Uri uri = new Uri(ServiceUri, "/indexes/" + SourceIndexName);
-                HttpResponseMessage response = AzureSearchHelper.SendSearchRequest(HttpClient, HttpMethod.Get, uri);
-                AzureSearchHelper.EnsureSuccessfulSearchResponse(response);
-                Schema = response.Content.ReadAsStringAsync().Result.ToString();
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: {0}", ex.Message.ToString());
-            }
-
-            return Schema;
         }
 
         private static bool DeleteIndex()
         {
-            Console.WriteLine("\n  Delete target index {0} in {1} search service, if it exists", TargetIndexName,TargetSearchServiceName);
+            Console.WriteLine("\n  Delete target index {0} in {1} search service, if it exists", TargetIndexName, TargetSearchServiceName);
+
             // Delete the index if it exists
             try
             {
-                TargetSearchClient.Indexes.Delete(TargetIndexName);
+                TargetSearchClient.DeleteIndex(TargetIndexName);
             }
-            catch (Exception ex)
+            catch (RequestFailedException ex)
             {
                 Console.WriteLine("  Error deleting index: {0}\r\n", ex.Message);
                 Console.WriteLine("  Did you remember to set your SearchServiceName and SearchServiceApiKey?\r\n");
+
                 return false;
             }
 
@@ -277,12 +249,10 @@ namespace AzureSearchBackupRestore
         static void CreateTargetIndex()
         {
             Console.WriteLine("\n  Create target index {0} in {1} search service", TargetIndexName, TargetSearchServiceName);
+
             // Use the schema file to create a copy of this index
             // I like using REST here since I can just take the response as-is
-
-
             string json = File.ReadAllText(BackupDirectory + SourceIndexName + ".schema");
-
 
             // Do some cleaning of this file to change index name, etc
             json = "{" + json.Substring(json.IndexOf("\"name\""));
@@ -290,13 +260,12 @@ namespace AzureSearchBackupRestore
             int indexOfEndOfIndexName = json.IndexOf("\"", indexOfIndexName);
             json = json.Substring(0, indexOfIndexName) + TargetIndexName + json.Substring(indexOfEndOfIndexName);
 
-            Uri ServiceUri = new Uri("https://" + TargetSearchServiceName + ".search.windows.net");
             HttpClient HttpClient = new HttpClient();
             HttpClient.DefaultRequestHeaders.Add("api-key", TargetAdminKey);
 
             try
             {
-                Uri uri = new Uri(ServiceUri, "/indexes");
+                Uri uri = new Uri(TargetSearchServiceUri, "/indexes");
                 HttpResponseMessage response = AzureSearchHelper.SendSearchRequest(HttpClient, HttpMethod.Post, uri, json);
                 response.EnsureSuccessStatusCode();
             }
@@ -306,35 +275,35 @@ namespace AzureSearchBackupRestore
             }
 
         }
-        static int GetCurrentDocCount(ISearchIndexClient IndexClient)
+
+        static int GetCurrentDocCount(SearchClient IndexClient)
         {
- 
             // Get the current doc count of the specified index
             try
             {
-                SearchParameters sp = new SearchParameters()
+                SearchOptions searchOptions = new SearchOptions()
                 {
                     SearchMode = SearchMode.All,
-                    IncludeTotalResultCount = true
+                    IncludeTotalCount = true
                 };
 
-                DocumentSearchResult <Document> response = IndexClient.Documents.Search("*", sp);
-                return Convert.ToInt32(response.Count);
+                SearchResults<SearchDocument> searchResults = IndexClient.Search("*", searchOptions);
 
+                return Convert.ToInt32(searchResults.TotalCount);
             }
-            catch (Exception ex)
+            catch (RequestFailedException ex)
             {
-                Console.WriteLine("  Error: {0}", ex.Message.ToString());
+                Console.WriteLine("Error: {0}", ex.Message.ToString());
             }
 
             return -1;
-
         }
+
         static void ImportFromJSON()
         {
             Console.WriteLine("\n  Upload index documents from saved JSON files");
+
             // Take JSON file and import this as-is to target index
-            Uri ServiceUri = new Uri("https://" + TargetSearchServiceName + ".search.windows.net");
             HttpClient HttpClient = new HttpClient();
             HttpClient.DefaultRequestHeaders.Add("api-key", TargetAdminKey);
 
@@ -344,7 +313,7 @@ namespace AzureSearchBackupRestore
                 {
                     Console.WriteLine("  -Uploading documents from file {0}", fileName);
                     string json = File.ReadAllText(fileName);
-                    Uri uri = new Uri(ServiceUri, "/indexes/" + TargetIndexName + "/docs/index");
+                    Uri uri = new Uri(TargetSearchServiceUri, "/indexes/" + TargetIndexName + "/docs/index");
                     HttpResponseMessage response = AzureSearchHelper.SendSearchRequest(HttpClient, HttpMethod.Post, uri, json);
                     response.EnsureSuccessStatusCode();
                 }
