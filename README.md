@@ -2,9 +2,13 @@
 
 This repository contains C# sample code used in Azure Cognitive Search quickstarts, tutorials, and examples. All samples run on the shared (free) Azure Cognitive Search service.  
 
-## Quickstart
+## Quickstart v11
 
-This .NET Core console app uses the Azure Cognitive Search .NET SDK to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
+This version of the quickstart is updated to use the new Azure.Search.Documents client library (version 11) of the Azure SDK for .NET. This is a NET Core console app that uses the new library to create, load, and query an index. 
+
+## Quickstart v10
+
+This .NET Core console app uses the Azure Cognitive Search .NET SDK (version 10) to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
 
 ## Create your first app
 
