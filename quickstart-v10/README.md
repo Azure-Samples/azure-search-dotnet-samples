@@ -2,21 +2,23 @@
 page_type: sample
 languages:
   - csharp
-name: Quickstart in C#
-description: "Learn basic steps in C# for creating, loading, and querying an Azure Cognitive Search index in a .NET Core console application."
+name: Quickstart in C# (old)
+description: "Uses the legacy .NET SDK client library, Microsoft.Azure.Search, to create a .NET Core console application."
 products:
   - azure
   - azure-cognitive-search
 urlFragment: csharp-quickstart
 ---
 
-# Quickstart sample for Azure Cognitive Search in .NET
+# Quickstart sample for Microsoft.Azure.Search (version 10) in .NET
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-Demonstrates using the Azure Cognitive Search .NET SDK to create an index, load it with documents, and execute a few queries. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
+Demonstrates version 10 of the Azure Cognitive Search .NET SDK to create, load, and query an index. The index is modeled on a subset of the Hotels dataset, reduced for readability and comprehension. Index definition and documents are included in the code.
 
-This .NET Core console application is featured in [Quickstart: Create your first app - Azure Cognitive Search](https://docs.microsoft.com/azure/search/tutorial-csharp-create-first-app). When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries. This sample uses the [.NET SDK](https://docs.microsoft.com/dotnet/api/?term=microsoft.azure.search) and runs on an Azure Cognitive Search service using connection information that you provide.
+Version 10 is now considered a legacy API, replaced by version 11 and the Azure.Search.Documents library. If you are new to Azure Cognitive Search, please use Azure.Search.Documents (version 11) instead.
+
+When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries. This sample uses the [Microsoft.Azure.Search libraries](https://docs.microsoft.com/dotnet/api/?term=microsoft.azure.search) and runs on an Azure Cognitive Search service using connection information that you provide.
 
 ## Contents
 

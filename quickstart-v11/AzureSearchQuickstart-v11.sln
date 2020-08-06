@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureSearchQuickstart-v11", "AzureSearchQuickstart-v11\AzureSearchQuickstart-v11.csproj", "{D6840DEE-07BF-4FD3-9EF4-E6A17929E02D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D6840DEE-07BF-4FD3-9EF4-E6A17929E02D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6840DEE-07BF-4FD3-9EF4-E6A17929E02D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6840DEE-07BF-4FD3-9EF4-E6A17929E02D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6840DEE-07BF-4FD3-9EF4-E6A17929E02D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2FE82F78-E7E4-40B9-8F46-3F6BE97A6C26}
+	EndGlobalSection
+EndGlobal
