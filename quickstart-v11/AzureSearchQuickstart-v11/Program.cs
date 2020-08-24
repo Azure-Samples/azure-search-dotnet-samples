@@ -15,7 +15,7 @@ namespace AzureSearch.SDK.Quickstart.v11
         {
             string serviceName = "<YOUR-SEARCH-SERVICE-NAME>";
             string indexName = "hotels-quickstart-v11";
-            string apiKey = "<YOUR-ADMIN-API-KEY>";
+            string apiKey = "<YOUR-ADMIN-KEY>";
 
             // Create a SearchIndexClient to send create/delete index commands
             Uri serviceEndpoint = new Uri($"https://{serviceName}.search.windows.net/");
@@ -23,7 +23,7 @@ namespace AzureSearch.SDK.Quickstart.v11
             SearchIndexClient idxclient = new SearchIndexClient(serviceEndpoint, credential);
 
             // Create a SearchClient to load and query documents
-            SearchClient qryclient = new SearchClient(serviceEndpoint, indexName, credential);
+            SearchClient srchclient = new SearchClient(serviceEndpoint, indexName, credential);
 
             // Delete index if it exists
             Console.WriteLine("{0}", "Deleting index...\n");
@@ -56,7 +56,7 @@ namespace AzureSearch.SDK.Quickstart.v11
             IndexDocumentsOptions idxoptions = new IndexDocumentsOptions { ThrowOnAnyError = true };
 
             Console.WriteLine("{0}", "Loading index...\n");
-            qryclient.IndexDocuments(batch, idxoptions);
+            srchclient.IndexDocuments(batch, idxoptions);
 
             // Wait 2 secondsfor indexing to complete before starting queries (for demo and console-app purposes only)
             Console.WriteLine("Waiting for indexing...\n");
@@ -64,7 +64,7 @@ namespace AzureSearch.SDK.Quickstart.v11
 
             // Call the RunQueries method to invoke a series of queries
             Console.WriteLine("Starting queries...\n");
-            RunQueries(qryclient);
+            RunQueries(srchclient);
 
             // End the program
             Console.WriteLine("{0}", "Complete. Press any key to end this program...\n");
@@ -81,7 +81,7 @@ namespace AzureSearch.SDK.Quickstart.v11
         }
 
         // Run queries, use WriteDocuments to print output
-        private static void RunQueries(SearchClient qryclient)
+        private static void RunQueries(SearchClient srchclient)
         {
             SearchOptions options;
             SearchResults<Hotel> response;
@@ -94,7 +94,7 @@ namespace AzureSearch.SDK.Quickstart.v11
                 OrderBy = { "" }
             };
 
-            response = qryclient.Search<Hotel>("motel", options);
+            response = srchclient.Search<Hotel>("motel", options);
             WriteDocuments(response);
 
             Console.WriteLine("Query #2: Find hotels where 'type' equals hotel...\n");
@@ -104,7 +104,7 @@ namespace AzureSearch.SDK.Quickstart.v11
                 Filter = "hotelCategory eq 'hotel'",
             };
 
-            response = qryclient.Search<Hotel>("*", options);
+            response = srchclient.Search<Hotel>("*", options);
             WriteDocuments(response);
 
             Console.WriteLine("Query #3: Filter on rates less than $200 and sort by when the hotel was last updated...\n");
@@ -115,7 +115,7 @@ namespace AzureSearch.SDK.Quickstart.v11
                 OrderBy = { "lastRenovationDate desc" }
             };
 
-            response = qryclient.Search<Hotel>("*", options);
+            response = srchclient.Search<Hotel>("*", options);
             WriteDocuments(response);
         }
 

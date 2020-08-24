@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Search.Documents" Version="11.0.0" />
+    <PackageReference Include="Azure.Search.Documents" Version="11.1.1" />
   </ItemGroup>
 
 </Project>
