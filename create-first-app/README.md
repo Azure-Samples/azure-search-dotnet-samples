@@ -35,18 +35,24 @@ This MVC sample is featured in [C# tutorial: Create your first app - Azure Cogni
 
 ## Prerequisites
 
-- [Visual Studio](https://visualstudio.microsoft.com/downloads/)
-- [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
+- [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
+
+In contrast with other tutorials, this one uses a read-only hotels index on an existing demo search service maintained by Microsoft. No preliminary service or index setup is required.
 
 ## Setup
 
 1. Clone or download this sample repository.
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
 
-### Running create-first-app
-1. Open the create-first-app.sln project in Visual Studio
-1. Update the appsettings.json with the service and api details of your Azure Cognitive Search service
-1. Compile and Run the project
+## Running create-first-app
+
+Version 10 (v10) refers to the [Microsoft.Azure.Search](https://docs.microsoft.com/dotnet/api/overview/azure/search/client10) client library used in this code sample. 
+
+A newer version 11 client library ([Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme)) is now available. Over time, this code sample will be updated to include a v11 version, but currently only v10 is available at this time.
+
+1. Open the \create-first-app\v10\1-basic-search-page folder
+1. Open the FirstAzureSearchApp.sln project in Visual Studio
+1. Compile and run the project
 
 The solutions in this sample have template modifications. Methods in Startup.cs have been reordered, with app.UseCookiePolicy() relocated below app.UseMvc(...). This change addresses a known issue in .NET Core 2.x MVC apps where TempData is not persisted.
 
