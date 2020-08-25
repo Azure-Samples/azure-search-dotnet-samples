@@ -2,8 +2,8 @@
 page_type: sample
 languages:
   - csharp
-name: Build your first Azure Cognitive Search app
-description: "Learn how to create a search page, and then enhance it with pagination controls, filters and facets, and typeahead query support. This example builds an ASP.NET Core MVC application using the Azure Cognitive Search .NET SDK."
+name: Create your first Azure Cognitive Search app
+description: "Create a search page, and then enhance it with pagination controls, filters and facets, and typeahead queries. This example builds an ASP.NET Core MVC application using the Azure Cognitive Search .NET SDK."
 products:
   - azure
   - azure-cognitive-search
