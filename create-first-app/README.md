@@ -46,13 +46,17 @@ In contrast with other tutorials, this one uses a read-only hotels index on an e
 
 ## Running create-first-app
 
-Version 10 (v10) refers to the [Microsoft.Azure.Search](https://docs.microsoft.com/dotnet/api/overview/azure/search/client10) client library used in this code sample. 
+1. Choose which version of the client libraries to work with:
 
-A newer version 11 client library ([Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme)) is now available. Over time, this code sample will be updated to include a v11 version, but currently only v10 is available at this time.
+   + **v10** uses the [Microsoft.Azure.Search](https://docs.microsoft.com/dotnet/api/overview/azure/search/client10) legacy client libraries. With the exception of security bug fixes, there will be no further development in this library. If you have existing search solutions that use this library, use the v10 samples to learn about the APIs.
 
-1. Open the \create-first-app\v10\1-basic-search-page folder
-1. Open the FirstAzureSearchApp.sln project in Visual Studio
-1. Compile and run the project
+   + **v11** uses the [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) library, which has been redesigned for consistency with other Azure client libraries. Moving forward, all new features will roll out in this library. If you are new to Cognitive Search, use this version in your search applications.
+
+1. Open the first folder: **1-basic-search-page**.
+
+1. Open the **FirstAzureSearchApp.sln** project in Visual Studio.
+
+1. Compile and run the project.
 
 The solutions in this sample have template modifications. Methods in Startup.cs have been reordered, with app.UseCookiePolicy() relocated below app.UseMvc(...). This change addresses a known issue in .NET Core 2.x MVC apps where TempData is not persisted.
 
