@@ -1,0 +1,176 @@
+{
+    "Id": "13",
+    "HotelName": "Historic Lion Resort",
+    "Rooms": [
+      {
+        "Description": "Standard Room, 1 King Bed (Mountain View)",
+        "Description_fr": "Chambre Standard, 1 très grand lit (vue montagne)",
+        "Type": "Standard Room",
+        "BaseRate": 114.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "jacuzzi tub" ]
+      },
+      {
+        "Description": "Deluxe Room, 2 Double Beds (Amenities)",
+        "Description_fr": "Chambre Deluxe, 2 lits doubles (Services)",
+        "Type": "Deluxe Room",
+        "BaseRate": 145.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": false,
+        "Tags": [ "jacuzzi tub" ]
+      },
+      {
+        "Description": "Standard Room, 2 Queen Beds (Waterfront View)",
+        "Description_fr": "Chambre Standard, 2 grands lits (vue sur le front de mer)",
+        "Type": "Standard Room",
+        "BaseRate": 133.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": true,
+        "Tags": [ "Room Tags", "jacuzzi tub", "bathroom shower" ]
+      },
+      {
+        "Description": "Suite, 2 Double Beds (City View)",
+        "Description_fr": "Suite, 2 lits doubles (vue sur la ville)",
+        "Type": "Suite",
+        "BaseRate": 242.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "tv", "suite", "vcr/dvd" ]
+      },
+      {
+        "Description": "Standard Room, 1 King Bed (Amenities)",
+        "Description_fr": "Chambre Standard, 1 très grand lit (Services)",
+        "Type": "Standard Room",
+        "BaseRate": 103.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "tv" ]
+      },
+      {
+        "Description": "Suite, 2 Double Beds (Amenities)",
+        "Description_fr": "Suite, 2 lits doubles (Services)",
+        "Type": "Suite",
+        "BaseRate": 257.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": false,
+        "Tags": [ "tv", "vcr/dvd", "coffee maker" ]
+      },
+      {
+        "Description": "Standard Room, 1 King Bed (Mountain View)",
+        "Description_fr": "Chambre Standard, 1 très grand lit (vue montagne)",
+        "Type": "Standard Room",
+        "BaseRate": 136.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "jacuzzi tub", "tv" ]
+      },
+      {
+        "Description": "Standard Room, 2 Queen Beds (Waterfront View)",
+        "Description_fr": "Chambre Standard, 2 grands lits (vue sur le front de mer)",
+        "Type": "Standard Room",
+        "BaseRate": 137.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": false,
+        "Tags": [ "jacuzzi tub" ]
+      },
+      {
+        "Description": "Standard Room, 2 Double Beds (Cityside)",
+        "Description_fr": "Chambre Standard, 2 lits doubles (côté ville)",
+        "Type": "Standard Room",
+        "BaseRate": 128.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "vcr/dvd", "coffee maker", "suite" ]
+      },
+      {
+        "Description": "Budget Room, 2 Double Beds (Cityside)",
+        "Description_fr": "Chambre Économique, 2 lits doubles (Cityside)",
+        "Type": "Budget Room",
+        "BaseRate": 65.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "suite" ]
+      },
+      {
+        "Description": "Deluxe Room, 2 Double Beds (City View)",
+        "Description_fr": "Chambre Deluxe, 2 lits doubles (vue ville)",
+        "Type": "Deluxe Room",
+        "BaseRate": 163.99,
+        "BedOptions": "2 Double Beds",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "suite" ]
+      },
+      {
+        "Description": "Suite, 2 Queen Beds (Amenities)",
+        "Description_fr": "Suite, 2 grands lits (Services)",
+        "Type": "Suite",
+        "BaseRate": 262.99,
+        "BedOptions": "2 Queen Beds",
+        "SleepsCount": 4,
+        "SmokingAllowed": false,
+        "Tags": [ "coffee maker" ]
+      },
+      {
+        "Description": "Deluxe Room, 1 Queen Bed (Cityside)",
+        "Description_fr": "Chambre Deluxe, 1 grand lit (côté ville)",
+        "Type": "Deluxe Room",
+        "BaseRate": 142.99,
+        "BedOptions": "1 Queen Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "coffee maker" ]
+      },
+      {
+        "Description": "Suite, 1 King Bed (Amenities)",
+        "Description_fr": "Suite, 1 très grand lit (Services)",
+        "Type": "Suite",
+        "BaseRate": 256.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "bathroom shower", "suite" ]
+      },
+      {
+        "Description": "Suite, 1 King Bed (Waterfront View)",
+        "Description_fr": "Suite, 1 très grand lit (vue sur le front de mer)",
+        "Type": "Suite",
+        "BaseRate": 254.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "bathroom shower", "jacuzzi tub" ]
+      },
+      {
+        "Description": "Standard Room, 1 Queen Bed (Cityside)",
+        "Description_fr": "Chambre Standard, 1 grand lit (côté ville)",
+        "Type": "Standard Room",
+        "BaseRate": 103.99,
+        "BedOptions": "1 Queen Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "jacuzzi tub" ]
+      },
+      {
+        "Description": "Suite, 1 King Bed (Cityside)",
+        "Description_fr": "Suite, 1 très grand lit (côté ville)",
+        "Type": "Suite",
+        "BaseRate": 243.99,
+        "BedOptions": "1 King Bed",
+        "SleepsCount": 2,
+        "SmokingAllowed": true,
+        "Tags": [ "suite" ]
+      }
+    ]
+}
