@@ -1,0 +1,114 @@
+﻿@model NumberedPaging.Models.SearchData
+@{
+    ViewData["Title"] = "Home Page";
+}
+<head>
+    <link rel="stylesheet" href="~/css/hotels.css" />
+</head>
+<body>
+    <h1 class="sampleTitle">
+        <img src="~/images/azure-logo.png" width="80" />
+        Hotels Search - Paging
+    </h1>
+
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        // Display the search text box, with the search icon to the right of it.
+        <div class="searchBoxForm">
+            @Html.TextBoxFor(m => m.searchText, new { @class = "searchBox" }) <input class="searchBoxSubmit" type="submit" value="">
+        </div>
+
+        @if (Model != null)
+        {
+            // Show the result count.
+            <p class="sampleText">
+                @Model.resultList.TotalCount Results
+            </p>
+
+            var results = Model.resultList.GetResults().ToList();
+
+            @for (var i = 0; i < results.Count; i++)
+            {
+                // Display the hotel name and description.
+                @Html.TextAreaFor(m => results[i].Document.HotelName, new { @class = "box1" })
+                @Html.TextArea($"desc{1}", results[i].Document.Description, new { @class = "box2" })
+            }
+        }
+    }
+    @if (Model != null && Model.pageCount > 1)
+    {
+        // If there is more than one page of results, show the paging buttons.
+        <table>
+            <tr>
+                <td>
+                    @if (Model.currentPage > 0)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink("|<", "PageAsync", "Home", new { paging = "0" }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">|&lt;</p>
+                    }
+                </td>
+
+                <td>
+                    @if (Model.currentPage > 0)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink("<", "PageAsync", "Home", new { paging = "prev" }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">&lt;</p>
+                    }
+                </td>
+
+                @for (var pn = Model.leftMostPage; pn < Model.leftMostPage + Model.pageRange; pn++)
+                {
+                    <td>
+                        @if (Model.currentPage == pn)
+                        {
+                            // Convert displayed page numbers to 1-based and not 0-based.
+                            <p class="pageSelected">@(pn + 1)</p>
+                        }
+                        else
+                        {
+                            <p class="pageButton">
+                                @Html.ActionLink((pn + 1).ToString(), "PageAsync", "Home", new { paging = @pn }, null)
+                            </p>
+                        }
+                    </td>
+                }
+
+                <td>
+                    @if (Model.currentPage < Model.pageCount - 1)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink(">", "PageAsync", "Home", new { paging = "next" }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">&gt;</p>
+                    }
+                </td>
+
+                <td>
+                    @if (Model.currentPage < Model.pageCount - 1)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink(">|", "PageAsync", "Home", new { paging = Model.pageCount - 1 }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">&gt;|</p>
+                    }
+                </td>
+            </tr>
+        </table>
+    }
+</body>

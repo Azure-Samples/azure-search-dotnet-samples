@@ -1,5 +1,4 @@
 ﻿using Azure.Search.Documents.Models;
-using System.Collections.Generic;
 
 namespace FirstAzureSearchApp.Models
 {
@@ -9,6 +8,6 @@ namespace FirstAzureSearchApp.Models
         public string searchText { get; set; }
 
         // The list of results.
-        public List<SearchResult<Hotel>> resultList; 
+        public SearchResults<Hotel> resultList;
     }
 }

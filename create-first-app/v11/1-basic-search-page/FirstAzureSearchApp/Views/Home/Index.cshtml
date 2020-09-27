@@ -22,14 +22,16 @@
         {
             // Show the result count.
             <p class="sampleText">
-                @Model.resultList.Count Results
+                @Model.resultList.TotalCount Results
             </p>
 
-            @for (var i = 0; i < Model.resultList.Count; i++)
+            var results = Model.resultList.GetResults().ToList();
+
+            @for (var i = 0; i < results.Count; i++)
             {
                 // Display the hotel name and description.
-                @Html.TextAreaFor(m => m.resultList[i].Document.HotelName, new { @class = "box1" })
-                @Html.TextArea($"desc{i}", Model.resultList[i].Document.Description, new { @class = "box2" })
+                @Html.TextAreaFor(m => results[i].Document.HotelName, new { @class = "box1" })
+                @Html.TextArea($"desc{i}", results[i].Document.Description, new { @class = "box2" })
             }
         }
     }

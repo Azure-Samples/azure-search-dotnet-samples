@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FirstAzureSearchApp.Controllers
@@ -30,13 +29,13 @@ namespace FirstAzureSearchApp.Controllers
                 }
 
                 // Make the Azure Cognitive Search call.
-                await RunQueryAsync(model);
+                await RunQueryAsync(model).ConfigureAwait(false);
             }
-
             catch
             {
                 return View("Error", new ErrorViewModel { RequestId = "1" });
             }
+
             return View(model);
         }
 
@@ -70,7 +69,10 @@ namespace FirstAzureSearchApp.Controllers
         {
             InitSearch();
 
-            var options = new SearchOptions() { };
+            var options = new SearchOptions() 
+            { 
+                IncludeTotalCount = true
+            };
 
             // Enter Hotel property names into this list so only these values will be returned.
             // If Select is empty, all values will be returned, which can be inefficient.
@@ -78,8 +80,7 @@ namespace FirstAzureSearchApp.Controllers
             options.Select.Add("Description");
 
             // For efficiency, the search call should be asynchronous, so use SearchAsync rather than Search.
-            var searchResult = await _searchClient.SearchAsync<Hotel>(model.searchText, options).ConfigureAwait(false);
-            model.resultList = searchResult.Value.GetResults().ToList();            
+            model.resultList = await _searchClient.SearchAsync<Hotel>(model.searchText, options).ConfigureAwait(false);          
 
             // Display the results.
             return View("Index", model);

@@ -4,7 +4,7 @@ using Microsoft.Spatial;
 using System;
 using System.Text.Json.Serialization;
 
-namespace FirstAzureSearchApp.Models
+namespace NumberedPaging.Models
 {
     public partial class Hotel
     {
