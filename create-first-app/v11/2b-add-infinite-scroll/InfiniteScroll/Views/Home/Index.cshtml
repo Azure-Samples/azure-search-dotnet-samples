@@ -1,0 +1,58 @@
+﻿@model InfiniteScroll.Models.SearchData
+@{
+    ViewData["Title"] = "Home Page";
+}
+<head>
+    <link rel="stylesheet" href="~/css/hotels.css" />
+</head>
+<body>
+    <h1 class="sampleTitle">
+        <img src="~/images/azure-logo.png" width="80" />
+        Hotels Search - Infinite Scroll
+    </h1>
+
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        // Display the search text box, with the search icon to the right of it.
+        <div class="searchBoxForm">
+            @Html.TextBoxFor(m => m.searchText, new { @class = "searchBox" }) <input class="searchBoxSubmit" type="submit" value="">
+        </div>
+
+        @if (Model != null)
+        {
+            // Show the result count.
+            <p class="sampleText">
+                @Model.resultList.TotalCount Results
+            </p>
+
+            var results = Model.resultList.GetResults().ToList();
+
+            <div id="myDiv" style="width: 800px; height: 450px; overflow-y: scroll;" onscroll="scrolled()">
+
+                <!-- Show the hotel data. -->
+                @for (var i = 0; i < results.Count; i++)
+                {
+                    // Display the hotel name and description.
+                    @Html.TextAreaFor(m => results[i].Document.HotelName, new { @class = "box1" })
+                    @Html.TextArea($"desc{i}", results[i].Document.Description, new { @class = "box2" })
+                }
+            </div>
+
+            <script>
+                function scrolled() {
+                    if (myDiv.offsetHeight + myDiv.scrollTop >= myDiv.scrollHeight) {
+                        $.getJSON("/Home/NextAsync", function (data) {
+                            var div = document.getElementById('myDiv');
+
+                            // Append the returned data to the current list of hotels.
+                            for (var i = 0; i < data.length; i += 2) {
+                                div.innerHTML += '\n<textarea class="box1">' + data[i] + '</textarea>';
+                                div.innerHTML += '\n<textarea class="box2">' + data[i + 1] + '</textarea>';
+                            }
+                        });
+                    }
+                }
+            </script>
+        }
+    }
+</body>
