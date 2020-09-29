@@ -1,0 +1,276 @@
+﻿@model Typeahead.Models.SearchData
+@{
+    ViewData["Title"] = "Home Page";
+}
+<head>
+    <meta charset="utf-8">
+    <title>Typeahead demo</title>
+    <link href="https://code.jquery.com/ui/1.12.1/themes/start/jquery-ui.css"
+          rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="~/css/hotels.css" />
+</head>
+<body>
+    <h1 class="sampleTitle">
+        <img src="~/images/azure-logo.png" width="80" />
+        Hotels Search - Type-ahead
+    </h1>
+
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        // Display the search text box, with the search icon to the right of it.
+        <div id="underneath" class="searchBox" style="position: relative; left: 0; top: 0">
+        </div>
+
+        <div id="searchinput" class="searchBoxForm" style="position: relative; left: 0; top: -39px">
+            @Html.TextBoxFor(m => m.searchText, new { @class = "searchBox", @id = "azureautocomplete" }) <input value="" class="searchBoxSubmit" type="submit">
+        </div>
+
+        <script>
+            $("#azureautosuggest").autocomplete({
+                source: "/Home/SuggestAsync?highlights=false&fuzzy=false",
+                minLength: 2,
+                position: {
+                    my: "left top",
+                    at: "left-23 bottom+10"
+                }
+            });
+        </script>
+
+        <script>
+            var updateTextbox = function (event, ui) {
+                var result = ui.item.value.replace(/<\/?[^>]+(>|$)/g, "");
+                $("#azuresuggesthighlights").val(result);
+                return false;
+            };
+
+            $("#azuresuggesthighlights").autocomplete({
+                html: true,
+                source: "/Home/SuggestAsync?highlights=true&fuzzy=false&",
+                minLength: 2,
+                position: {
+                    my: "left top",
+                    at: "left-23 bottom+10"
+                },
+                select: updateTextbox,
+                focus: updateTextbox
+            }).data("ui-autocomplete")._renderItem = function (ul, item) {
+                return $("<li></li>")
+                    .data("item.autocomplete", item)
+                    .append("<a>" + item.label + "</a>")
+                    .appendTo(ul);
+            };
+        </script>
+
+        <script>
+            $("#azureautocompletebasic").autocomplete({
+                source: "/Home/AutoCompleteAsync",
+                minLength: 2,
+                position: {
+                    my: "left top",
+                    at: "left-23 bottom+10"
+                }
+            });
+        </script>
+
+        <script>
+            $('#azureautocomplete').autocomplete({
+                delay: 500,
+                minLength: 2,
+                position: {
+                    my: "left top",
+                    at: "left-23 bottom+10"
+                },
+
+                // Use Ajax to set up a "success" function.
+                source: function (request, response) {
+                    var controllerUrl = "/Home/AutoCompleteAndSuggestAsync?term=" + $("#azureautocomplete").val();
+                    $.ajax({
+                        url: controllerUrl,
+                        dataType: "json",
+                        success: function (data) {
+                            if (data && data.length > 0) {
+
+                                // Show the autocomplete suggestion.
+                                document.getElementById("underneath").innerHTML = data[0];
+
+                                // Remove the top suggestion as it is used for inline autocomplete.
+                                var array = new Array();
+                                for (var n = 1; n < data.length; n++) {
+                                    array[n - 1] = data[n];
+                                }
+
+                                // Show the drop-down list of suggestions.
+                                response(array);
+                            } else {
+
+                                // Nothing is returned, so clear the autocomplete suggestion.
+                                document.getElementById("underneath").innerHTML = "";
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Complete on TAB.
+            // Clear on ESC.
+            // Clear if backspace to less than 2 characters.
+            // Clear if any arrow key hit as user is navigating the suggestions.
+            $("#azureautocomplete").keydown(function (evt) {
+
+                var suggestedText = document.getElementById("underneath").innerHTML;
+                if (evt.keyCode === 9 /* TAB */ && suggestedText.length > 0) {
+                    $("#azureautocomplete").val(suggestedText);
+                    return false;
+                } else if (evt.keyCode === 27 /* ESC */) {
+                    document.getElementById("underneath").innerHTML = "";
+                    $("#azureautocomplete").val("");
+                } else if (evt.keyCode === 8 /* Backspace */) {
+                    if ($("#azureautocomplete").val().length < 2) {
+                        document.getElementById("underneath").innerHTML = "";
+                    }
+                } else if (evt.keyCode >= 37 && evt.keyCode <= 40 /* Any arrow key */) {
+                    document.getElementById("underneath").innerHTML = "";
+                }
+            });
+
+            // Character replace function.
+            function setCharAt(str, index, chr) {
+                if (index > str.length - 1) return str;
+                return str.substr(0, index) + chr + str.substr(index + 1);
+            }
+
+            // This function is needed to clear the "underneath" text when the user clicks on a suggestion, and to
+            // correct the case of the autocomplete option when it does not match the case of the user input.
+            // The interval function is activated with the input, blur, change, or focus events.
+            $("#azureautocomplete").on("input blur change focus", function (e) {
+
+                // Set a 2 second interval duration.
+                var intervalDuration = 2000,
+                    interval = setInterval(function () {
+
+                        // Compare the autocorrect suggestion with the actual typed string.
+                        var inputText = document.getElementById("azureautocomplete").value;
+                        var autoText = document.getElementById("underneath").innerHTML;
+
+                        // If the typed string is longer than the suggestion, then clear the suggestion.
+                        if (inputText.length > autoText.length) {
+                            document.getElementById("underneath").innerHTML = "";
+                        } else {
+
+                            // If the strings match, change the case of the suggestion to match the case of the typed input.
+                            if (autoText.toLowerCase().startsWith(inputText.toLowerCase())) {
+                                for (var n = 0; n < inputText.length; n++) {
+                                    autoText = setCharAt(autoText, n, inputText[n]);
+                                }
+                                document.getElementById("underneath").innerHTML = autoText;
+
+                            } else {
+                                // The strings do not match, so clear the suggestion.
+                                document.getElementById("underneath").innerHTML = "";                           
+                            }
+                        }
+
+                        // If the element loses focus, stop the interval checking.
+                        if (!$input.is(':focus')) clearInterval(interval);
+
+                    }, intervalDuration);
+            });
+
+        </script>
+
+        @if (Model != null)
+        {                      
+            // Show the result count.
+            <p class="sampleText">
+                @Model.resultList.TotalCount Results
+            </p>
+
+            var results = Model.resultList.GetResults().ToList();
+
+            @for (var i = 0; i < results.Count; i++)
+            {
+                // Display the hotel name and description.
+                @Html.TextAreaFor(m => results[i].Document.HotelName, new { @class = "box1" })
+                @Html.TextArea($"desc{i}", results[i].Document.Description, new { @class = "box2" })
+            }
+        }
+    }
+    @if (Model != null && Model.pageCount > 1)
+    {
+        // If there is more than one page of results, show the paging buttons.
+        <table>
+            <tr>
+                <td>
+                    @if (Model.currentPage > 0)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink("|<", "PageAsync", "Home", new { paging = "0" }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">|&lt;</p>
+                    }
+                </td>
+
+                <td>
+                    @if (Model.currentPage > 0)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink("<", "PageAsync", "Home", new { paging = "prev" }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">&lt;</p>
+                    }
+                </td>
+
+                @for (var pn = Model.leftMostPage; pn < Model.leftMostPage + Model.pageRange; pn++)
+                {
+                    <td>
+                        @if (Model.currentPage == pn)
+                        {
+                            // Convert displayed page numbers to 1-based and not 0-based.
+                            <p class="pageSelected">@(pn + 1)</p>
+                        }
+                        else
+                        {
+                            <p class="pageButton">
+                                @Html.ActionLink((pn + 1).ToString(), "PageAsync", "Home", new { paging = @pn }, null)
+                            </p>
+                        }
+                    </td>
+                }
+
+                <td>
+                    @if (Model.currentPage < Model.pageCount - 1)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink(">", "PageAsync", "Home", new { paging = "next" }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">&gt;</p>
+                    }
+                </td>
+
+                <td>
+                    @if (Model.currentPage < Model.pageCount - 1)
+                    {
+                        <p class="pageButton">
+                            @Html.ActionLink(">|", "PageAsync", "Home", new { paging = Model.pageCount - 1 }, null)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="pageButtonDisabled">&gt;|</p>
+                    }
+                </td>
+            </tr>
+        </table>
+    }
+</body>
