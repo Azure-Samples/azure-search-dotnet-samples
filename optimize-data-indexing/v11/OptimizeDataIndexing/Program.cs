@@ -43,10 +43,10 @@ namespace OptimizeDataIndexing
             //List<Hotel> hotels = dg.GetHotels(numDocuments);
 
             //Console.WriteLine("{0}", "Uploading using exponential backoff...\n");
-            //await ExponentialBackoff.IndexDataAsync(indexClient, hotels, 1000, 8);
+            //await ExponentialBackoff.IndexDataAsync(searchClient, hotels, 1000, 8);
 
             //Console.WriteLine("{0}", "Validating all data was indexed...\n");
-            //await ValidateIndexAsync(searchService, indexName, numDocuments);
+            //await ValidateIndexAsync(indexClient, indexName, numDocuments);
 
             Console.WriteLine("{0}", "Complete.  Press any key to end application...\n");
             Console.ReadKey();
