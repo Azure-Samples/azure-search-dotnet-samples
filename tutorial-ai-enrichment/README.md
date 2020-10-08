@@ -18,16 +18,6 @@ Demonstrates AI enrichment by building an indexing pipeline that detects and ext
 
 This sample is a C# console application that uses .NET Core. The code is described in [C# Tutorial: AI-generated searchable content from Azure blobs using the .NET SDK](https://docs.microsoft.com/azure/search/cognitive-search-tutorial-blob-dotnet). 
 
-## Contents
-
-| File/folder | Description |
-|-------------|-------------|
-| `tutorial-ai-enrichment`       | Source files |
-| `.gitignore` | Define what to ignore at commit time. |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `README.md` | This README file. |
-| `LICENSE`   | The license for the sample. |
-
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -38,16 +28,21 @@ This sample is a C# console application that uses .NET Core. The code is describ
 ## Setup
 
 1. Clone or download this sample repository.
-2. Extract contents if the download is a zip file. Make sure the files are read-write.
-3. Create a Blob container named `cog-search-demo` and upload the sample files of mixed content type.
-4. For the Blob container, get the connection string.
-5. For Azure Cognitive Search, get the service name, admin API key, and a query API key.
+1. Extract contents if the download is a zip file. Make sure the files are read-write.
+1. Create a Blob container named `cog-search-demo` and upload the sample files of mixed content type.
+1. For the Blob container, get the connection string.
+1. For Azure Cognitive Search, get the service name, admin API key, and a query API key.
+
+This sample is available in two versions.
+
++ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
+
++ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
 
 ## Run the sample
 
 1. In applicationsettings.json, enter the search service name, keys, and storage account connection string.
-5. Press F5 to run the program.
-
+1. Press F5 to run the program.
 
 ## Next steps
 
