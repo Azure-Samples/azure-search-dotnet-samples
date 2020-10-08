@@ -28,14 +28,6 @@ Also, as an extra precaution, it is best if there are no changes being made to t
 
 **If your index has more than 100,000 documents**, this sample, as written, will not work. This is because the REST API $skip feature, that is used for paging, has a 100K document limit. However, you can work around this limitation by adding code to iterate over, and filter on, a facet with less that 100K documents per facet value.
 
-| File/folder | Description |
-|-------------|-------------|
-| `AzureSearchBackupRestoreIndex.sln`  | .NET Core console solution file |
-| `AzureSearchBackupRestoreIndex`  | Source files |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `README.md` | This README file. |
-| `LICENSE`   | The license for the sample. |
-
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -46,11 +38,18 @@ Also, as an extra precaution, it is best if there are no changes being made to t
 1. Clone or download this sample repository.
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
 
-### Running the backup-restore application
+This sample is available in two versions:
+
++ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
+
++ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
+
+## Run the sample
 
 [!NOTE] In this application the term "source" identifies the search service and index and that you are backing up. The term "target" identifies the search service and index that will contain the restored (copied) index
 
 1. Open the AzureSearchBackupRestoreIndex.sln project in Visual Studio.
+
 1. By default, this application will copy the source index to the target search service using the target index name you provide. 
     - If you only want to back up the index and not restore it immediately, do this:
         - Comment out the code in the **Main** method after the **BackupIndexAndDocuments** method call.

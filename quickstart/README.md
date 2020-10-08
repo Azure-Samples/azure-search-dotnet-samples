@@ -14,28 +14,11 @@ urlFragment: csharp-quickstart
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-New and legacy versions are provided so that you can learn fundamental operations with the client libraries used in your solution. Both versions create a search index that is modeled on a subset of the built-in Hotels dataset, reduced in this quickstart for readability and comprehension. Index definition and documents are included in the code. When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries. 
-
-Version 10 uses the [Microsoft.Azure.Search](https://docs.microsoft.com/dotnet/api/?term=microsoft.azure.search) libraries. Version 10 is now considered a legacy API, replaced by version 11. If you are new to Azure Cognitive Search, please use Azure.Search.Documents (version 11) instead.
-
-Version 11 uses the [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme?view=azure-dotnet) library. Version 11 is a fully redesigned library that is more consistent with other client libraries in the Azure SDK. Moving forward, all 
-
-Run either version against an Azure Cognitive Search service using connection information that you provide.
-
-## Contents
-
-| File/folder | Description |
-|-------------|-------------|
-| `v<number>\AzureSearchQuickstart.sln`       | .NET Core console solution file |
-| `v<number>\AzureSearchQuickstart`       | Source files |
-| `.gitignore` | Define what to ignore at commit time. |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `README.md` | This README file. |
-| `LICENSE`   | The license for the sample. |
+New and legacy versions are provided so that you can learn fundamental operations with the client libraries used in your solution. Both versions create a search index that is modeled on a subset of the built-in Hotels dataset, reduced in this quickstart for readability and comprehension. Index definition and documents are included in the code. When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries.
 
 ## Prerequisites
 
-- [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
+- [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
 
 ## Setup
@@ -44,14 +27,20 @@ Run either version against an Azure Cognitive Search service using connection in
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
 1. Get the service name and admin API key of your service. You can find this information in the Azure portal.
 
-## Run version 11
+This sample is available in two versions.
 
-1. Open the v11\AzureSearchQuickstart-v11.sln project in Visual Studio
++ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
+
++ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
+
+## Run the v11 sample
+
+1. Open the AzureSearchQuickstart-v11.sln project in Visual Studio
 1. Open **Program.cs**.
 1. Replace the placeholder values for service name and admin API key with valid values for your search service.
 1. Compile and run the project.
 
-## Run version 10
+## Run v1 sample
 
 1. Open the v10\AzureSearchQuickstart.sln project in Visual Studio
 1. Use **Tools > NuGet Package Manager** to check for updated packages.

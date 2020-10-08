@@ -33,16 +33,6 @@ The index is modeled on a subset of the Hotels dataset, reduced for readability 
 > [!NOTE]
 > Network transfer speeds can be a limiting factor when indexing data. You might get a better sense of indexing efficiency if your Visual Studio client is on an [Azure virtual machine](https://azure.microsoft.com/services/virtual-machines/) in the cloud in the same location as Azure Cognitive Search. The [Data Science VM](https://azure.microsoft.com/services/virtual-machines/data-science-virtual-machines/) is a good choice because Visual Studio is preinstalled.
 
-## Contents
-
-| File/folder | Description |
-|-------------|-------------|
-| `OptimizeDataIndexing.sln`       | .NET Core console solution file |
-| `OptimizeDataIndexing`       | Source files |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `README.md` | This README file. |
-| `LICENSE`   | The license for the sample. |
-
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
@@ -53,7 +43,13 @@ The index is modeled on a subset of the Hotels dataset, reduced for readability 
 1. Clone or download this sample repository.
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
 
-### Running the solution
+This sample is available in two versions.
+
++ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
+
++ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
+
+## Run the sample
 
 1. Open the OptimizeDataIndexing.sln project in Visual Studio.
 1. Update appsetting.json to use your search service name and admin api-key. The admin key is necessary for creating objects and loading data.

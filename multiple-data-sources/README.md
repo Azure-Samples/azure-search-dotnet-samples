@@ -20,20 +20,9 @@ Demonstrates Azure Cognitive Search indexing from Azure Cosmos DB and Azure Blob
 
 This .NET Core console application is featured in [C# Tutorial: Combine data from multiple data sources in one search index](https://docs.microsoft.com/azure/search/tutorial-multiple-data-sources). When you run the program, a console window emits output messages for each step. This sample runs on an Azure Cognitive Search service, importing content from Azure Cosmos DB and Azure Blob storage, using services and connection information that you provide.
 
-## Contents
-
-| File/folder | Description |
-|-------------|-------------|
-| `AzureSearchMultipleDataSources.sln`       | .NET Core console solution file |
-| `src`       | Source files |
-| `.gitignore` | Define what to ignore at commit time. |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `README.md` | This README file. |
-| `LICENSE`   | The license for the sample. |
-
 ## Prerequisites
 
-- [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
+- [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
 - [Azure Cosmos DB](https://docs.microsoft.com/azure/cosmos-db/create-cosmosdb-resources-portal)
 - [Azure Storage](https://docs.microsoft.com/azure/storage/common/storage-quickstart-create-account)
@@ -59,9 +48,15 @@ This .NET Core console application is featured in [C# Tutorial: Combine data fro
    + Select this container, click **Upload**, and then upload all of the JSON files in the *src/blobs* folder, ranging from *Rooms1.json* through *Rooms15.json*. These files contain room details for each of the seven hotels.
    + In the left pane, go to **Settings > Access Keys** and get the connection string for key1. It also goes into the project's *appsettings.json* file.
 
+This sample is available in two versions:
+
++ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
+
++ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
+
 ## Run the sample
 
-1. Open the sample solution in Visual Studio 2019.
+1. Open the sample solution in Visual Studio.
 
 1. Edit the  *appsettings.json* and fill in the appropriate account names, keys, and connection strings:
 
