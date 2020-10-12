@@ -34,22 +34,22 @@ namespace OptimizeDataIndexing
 
                     var failedDocuments = result.Results.Where(r => r.Succeeded != true).ToList();
 
+                    // handle partial failure
                     if (failedDocuments.Count > 0)
                     {
-                        Console.WriteLine("BATCH STARTING AT DOC {0}:", id);
-                        Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts);
-
+                        
                         if (attempts == maxRetryAttempts)
                         {
-                            Console.WriteLine("BATCH STARTING AT DOC {0}:", id);
                             Console.WriteLine("[MAX RETRIES HIT] - Giving up on the batch starting at {0}", id);
                             break;
                         } 
                         else
                         {
-                            Console.WriteLine("BATCH STARTING AT DOC {0}:", id);
-                            Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts);
-                            Console.WriteLine("{0} documents failed:", failedDocuments.Count);
+                            Console.WriteLine("[Batch starting at doc {0} had partial failure]", id);
+                            //Console.WriteLine("[Attempt: {0} of {1} Failed]", attempts, maxRetryAttempts);
+                            Console.WriteLine("[Retrying {0} failed documents] \n", failedDocuments.Count);
+
+                            // creating a batch of failed documents to retry
                             var failedDocumentKeys = failedDocuments.Select(doc => doc.Key).ToList();
                             hotels = hotels.Where(h => failedDocumentKeys.Contains(h.HotelId)).ToList();
                             batch = IndexDocumentsBatch.Upload(hotels);
@@ -65,8 +65,9 @@ namespace OptimizeDataIndexing
                 }
                 catch (RequestFailedException ex)
                 {
-                    Console.WriteLine("BATCH STARTING AT DOC {0}:", id);
-                    Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts, ex.Message);
+                    Console.WriteLine("[Batch starting at doc {0} failed]", id);
+                    //Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts, ex.Message);
+                    Console.WriteLine("[Retrying entire batch] \n");
                     
                     if (attempts == maxRetryAttempts)
                     {
