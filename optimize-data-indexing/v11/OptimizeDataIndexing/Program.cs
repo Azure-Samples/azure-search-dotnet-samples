@@ -40,7 +40,7 @@ namespace OptimizeDataIndexing
 
             //long numDocuments = 100000;
             //DataGenerator dg = new DataGenerator();
-            //List<Hotel> hotels = dg.GetHotels(numDocuments);
+            //List<Hotel> hotels = dg.GetHotels(numDocuments, "large");
 
             //Console.WriteLine("{0}", "Uploading using exponential backoff...\n");
             //await ExponentialBackoff.IndexDataAsync(searchClient, hotels, 1000, 8);
@@ -71,8 +71,8 @@ namespace OptimizeDataIndexing
             // Create a new search index structure that matches the properties of the Hotel class.
             // The Address class is referenced from the Hotel class. The FieldBuilder
             // will enumerate these to create a complex data structure for the index.
-            FieldBuilder bulder = new FieldBuilder();
-            var definition = new SearchIndex(indexName, bulder.Build(typeof(Hotel)));
+            FieldBuilder builder = new FieldBuilder();
+            var definition = new SearchIndex(indexName, builder.Build(typeof(Hotel)));
 
             await indexClient.CreateIndexAsync(definition);
         }

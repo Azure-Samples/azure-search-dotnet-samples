@@ -3,6 +3,7 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace OptimizeDataIndexing
@@ -14,6 +15,8 @@ namespace OptimizeDataIndexing
         {
             // Create batch of documents for indexing
             var batch = IndexDocumentsBatch.Upload(hotels);
+
+            // Create an object to hold the result
             IndexDocumentsResult result = null;
 
             // Define parameters for exponential backoff
@@ -28,12 +31,43 @@ namespace OptimizeDataIndexing
                 {
                     attempts++;
                     result = await searchClient.IndexDocumentsAsync(batch).ConfigureAwait(false);
+
+                    var failedDocuments = result.Results.Where(r => r.Succeeded != true).ToList();
+
+                    // handle partial failure
+                    if (failedDocuments.Count > 0)
+                    {
+                        
+                        if (attempts == maxRetryAttempts)
+                        {
+                            Console.WriteLine("[MAX RETRIES HIT] - Giving up on the batch starting at {0}", id);
+                            break;
+                        } 
+                        else
+                        {
+                            Console.WriteLine("[Batch starting at doc {0} had partial failure]", id);
+                            //Console.WriteLine("[Attempt: {0} of {1} Failed]", attempts, maxRetryAttempts);
+                            Console.WriteLine("[Retrying {0} failed documents] \n", failedDocuments.Count);
+
+                            // creating a batch of failed documents to retry
+                            var failedDocumentKeys = failedDocuments.Select(doc => doc.Key).ToList();
+                            hotels = hotels.Where(h => failedDocumentKeys.Contains(h.HotelId)).ToList();
+                            batch = IndexDocumentsBatch.Upload(hotels);
+
+                            Task.Delay(delay).Wait();
+                            delay = delay * 2;
+                            continue;
+                        }
+                    }
+
+                    
                     return result;
                 }
                 catch (RequestFailedException ex)
                 {
-                    Console.WriteLine("BATCH STARTING AT DOC {0}:", id);
-                    Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts, ex.Message);
+                    Console.WriteLine("[Batch starting at doc {0} failed]", id);
+                    //Console.WriteLine("[Attempt: {0} of {1} Failed] - Error: {2} \n", attempts, maxRetryAttempts, ex.Message);
+                    Console.WriteLine("[Retrying entire batch] \n");
                     
                     if (attempts == maxRetryAttempts)
                     {
