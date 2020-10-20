@@ -40,7 +40,7 @@ This sample is available in two versions.
 1. Replace the placeholder values for service name and admin API key with valid values for your search service.
 1. Compile and run the project.
 
-## Run v1 sample
+## Run v10 sample
 
 1. Open the v10\AzureSearchQuickstart.sln project in Visual Studio
 1. Use **Tools > NuGet Package Manager** to check for updated packages.
