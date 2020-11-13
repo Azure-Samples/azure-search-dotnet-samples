@@ -1,23 +1,41 @@
 ﻿using System;
 using System.Text.Json.Serialization;
+using Azure.Search.Documents.Indexes;
+using Azure.Search.Documents.Indexes.Models;
 
-namespace AzureSearch.SDK.Quickstart.v11
+namespace AzureSearch.Quickstart
 {
-    public class Hotel
+    public partial class Hotel
     {
-        [JsonPropertyName("hotelId")]
-        public string Id { get; set; }
+        [SimpleField(IsKey = true, IsFilterable = true)]
+        public string HotelId { get; set; }
 
-        [JsonPropertyName("hotelName")]
-        public string Name { get; set; }
+        [SearchableField(IsSortable = true)]
+        public string HotelName { get; set; }
 
-        [JsonPropertyName("hotelCategory")]
+        [SearchableField(AnalyzerName = LexicalAnalyzerName.Values.EnLucene)]
+        public string Description { get; set; }
+
+        [SearchableField(AnalyzerName = LexicalAnalyzerName.Values.FrLucene)]
+        [JsonPropertyName("Description_fr")]
+        public string DescriptionFr { get; set; }
+
+        [SearchableField(IsFilterable = true, IsSortable = true, IsFacetable = true)]
         public string Category { get; set; }
 
-        [JsonPropertyName("baseRate")]
-        public Int32 Rate { get; set; }
+        [SearchableField(IsFilterable = true, IsFacetable = true)]
+        public string[] Tags { get; set; }
 
-        [JsonPropertyName("lastRenovationDate")]
-        public DateTime Updated { get; set; }
+        [SimpleField(IsFilterable = true, IsSortable = true, IsFacetable = true)]
+        public bool? ParkingIncluded { get; set; }
+
+        [SimpleField(IsFilterable = true, IsSortable = true, IsFacetable = true)]
+        public DateTimeOffset? LastRenovationDate { get; set; }
+
+        [SimpleField(IsFilterable = true, IsSortable = true, IsFacetable = true)]
+        public double? Rating { get; set; }
+
+        [SearchableField]
+        public Address Address { get; set; }
     }
 }
