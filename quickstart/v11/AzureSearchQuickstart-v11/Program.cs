@@ -177,6 +177,7 @@ namespace AzureSearch.Quickstart
         {
             SearchOptions options;
             SearchResults<Hotel> response;
+            SearchDocument documentResult;
 
             // PROB 1: Total count doesn't show up
             // PROB 2: Search score, from previous quickstart, doesn't show up
@@ -216,7 +217,7 @@ namespace AzureSearch.Quickstart
             response = srchclient.Search<Hotel>("wifi", options);
             WriteDocuments(response);
 
-            // PROB: For SearchField, JS query should search on a term, like motel or hotel, instead of *
+            // PROB 5: For SearchField, JS query should search on a term, like motel or hotel, instead of *
             Console.WriteLine("Query #3: Limit search to specific fields (pool in Tags field)...\n");
 
             options = new SearchOptions()
@@ -230,6 +231,39 @@ namespace AzureSearch.Quickstart
 
             response = srchclient.Search<Hotel>("pool", options);
             WriteDocuments(response);
+
+            // PROB 6: Don't Facets need filters? JS doesn't have one, and I'm not sure this is right
+            // We should only offer queries that prove successful. Might need to add or change docs to do so.
+            Console.WriteLine("Query #4: Facet on 'Category'...\n");
+
+            options = new SearchOptions()
+            {
+                Filter = "Category"
+            };
+
+            options.Facets.Add("Category");
+
+            options.Select.Add("HotelId");
+            options.Select.Add("HotelName");
+            options.Select.Add("Rating");
+            options.Select.Add("Tags");
+            options.Select.Add("Address/StateProvince");
+
+            response = srchclient.Search<Hotel>("wifi", options);
+            WriteDocuments(response);
+
+            //// PROB 7: Not the right APIS
+            //Console.WriteLine("Query #5: Look up a sepcific document...\n");
+
+            ////documentResult = srchclient.getDocument(key = '3');
+            //_ = new SearchDocument()
+            //{
+            //    srchclient.GetDocument<Reponse>("3")
+            //};
+
+            //response = srchclient.Search<Hotel>("*");
+            //WriteDocuments(response);
+
         }
 
         // Write search results to console
