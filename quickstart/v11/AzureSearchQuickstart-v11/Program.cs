@@ -67,6 +67,9 @@ namespace AzureSearch.Quickstart
 
             var definition = new SearchIndex(indexName, searchFields);
 
+            var suggester = new SearchSuggester("sg", new[] { "HotelName", "Category", "Address/City", "Address/StateProvince" });
+            definition.Suggesters.Add(suggester);
+
             adminClient.CreateOrUpdateIndex(definition);
         }
 
@@ -177,10 +180,8 @@ namespace AzureSearch.Quickstart
         {
             SearchOptions options;
             SearchResults<Hotel> response;
-            SearchDocument documentResult;
 
-            // PROB 1: Total count doesn't show up
-            // PROB 2: Search score, from previous quickstart, doesn't show up
+            // Query 1
             Console.WriteLine("Query #1: Search on empty term '*' to return all documents, showing a subset of fields...\n");
 
             options = new SearchOptions()
@@ -197,27 +198,23 @@ namespace AzureSearch.Quickstart
             response = srchclient.Search<Hotel>("*", options);
             WriteDocuments(response);
 
-
-            // PROB 3: we need two states in FL with different ratings. Does it matter if WIFI is there?
-            // PROB 4: JS query should have different SELECT fields for this query
-            Console.WriteLine("Query #2: Search on 'wifi', filter on 'FL', sort by Rating...\n");
+            // Query 2
+            Console.WriteLine("Query #2: Search on 'hotels', filter on 'Rating gt 4', sort by Rating in descending order...\n");
 
             options = new SearchOptions()
             {
-                Filter = "Address/StateProvince eq 'FL'",
+                Filter = "Rating gt 4",
                 OrderBy = { "Rating desc" }
             };
 
             options.Select.Add("HotelId");
             options.Select.Add("HotelName");
             options.Select.Add("Rating");
-            options.Select.Add("Tags");
-            options.Select.Add("Address/StateProvince");
 
-            response = srchclient.Search<Hotel>("wifi", options);
+            response = srchclient.Search<Hotel>("hotels", options);
             WriteDocuments(response);
 
-            // PROB 5: For SearchField, JS query should search on a term, like motel or hotel, instead of *
+            // Query 3
             Console.WriteLine("Query #3: Limit search to specific fields (pool in Tags field)...\n");
 
             options = new SearchOptions()
@@ -232,37 +229,38 @@ namespace AzureSearch.Quickstart
             response = srchclient.Search<Hotel>("pool", options);
             WriteDocuments(response);
 
-            // PROB 6: Don't Facets need filters? JS doesn't have one, and I'm not sure this is right
-            // We should only offer queries that prove successful. Might need to add or change docs to do so.
+            // Query 4 - Use Facets to return a faceted navigation structure for a given query
+            // Filters are typically used with facets to narrow results on OnClick events
             Console.WriteLine("Query #4: Facet on 'Category'...\n");
 
             options = new SearchOptions()
             {
-                Filter = "Category"
+                Filter = ""
             };
 
             options.Facets.Add("Category");
 
             options.Select.Add("HotelId");
             options.Select.Add("HotelName");
-            options.Select.Add("Rating");
-            options.Select.Add("Tags");
-            options.Select.Add("Address/StateProvince");
+            options.Select.Add("Category");
 
-            response = srchclient.Search<Hotel>("wifi", options);
+            response = srchclient.Search<Hotel>("*", options);
             WriteDocuments(response);
 
-            //// PROB 7: Not the right APIS
-            //Console.WriteLine("Query #5: Look up a sepcific document...\n");
+            // Query 5
+            Console.WriteLine("Query #5: Look up a specific document...\n");
 
-            ////documentResult = srchclient.getDocument(key = '3');
-            //_ = new SearchDocument()
-            //{
-            //    srchclient.GetDocument<Reponse>("3")
-            //};
+            Response<Hotel> lookupResponse;
+            lookupResponse = srchclient.GetDocument<Hotel>("3");
 
-            //response = srchclient.Search<Hotel>("*");
-            //WriteDocuments(response);
+            Console.WriteLine(lookupResponse.Value.HotelId);
+
+
+            // Query 6
+            Console.WriteLine("Query #6: Call Autocomplete on HotelName...\n");
+
+            var autoresponse = srchclient.Autocomplete("sa", "sg");
+            WriteDocuments(autoresponse);
 
         }
 
@@ -272,6 +270,16 @@ namespace AzureSearch.Quickstart
             foreach (SearchResult<Hotel> result in searchResults.GetResults())
             {
                 Console.WriteLine(result.Document);
+            }
+
+            Console.WriteLine();
+        }
+
+        private static void WriteDocuments(AutocompleteResults autoResults)
+        {
+            foreach (AutocompleteItem result in autoResults.Results)
+            {
+                Console.WriteLine(result.Text);
             }
 
             Console.WriteLine();
