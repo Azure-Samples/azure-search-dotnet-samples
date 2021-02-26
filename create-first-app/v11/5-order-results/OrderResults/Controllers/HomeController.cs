@@ -273,7 +273,7 @@ namespace OrderResults.Controllers
 
             // Create a service and index client.
             _indexClient = new SearchIndexClient(new Uri(searchServiceUri), new AzureKeyCredential(queryApiKey));
-            _searchClient = _indexClient.GetSearchClient("hotels");
+            _searchClient = _indexClient.GetSearchClient("hotels-sample-index");
         }
     }
 }

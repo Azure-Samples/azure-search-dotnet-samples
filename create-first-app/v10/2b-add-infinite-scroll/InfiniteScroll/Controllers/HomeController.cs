@@ -119,7 +119,7 @@ namespace InfiniteScroll.Controllers
 
             // Create a service and index client.
             _serviceClient = new SearchServiceClient(searchServiceName, new SearchCredentials(queryApiKey));
-            _indexClient = _serviceClient.Indexes.GetClient("hotels");
+            _indexClient = _serviceClient.Indexes.GetClient("hotels-sample-index");
         }
     }
 }

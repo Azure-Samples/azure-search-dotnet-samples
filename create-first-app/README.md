@@ -16,11 +16,14 @@ urlFragment: create-first-app
 
 In this sample, start with a basic search page layout and then enhance it with paging controls, type-ahead (autocomplete), filtering and facet navigation, and results management.
 
-This MVC sample is featured in [C# tutorial: Create your first app - Azure Cognitive Search](https://docs.microsoft.com/azure/search/tutorial-csharp-create-first-app). It's a collection of projects that demonstrate a user experience using fictitious hotels data. The first project creates a basic search page. Additional projects build on the first, adding results handling, and typeahead. The index is pre-built and hosted so that you can focus on the application itself.
+This MVC sample is featured in [C# tutorial: Create your first app - Azure Cognitive Search](https://docs.microsoft.com/azure/search/tutorial-csharp-create-first-app). It's a collection of projects that demonstrate a user experience using fictitious hotels data. The first project creates a basic search page. Additional projects build on the first, adding results handling, and typeahead. To complete this tutorial, you'll need to create the sample hotels index on your search service.
 
 ## Prerequisites
 
-- [Visual Studio](https://visualstudio.microsoft.com/downloads/)
++ [Azure Cognitive Search](search-create-app-portal.md)
++ [Hotel samples index](search-get-started-portal.md)
++ [Visual Studio](https://visualstudio.microsoft.com/downloads/)
++ [Azure.Search.Documents NuGet package](https://www.nuget.org/packages/Azure.Search.Documents/)
 
 In contrast with other tutorials, this one uses a read-only hotels index on an existing demo search service maintained by Microsoft. No preliminary service or index setup is required.
 
@@ -49,6 +52,15 @@ This sample is available in two versions:
 ## Run the sample
 
 1. Open a solution in Visual Studio.
+
+1. Modify **appsettings.json** to use your search service URI and API key. The URI is a full URL in the format of `https://<service-name>.search.windows.net`. The API key is an alphanumeric string that you can obtain from the portal, PowerShell, or CLI.
+
+   ```json
+   {
+      "SearchServiceName": "<YOUR-SEARCH-SERVICE-URI>",
+     "SearchServiceQueryApiKey": "<YOUR-SEARCH-SERVICE-API-KEY>"
+   }
+   ```
 
 1. Press **F5** to compile and run the project.
 
