@@ -112,7 +112,7 @@ namespace Typeahead.Controllers
 
             // Create a service and index client.
             _indexClient = new SearchIndexClient(new Uri(searchServiceUri), new AzureKeyCredential(queryApiKey));
-            _searchClient = _indexClient.GetSearchClient("hotels");
+            _searchClient = _indexClient.GetSearchClient("hotels-sample-index");
         }
         public async Task<ActionResult> SuggestAsync(bool highlights, bool fuzzy, string term)
         {
