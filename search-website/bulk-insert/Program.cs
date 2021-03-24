@@ -6,9 +6,10 @@ using AzureSearch.BulkInsert;
 using ServiceStack;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
+const string BOOKS_URL = "https://raw.githubusercontent.com/zygmuntz/goodbooks-10k/master/books.csv";
 const string SEARCH_ENDPOINT = "https://YOUR-SEARCH-RESOURCE-NAME.search.windows.net";
 const string SEARCH_KEY = "YOUR-SEARCH-ADMIN-KEY";
 const string SEARCH_INDEX_NAME = "good-books";
@@ -38,9 +39,13 @@ static async Task CreateIndexAsync(SearchIndexClient clientIndex)
 
 static async Task BulkInsertAsync(SearchClient client)
 {
+    Console.WriteLine("Download data file");
+    using HttpClient httpClient = new();
+    var csv = await httpClient.GetStringAsync(BOOKS_URL);
+
     Console.WriteLine("Reading and parsing raw CSV data");
-    var csv = await File.ReadAllTextAsync("books.csv");
-    var books = csv.FromCsv<List<BookModel>>();
+    var books =
+        csv.ReplaceFirst("book_id", "id").FromCsv<List<BookModel>>();
 
     Console.WriteLine("Uploading bulk book data");
     _ = await client.UploadDocumentsAsync(books);

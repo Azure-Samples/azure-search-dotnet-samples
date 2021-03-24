@@ -6,16 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="books.csv" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="books.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Azure.Search.Documents" Version="11.2.0" />
     <PackageReference Include="ServiceStack.Text" Version="5.10.4" />
   </ItemGroup>
