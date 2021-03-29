@@ -10,8 +10,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 const string BOOKS_URL = "https://raw.githubusercontent.com/zygmuntz/goodbooks-10k/master/books.csv";
-const string SEARCH_ENDPOINT = "https://YOUR-SEARCH-RESOURCE-NAME.search.windows.net";
-const string SEARCH_KEY = "YOUR-SEARCH-ADMIN-KEY";
+const string SEARCH_ENDPOINT = "https://YOUR_SEARCH_RESOURCE_NAME.search.windows.net";
+const string SEARCH_KEY = "YOUR_SEARCH_ADMIN_KEY";
 const string SEARCH_INDEX_NAME = "good-books";
 
 Uri searchEndpointUri = new(SEARCH_ENDPOINT);
