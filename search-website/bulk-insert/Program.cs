@@ -30,7 +30,7 @@ await BulkInsertAsync(client);
 
 static async Task CreateIndexAsync(SearchIndexClient clientIndex)
 {
-    Console.WriteLine("Creating (or updating) searech index");
+    Console.WriteLine("Creating (or updating) search index");
     SearchIndex index = new BookSearchIndex(SEARCH_INDEX_NAME);
     var result = await clientIndex.CreateOrUpdateIndexAsync(index);
 
