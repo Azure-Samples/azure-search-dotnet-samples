@@ -5,9 +5,20 @@ namespace AzureSearch.BulkInsert
 {
     public class BookSearchIndex : SearchIndex
     {
-        readonly List<SearchField> _searchFields = new()
+
+        SearchField id = new SearchField("id", SearchFieldDataType.String)
         {
-            new("id", SearchFieldDataType.String)
+            IsFacetable = false,
+            IsFilterable = false,
+            IsKey = true,
+            IsHidden = false, // Sets IsRetrievable to true, when false
+            IsSearchable = true,
+            IsSortable = false,
+            AnalyzerName = "standard.lucene"
+        };
+        readonly List<SearchField> _searchFields = new List<SearchField>()
+        {
+            new SearchField("id", SearchFieldDataType.String)
             {
                 IsFacetable = false,
                 IsFilterable = false,
@@ -17,35 +28,35 @@ namespace AzureSearch.BulkInsert
                 IsSortable = false,
                 AnalyzerName = "standard.lucene"
             },
-            new("goodreads_book_id", SearchFieldDataType.Int64)
+            new SearchField("goodreads_book_id", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("best_book_id", SearchFieldDataType.Int64)
+            new SearchField("best_book_id", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("work_id", SearchFieldDataType.Int64)
+            new SearchField("work_id", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("books_count", SearchFieldDataType.Int64)
+            new SearchField("books_count", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("isbn", SearchFieldDataType.String)
+            new SearchField("isbn", SearchFieldDataType.String)
             {
                 IsFacetable = false,
                 IsFilterable = false,
@@ -54,14 +65,14 @@ namespace AzureSearch.BulkInsert
                 IsSortable = false,
                 AnalyzerName = "standard.lucene"
             },
-            new("isbn13", SearchFieldDataType.String)
+            new SearchField("isbn13", SearchFieldDataType.String)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("authors", SearchFieldDataType.Collection(SearchFieldDataType.String))
+            new SearchField("authors", SearchFieldDataType.Collection(SearchFieldDataType.String))
             {
                 IsFacetable = true,
                 IsFilterable = true,
@@ -70,14 +81,14 @@ namespace AzureSearch.BulkInsert
                 IsSortable = false,
                 AnalyzerName = "standard.lucene"
             },
-            new("original_publication_year", SearchFieldDataType.Int64)
+            new SearchField("original_publication_year", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("original_title", SearchFieldDataType.String)
+            new SearchField("original_title", SearchFieldDataType.String)
             {
                 IsFacetable = false,
                 IsFilterable = false,
@@ -86,7 +97,7 @@ namespace AzureSearch.BulkInsert
                 IsSortable = false,
                 AnalyzerName = "standard.lucene"
             },
-            new("title", SearchFieldDataType.String)
+            new SearchField("title", SearchFieldDataType.String)
             {
                 IsFacetable = false,
                 IsFilterable = false,
@@ -95,7 +106,7 @@ namespace AzureSearch.BulkInsert
                 IsSortable = true,
                 AnalyzerName = "standard.lucene"
             },
-            new("language_code", SearchFieldDataType.String)
+            new SearchField("language_code", SearchFieldDataType.String)
             {
                 IsFacetable = true,
                 IsFilterable = true,
@@ -103,70 +114,70 @@ namespace AzureSearch.BulkInsert
                 IsSearchable = false,
                 IsSortable = false
             },
-            new("average_rating", SearchFieldDataType.Double)
+            new SearchField("average_rating", SearchFieldDataType.Double)
             {
                 IsFacetable = true,
                 IsFilterable = true,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = true
             },
-            new("ratings_count", SearchFieldDataType.Int64)
+            new SearchField("ratings_count", SearchFieldDataType.Int64)
             {
                 IsFacetable = true,
                 IsFilterable = true,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = true
             },
-            new("work_ratings_count", SearchFieldDataType.Int64)
+            new SearchField("work_ratings_count", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("work_text_reviews_count", SearchFieldDataType.Int64)
+            new SearchField("work_text_reviews_count", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("ratings_1", SearchFieldDataType.Int64)
+            new SearchField("ratings_1", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("ratings_2", SearchFieldDataType.Int64)
+            new SearchField("ratings_2", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("ratings_3", SearchFieldDataType.Int64)
+            new SearchField("ratings_3", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("ratings_4", SearchFieldDataType.Int64)
+            new SearchField("ratings_4", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("ratings_5", SearchFieldDataType.Int64)
+            new SearchField("ratings_5", SearchFieldDataType.Int64)
             {
                 IsFacetable = false,
                 IsFilterable = false,
                 IsHidden = false, // Sets IsRetrievable to true, when false
                 IsSortable = false
             },
-            new("image_url", SearchFieldDataType.String)
+            new SearchField("image_url", SearchFieldDataType.String)
             {
                 IsFacetable = false,
                 IsFilterable = false,
@@ -175,7 +186,7 @@ namespace AzureSearch.BulkInsert
                 IsSortable = false,
                 AnalyzerName = "standard.lucene"
             },
-            new("small_image_url", SearchFieldDataType.String)
+            new SearchField("small_image_url", SearchFieldDataType.String)
             {
                 IsFacetable = false,
                 IsFilterable = false,

@@ -13,13 +13,12 @@ using Azure;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FunctionApp1_Dina_03262021_search_test
+
+
+namespace FunctionApp_web_search
 {
-
-
     public static class Search
     {
-
         private static string searchApiKey = Environment.GetEnvironmentVariable("SearchApiKey", EnvironmentVariableTarget.Process);
         private static string searchServiceName = Environment.GetEnvironmentVariable("SearchServiceName", EnvironmentVariableTarget.Process);
         private static string searchIndexName = Environment.GetEnvironmentVariable("SearchIndexName", EnvironmentVariableTarget.Process) ?? "good-books";
@@ -31,7 +30,7 @@ namespace FunctionApp1_Dina_03262021_search_test
             ILogger log)
         {
 
-        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var data = JsonSerializer.Deserialize<RequestBodySearch>(requestBody);
 
             // Cognitive Search 
@@ -45,7 +44,6 @@ namespace FunctionApp1_Dina_03262021_search_test
 
             SearchOptions options = new SearchOptions()
             {
-
                 Size = data.Size,
                 Skip = data.Skip,
                 IncludeTotalCount = true,

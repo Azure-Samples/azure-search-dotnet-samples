@@ -13,7 +13,7 @@ using Azure;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FunctionApp1_Dina_03262021_search_test
+namespace FunctionApp_web_search
 {
     public static class Suggest
     {

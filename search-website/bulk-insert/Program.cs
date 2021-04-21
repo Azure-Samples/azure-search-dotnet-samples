@@ -1,54 +1,62 @@
-﻿using Azure;
+﻿using System;
+using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using AzureSearch.BulkInsert;
-using ServiceStack;
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ServiceStack;
+using System.Collections.Generic;
 
-const string BOOKS_URL = "https://raw.githubusercontent.com/zygmuntz/goodbooks-10k/master/books.csv";
-const string SEARCH_ENDPOINT = "https://YOUR_SEARCH_RESOURCE_NAME.search.windows.net";
-const string SEARCH_KEY = "YOUR_SEARCH_ADMIN_KEY";
-const string SEARCH_INDEX_NAME = "good-books";
-
-Uri searchEndpointUri = new(SEARCH_ENDPOINT);
-
-SearchClient client = new(
-    searchEndpointUri,
-    SEARCH_INDEX_NAME,
-    new AzureKeyCredential(SEARCH_KEY));
-
-SearchIndexClient clientIndex = new(
-    searchEndpointUri,
-    new AzureKeyCredential(SEARCH_KEY));
-
-await CreateIndexAsync(clientIndex);
-await BulkInsertAsync(client);
-
-static async Task CreateIndexAsync(SearchIndexClient clientIndex)
+namespace ConsoleApp1
 {
-    Console.WriteLine("Creating (or updating) searech index");
-    SearchIndex index = new BookSearchIndex(SEARCH_INDEX_NAME);
-    var result = await clientIndex.CreateOrUpdateIndexAsync(index);
+    class Program
+    {
+        const string BOOKS_URL = "https://raw.githubusercontent.com/zygmuntz/goodbooks-10k/master/books.csv";
+        const string SEARCH_ENDPOINT = "https://diberry-cognitive-search-website-tutorial.search.windows.net";
+        const string SEARCH_KEY = "25616BFEF5D0398D97E01D851069CDEA";
+        const string SEARCH_INDEX_NAME = "good-books";
 
-    Console.WriteLine(result);
-}
+        static void Main(string[] args)
+        {
+            Uri searchEndpointUri = new Uri(SEARCH_ENDPOINT);
 
-static async Task BulkInsertAsync(SearchClient client)
-{
-    Console.WriteLine("Download data file");
-    using HttpClient httpClient = new();
-    var csv = await httpClient.GetStringAsync(BOOKS_URL);
+            SearchClient client = new SearchClient(
+                searchEndpointUri,
+                SEARCH_INDEX_NAME,
+                new AzureKeyCredential(SEARCH_KEY));
 
-    Console.WriteLine("Reading and parsing raw CSV data");
-    var books =
-        csv.ReplaceFirst("book_id", "id").FromCsv<List<BookModel>>();
+            SearchIndexClient clientIndex = new SearchIndexClient(
+                searchEndpointUri,
+                new AzureKeyCredential(SEARCH_KEY));
 
-    Console.WriteLine("Uploading bulk book data");
-    _ = await client.UploadDocumentsAsync(books);
+            CreateIndexAsync(clientIndex).Wait();
+            BulkInsertAsync(client).Wait();
+        }
+        static async Task CreateIndexAsync(SearchIndexClient clientIndex)
+        {
+            Console.WriteLine("Creating (or updating) search index");
+            SearchIndex index = new BookSearchIndex(SEARCH_INDEX_NAME);
+            var result = await clientIndex.CreateOrUpdateIndexAsync(index);
 
-    Console.WriteLine("Finished bulk inserting book data");
+            Console.WriteLine(result);
+        }
+
+        static async Task BulkInsertAsync(SearchClient client)
+        {
+            Console.WriteLine("Download data file");
+            using HttpClient httpClient = new HttpClient();
+            var csv = await httpClient.GetStringAsync(BOOKS_URL);
+
+            Console.WriteLine("Reading and parsing raw CSV data");
+            var books =
+                csv.ReplaceFirst("book_id", "id").FromCsv<List<BookModel>>();
+
+            Console.WriteLine("Uploading bulk book data");
+            _ = await client.UploadDocumentsAsync(books);
+
+            Console.WriteLine("Finished bulk inserting book data");
+        }
+    }
 }

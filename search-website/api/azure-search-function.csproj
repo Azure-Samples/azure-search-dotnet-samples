@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
-    <RootNamespace>FunctionApp1_Dina_03262021_search_test</RootNamespace>
+    <RootNamespace>FunctionApp_web_search</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Search.Documents" Version="11.2.0" />
