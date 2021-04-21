@@ -11,7 +11,7 @@ using Azure.Search.Documents.Models;
 using System;
 using Azure;
 
-namespace FunctionApp1_Dina_03262021_search_test
+namespace FunctionApp_web_search
 {
     public static class Lookup
     {
