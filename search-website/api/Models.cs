@@ -50,7 +50,7 @@ namespace FunctionApp_web_search
     public class Facet
     {
         public string key { get; set; }
-        public List<FacetValue> value { get; set; }
+        public List<FacetValue> values { get; set; }
     }
 
     public class FacetValue
