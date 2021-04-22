@@ -54,11 +54,22 @@ namespace FunctionApp_web_search
 
             SearchResults<SearchDocument> response = searchClient.Search<SearchDocument>(data.SearchText, options);
 
+            var facetOutput = new List<Facet>();
+            foreach(var facetResult in response.Facets) {
+                facetOutput.Add(new Facet
+                {
+                    key = facetResult.Key,
+                    value = facetResult.Value
+                           .Select(x => new FacetValue() { value = x.Value.ToString(), count = x.Count })
+                           .ToList()
+                });         
+            }
+
             var output = new SearchOutput
             {
                 Count = response.TotalCount,
                 Results = response.GetResults().ToList(),
-                Facets = response.Facets
+                Facets = facetOutput
             };
 
             return new OkObjectResult(output);
@@ -91,6 +102,7 @@ namespace FunctionApp_web_search
 
             return string.Join(" and ", filterExpressions);
         }
+
     }
 }
 

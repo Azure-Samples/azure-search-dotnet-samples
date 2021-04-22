@@ -65,7 +65,7 @@ namespace FunctionApp_web_search
         [JsonPropertyName("results")]
         public List<SearchResult<SearchDocument>> Results { get; set; }
         [JsonPropertyName("facets")]
-        public IDictionary<string, IList<FacetResult>> Facets { get; set; }
+        public List<Facet> Facets { get; set; }
     }
     class LookupOutput
     {
