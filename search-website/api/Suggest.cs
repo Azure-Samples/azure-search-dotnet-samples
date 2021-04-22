@@ -47,8 +47,8 @@ namespace FunctionApp_web_search
                 Size = data.Size
             };
 
-            var suggesterResponse = await searchClient.SuggestAsync(data.SearchText, data.SuggesterName, options);
-            var response = new Dictionary<string, List<SuggestResults>>();
+            var suggesterResponse = await searchClient.SuggestAsync<BookModel>(data.SearchText, data.SuggesterName, options);
+            var response = new Dictionary<string, List<SearchSuggestion<BookModel>>>();
             response["suggestions"] = suggesterResponse.Value.Results.ToList();
 
             return new OkObjectResult(response);
