@@ -59,7 +59,7 @@ namespace FunctionApp_web_search
                 facetOutput.Add(new Facet
                 {
                     key = facetResult.Key,
-                    value = facetResult.Value
+                    values = facetResult.Value
                            .Select(x => new FacetValue() { value = x.Value.ToString(), count = x.Count })
                            .ToList()
                 });         
