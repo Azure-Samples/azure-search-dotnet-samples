@@ -48,7 +48,7 @@ namespace FunctionApp_web_search
             };
 
             var suggesterResponse = await searchClient.SuggestAsync(data.SearchText, data.SuggesterName, options);
-            var response = new Dictionary<string, List<SuggestItems>>();
+            var response = new Dictionary<string, List<SuggestResults>>();
             response["suggestions"] = suggesterResponse.Value.Results.ToList();
 
             return new OkObjectResult(response);
