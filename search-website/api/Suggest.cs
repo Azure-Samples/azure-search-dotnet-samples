@@ -42,14 +42,14 @@ namespace FunctionApp_web_search
                 new AzureKeyCredential(searchApiKey)
             );
 
-            AutocompleteOptions options = new AutocompleteOptions()
+            SuggestOptions options = new SuggestOptions()
             {
                 Size = data.Size
             };
 
-            var autoCompleteResponse = await searchClient.AutocompleteAsync(data.SearchText, data.SuggesterName, options);
-            var response = new Dictionary<string, List<AutocompleteItem>>();
-            response["suggestions"] = autoCompleteResponse.Value.Results.ToList();
+            var suggesterResponse = await searchClient.SuggestAsync(data.SearchText, data.SuggesterName, options);
+            var response = new Dictionary<string, List<SuggestItems>>();
+            response["suggestions"] = suggesterResponse.Value.Results.ToList();
 
             return new OkObjectResult(response);
         }
