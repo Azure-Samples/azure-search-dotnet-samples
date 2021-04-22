@@ -72,21 +72,21 @@ namespace FunctionApp_web_search
 
             List<string> filterExpressions = new List<string>();
 
-            List<SearchFilter> keyPhraseFilters = filters.Where(f => f.field == "keyPhrases").ToList();
-            List<SearchFilter> fileTypeFilters = filters.Where(f => f.field == "fileType").ToList();
+            List<SearchFilter> authorFilters = filters.Where(f => f.field == "authors").ToList();
+            List<SearchFilter> languageFilters = filters.Where(f => f.field == "language_code").ToList();
 
-            List<string> keyPhraseFilterValues = keyPhraseFilters.Select(f => f.value).ToList();
+            List<string> authorFilterValues = authorFilters.Select(f => f.value).ToList();
 
-            if (keyPhraseFilterValues.Count > 0)
+            if (authorFilterValues.Count > 0)
             {
-                string filterStr = string.Join(",", keyPhraseFilterValues);
-                filterExpressions.Add($"{"keyPhrases"}/any(t: search.in(t, '{filterStr}', ','))");
+                string filterStr = string.Join(",", authorFilterValues);
+                filterExpressions.Add($"{"authors"}/any(t: search.in(t, '{filterStr}', ','))");
             }
 
-            List<string> fileTypeFilterValues = fileTypeFilters.Select(f => f.value).ToList();
-            foreach (var value in fileTypeFilterValues)
+            List<string> languageFilterValues = languageFilters.Select(f => f.value).ToList();
+            foreach (var value in languageFilterValues)
             {
-                filterExpressions.Add($"fileType eq '{value}'");
+                filterExpressions.Add($"language_code eq '{value}'");
             }
 
             return string.Join(" and ", filterExpressions);
