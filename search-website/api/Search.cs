@@ -54,15 +54,11 @@ namespace FunctionApp_web_search
 
             SearchResults<SearchDocument> response = searchClient.Search<SearchDocument>(data.SearchText, options);
 
-            var facetOutput = new List<Facet>();
+            var facetOutput = new Dictionary<String, IList<FacetValue>>();
             foreach(var facetResult in response.Facets) {
-                facetOutput.Add(new Facet
-                {
-                    key = facetResult.Key,
-                    values = facetResult.Value
+                facetOutput[facetResult.Key] = facetResult.Value
                            .Select(x => new FacetValue() { value = x.Value.ToString(), count = x.Count })
-                           .ToList()
-                });         
+                           .ToList();     
             }
 
             var output = new SearchOutput

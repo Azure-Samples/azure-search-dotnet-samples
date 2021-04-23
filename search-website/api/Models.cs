@@ -47,12 +47,6 @@ namespace FunctionApp_web_search
         public string value { get; set; }
     }
 
-    public class Facet
-    {
-        public string key { get; set; }
-        public List<FacetValue> values { get; set; }
-    }
-
     public class FacetValue
     {
         public string value { get; set; }
@@ -65,7 +59,7 @@ namespace FunctionApp_web_search
         [JsonPropertyName("results")]
         public List<SearchResult<SearchDocument>> Results { get; set; }
         [JsonPropertyName("facets")]
-        public List<Facet> Facets { get; set; }
+        public Dictionary<String, IList<FacetValue>> Facets { get; set; }
     }
     class LookupOutput
     {
