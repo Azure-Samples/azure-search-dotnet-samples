@@ -2,15 +2,15 @@
 page_type: sample
 languages:
   - csharp
-name: Add search to a website in C#
-description: "Search over sample book data in an Azure Static Web app written in C#."
+name: Add search to a web app in C#
+description: "Search over sample book data in an Azure Static Web app written in C#. The client is built using the React JavaScript library."
 products:
   - azure
   - azure-cognitive-search
 urlFragment: csharp-add-search-website
 ---
 
-# Add search to a website in C#
+# Add search to a web app in C#
 
 This README is an shortened version of the [full tutorial](https://docs.microsoft.com/azure/search/tutorial-csharp-overview). 
 
