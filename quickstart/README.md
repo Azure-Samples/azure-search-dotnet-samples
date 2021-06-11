@@ -3,7 +3,7 @@ page_type: sample
 languages:
   - csharp
 name: Quickstart in C#
-description: "Run version 11 (Azure.Search.Documents) or version 10 (Microsoft.Azure.Search) of the client library to create a .NET Core console app that creates, loads, and queries a search index."
+description: "Learn the basic workflow in this .NET Core console app: create, load, and query a search index."
 products:
   - azure
   - azure-cognitive-search
@@ -14,7 +14,9 @@ urlFragment: csharp-quickstart
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-New and legacy versions are provided so that you can learn fundamental operations with the client libraries used in your solution. Both versions create a search index that is modeled on a subset of the built-in Hotels dataset, reduced in this quickstart for readability and comprehension. Index definition and documents are included in the code. When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries.
+This quickstart is focused on the fundamentals: creating, loading, and querying a search index. 
+
+New and legacy versions are provided so that you can learn these operations with the client libraries used in your solution. Both versions create a search index that is modeled on a subset of the built-in Hotels dataset, reduced in this quickstart for readability and comprehension. Index definition and documents are included in the code. When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries.
 
 ## Prerequisites
 
