@@ -33,7 +33,7 @@ Also, as an extra precaution, it is best if there are no changes being made to t
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
-- [Azure storage account] (https://azure.microsoft.com/en-in/services/storage/blobs/)
+- [Azure storage account](https://azure.microsoft.com/en-in/services/storage/blobs/)
 
 ## This solution is leveraged from the exisitng sample: index-backup-restore (which uses local file storage) and this solution uses azure blob storage.
 
