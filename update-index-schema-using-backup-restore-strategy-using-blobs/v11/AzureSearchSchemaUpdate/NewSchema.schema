@@ -1,0 +1,21 @@
+﻿{
+  "@odata.context": "",
+  "@odata.etag": "",
+  "name": "",
+  "defaultScoringProfile": "",
+  "fields": [],
+  "scoringProfiles": [
+  ],
+  "corsOptions": null,
+  "suggesters": [
+  ],
+  "analyzers": [
+  ],
+  "tokenizers": [
+  ],
+  "tokenFilters": [
+  ],
+  "charFilters": [
+  ],
+  "encryptionKey": null
+}
