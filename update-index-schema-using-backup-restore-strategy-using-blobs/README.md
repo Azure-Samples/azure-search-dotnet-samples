@@ -53,13 +53,6 @@ This sample is available in below version:
 1. Open the AzureSearchSchemaUpdate.sln project in Visual Studio.
 
 1. By default, this application will back up the exisitng schema and documents, then it will delete the exisitng Index and then use the NewSchem.schema to create the index. 
-    - If you only want to back up the index and not restore it immediately, do this:
-        - Comment out the code in the **Main** method after the **BackupIndexAndDocuments** method call.
-        - Comment out the last two lines of the **ConfigurationSetup** method that set the _TargetSearchClient_ and _TargetIndexClient_.
-    - If you want to restore a index that you previously backed up, do this:
-        - Make sure that the the _BackupDirectory_ in the appsettings.json file is pointing to to the backup location.
-        - Comment out the **BackupIndexAndDocuments** method call and the the line that checks the _targetCount_ in the **Main** method.
-        - Comment out the lines in **ConfigurationSetup** method that set the _SourceSearchClient_ and _SourceIndexClient_.
 
 1. Open the appsettings.json and replace the placeholder strings with all applicable values:
 
