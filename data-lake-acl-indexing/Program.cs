@@ -12,18 +12,24 @@ using Azure.Storage.Files.DataLake.Models;
 using Microsoft.Extensions.Configuration;
 
 
-namespace DataLakeACLIndexing
+namespace DataLakeGen2ACLIndexing
 {
     class Program
     {
+        // Name of Container / ADLS Gen2 filesystem for sample data
         const string DATA_LAKE_FILESYSTEM_NAME = "acldemo";
+        // Directory sample data is stored in locally
         const string SAMPLE_DATA_DIRECTORY = "SampleData";
+        // Search index name for data indexed from ADLS Gen2
         const string SEARCH_ACL_INDEX_NAME = "acltestindex";
+        // Search data source name for connection to ADLS Gen2
         const string SEARCH_ACL_DATASOURCE_NAME = "acltestdatasource";
+        // Search indexer name for connection to ADLS Gen2
         const string SEARCH_ACL_INDEXER_NAME = "acltestindexer";
 
         async static Task Main(string[] args)
         {
+            // Read settings from appsettings.json
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true)
                 .Build();
@@ -36,6 +42,7 @@ namespace DataLakeACLIndexing
                 DataLakeEndpoint = configuration["dataLakeEndpoint"]
             };
 
+            // Login to Azure using the default credentials on your local machine
             var credential = new DefaultAzureCredential();
             var dfsClient = new DataLakeServiceClient(new Uri(settings.DataLakeEndpoint), credential);
 
@@ -52,10 +59,14 @@ namespace DataLakeACLIndexing
  
             Console.WriteLine("Creating search index, data source, and indexer...");
             await CreateSearchResources(settings);
+
+            Console.WriteLine("Polling for search indexer completion...");
+            await PollSearchIndexer(settings);
         }
 
         static async Task UploadSampleDataIfNotExistsAsync(string localDirectory, DataLakeDirectoryClient directoryClient)
         {
+            // Upload all sample data files in this directory
             foreach (string filePath in Directory.GetFiles(localDirectory))
             {
                 string fileName = Path.GetFileName(filePath);
@@ -66,6 +77,7 @@ namespace DataLakeACLIndexing
                 }
             }
 
+            // Recursively create subdirectories, and upload all sample data files in those subdirectories
             foreach (string directory in Directory.GetDirectories(localDirectory))
             {
                 string directoryName = Path.GetFileNameWithoutExtension(directory);
@@ -173,6 +185,9 @@ namespace DataLakeACLIndexing
 
         static List<PathAccessControlItem> UpdateACLs(IEnumerable<PathAccessControlItem> existingACLs, RolePermissions newPermissionsForManagedIdentity, AppSettings settings)
         {
+            // Either add an ACL for the search identity if it doesn't exist,
+            // or update it if it exists
+            // To learn more please visit https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-acl-dotnet#update-acls
             List<PathAccessControlItem> accessControlList = existingACLs.ToList();
             PathAccessControlItem managedIdentityAcl = accessControlList.FirstOrDefault(
                 accessControlItem => accessControlItem.AccessControlType == AccessControlType.User && accessControlItem.EntityId == settings.SearchManagedIdentityID);
@@ -194,6 +209,8 @@ namespace DataLakeACLIndexing
 
         static List<PathAccessControlItem> RemoveACLs(IEnumerable<PathAccessControlItem> existingACLs, AppSettings settings)
         {
+            // Remove the ACL for the search identity if exists
+            // To learn more please visit https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-acl-dotnet#remove-acl-entries
             List<PathAccessControlItem> accessControlList = existingACLs.ToList();
             accessControlList.RemoveAll(
                 accessControlItem => accessControlItem.AccessControlType == AccessControlType.User && accessControlItem.EntityId == settings.SearchManagedIdentityID);
@@ -203,9 +220,7 @@ namespace DataLakeACLIndexing
 
         static async Task CreateSearchResources(AppSettings settings)
         {
-            var searchCredential = new AzureKeyCredential(settings.SearchAdminKey);
-            Uri searchEndpointUri = new Uri(settings.SearchEndpoint);
-            SearchIndexClient indexClient = new SearchIndexClient(searchEndpointUri, searchCredential);
+            SearchIndexClient indexClient = new SearchIndexClient(settings.SearchEndpointUri, settings.SearchKeyCredential);
 
             Console.WriteLine("Deleting search index {0} if exists...", SEARCH_ACL_INDEX_NAME);
             try
@@ -228,7 +243,7 @@ namespace DataLakeACLIndexing
                 }));
 
             Console.WriteLine("Creating search data source {0}...", SEARCH_ACL_DATASOURCE_NAME);
-            SearchIndexerClient indexerClient = new SearchIndexerClient(searchEndpointUri, searchCredential);
+            SearchIndexerClient indexerClient = new SearchIndexerClient(settings.SearchEndpointUri, settings.SearchKeyCredential);
             await indexerClient.CreateOrUpdateDataSourceConnectionAsync(
                 new SearchIndexerDataSourceConnection(
                     name: SEARCH_ACL_DATASOURCE_NAME,
@@ -265,6 +280,26 @@ namespace DataLakeACLIndexing
                 });
         }
 
+        static async Task PollSearchIndexer(AppSettings settings)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5));
+
+            SearchIndexerClient indexerClient = new SearchIndexerClient(settings.SearchEndpointUri, settings.SearchKeyCredential);
+            while (true)
+            {
+                SearchIndexerStatus status = await indexerClient.GetIndexerStatusAsync(SEARCH_ACL_INDEXER_NAME);
+                if (status.LastResult != null &&
+                    status.LastResult.Status != IndexerExecutionStatus.InProgress)
+                {
+                    Console.WriteLine("Completed indexing sample data");
+                    break;
+                }
+
+                Console.WriteLine("Indexing has not finished. Waiting 5 seconds and polling again...");
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+        }
+
         class AppSettings
         {
             public string SearchManagedIdentityID { get; set; }
@@ -272,6 +307,9 @@ namespace DataLakeACLIndexing
             public string SearchEndpoint { get; set; }
             public string DataLakeEndpoint { get; set;}
             public string DataLakeResourceID { get; set; }
+
+            public Uri SearchEndpointUri => new Uri(SearchEndpoint);
+            public AzureKeyCredential SearchKeyCredential => new AzureKeyCredential(SearchAdminKey);
         }
     }
 }
