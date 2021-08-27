@@ -129,6 +129,9 @@ namespace DataLakeGen2ACLIndexing
             await RemoveACLsForDirectory(salesClient, settings, recursive: true);
         }
 
+        // If recursive is false, apply ACLs to a directory. None of the sub-directory or sub-path ACLs are updated
+        // If recursive is true, apply ACLs to the directory and all sub-directories and sub-paths
+        // When applying ACL recursively, the ACLs on all sub-directories and sub-paths are replaced with this directory's ACL
         static async Task ApplyACLsForDirectory(DataLakeDirectoryClient directoryClient, RolePermissions newACLs, AppSettings settings, bool recursive = false)
         {
             PathAccessControl directoryAccessControl =
@@ -146,6 +149,9 @@ namespace DataLakeGen2ACLIndexing
             }
         }
 
+        // If recursive is false, remove the ACL from a directory. None of the sub-directory or sub-path ACLs are updated
+        // If recursive is true, remove ACLs from the directory and all sub-directories and sub-paths
+        // When removing ACLs recursively, the ACLs on all sub-directories and sub-paths are replaced with this directory's ACL
         static async Task RemoveACLsForDirectory(DataLakeDirectoryClient directoryClient, AppSettings settings, bool recursive = false)
         {
             PathAccessControl directoryAccessControl =
