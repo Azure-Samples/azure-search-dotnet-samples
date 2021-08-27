@@ -1,0 +1,4 @@
+Files for Organization in this directory
+Shared Documents - Accessible to all
+Private Documents - Confidential documents, not accessible
+User Documents - Mix of accessible to all and confidential documents
