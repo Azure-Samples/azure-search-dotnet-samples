@@ -5,21 +5,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Identity;
-using Azure.Storage.Files.DataLake;
-using Azure.Storage.Files.DataLake.Models;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
+using Azure.Storage.Files.DataLake;
+using Azure.Storage.Files.DataLake.Models;
+using Microsoft.Extensions.Configuration;
 
 
 namespace DataLakeACLIndexing
 {
     class Program
     {
-        const string SEARCH_ENDPOINT = "Endpoint for Search Service";
-        const string SEARCH_ADMIN_KEY = "Admin API key for Search Service";
-        const string MANAGED_IDENTITY_ID = "Object (principal) ID of System Managed Identity or User Assigned Managed Identity for Search Service";
-        const string DATA_LAKE_RESOURCE_ID = "ARM Resource ID of Data Lake Storage Account";
-        const string DATA_LAKE_ENDPOINT = "Endpoint for Data Lake Storage Account";
         const string DATA_LAKE_FILESYSTEM_NAME = "acldemo";
         const string SAMPLE_DATA_DIRECTORY = "SampleData";
         const string SEARCH_ACL_INDEX_NAME = "acltestindex";
@@ -28,8 +24,20 @@ namespace DataLakeACLIndexing
 
         async static Task Main(string[] args)
         {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: true)
+                .Build();
+            var settings = new AppSettings
+            {
+                SearchManagedIdentityID = configuration["searchManagedIdentityID"],
+                SearchAdminKey = configuration["searchAdminKey"],
+                SearchEndpoint = configuration["searchEndpoint"],
+                DataLakeResourceID = configuration["dataLakeResourceID"],
+                DataLakeEndpoint = configuration["dataLakeEndpoint"]
+            };
+
             var credential = new DefaultAzureCredential();
-            var dfsClient = new DataLakeServiceClient(new Uri(DATA_LAKE_ENDPOINT), credential);
+            var dfsClient = new DataLakeServiceClient(new Uri(settings.DataLakeEndpoint), credential);
 
             var fileSystemClient = dfsClient.GetFileSystemClient(DATA_LAKE_FILESYSTEM_NAME);
             Console.WriteLine("Create {0} if not exists...", DATA_LAKE_FILESYSTEM_NAME);
@@ -40,10 +48,10 @@ namespace DataLakeACLIndexing
             await UploadSampleDataIfNotExistsAsync(SAMPLE_DATA_DIRECTORY, rootDirectoryClient);
 
             Console.WriteLine("Applying ACLs to sample data...");
-            await ApplyACLsToSampleData(rootDirectoryClient);
+            await ApplyACLsToSampleData(rootDirectoryClient, settings);
  
             Console.WriteLine("Creating search index, data source, and indexer...");
-            await CreateSearchResources();
+            await CreateSearchResources(settings);
         }
 
         static async Task UploadSampleDataIfNotExistsAsync(string localDirectory, DataLakeDirectoryClient directoryClient)
@@ -67,50 +75,54 @@ namespace DataLakeACLIndexing
             }
         }
 
-        static async Task ApplyACLsToSampleData(DataLakeDirectoryClient rootDirectoryClient)
+        static async Task ApplyACLsToSampleData(DataLakeDirectoryClient rootDirectoryClient, AppSettings settings)
         {
             Console.WriteLine("Applying Execute and Read ACLs to root directory...");
-            await ApplyACLsForDirectory(rootDirectoryClient, RolePermissions.Execute | RolePermissions.Read);
+            await ApplyACLsForDirectory(rootDirectoryClient, RolePermissions.Execute | RolePermissions.Read, settings);
 
             Console.WriteLine(@"Applying Execute and Read ACLs to root ""Files For Organization""...");
             var filesForOrganizationClient = rootDirectoryClient.GetFileClient("Files for Organization.txt");
-            await ApplyACLsForFile(filesForOrganizationClient, RolePermissions.Execute | RolePermissions.Read);
+            await ApplyACLsForFile(filesForOrganizationClient, RolePermissions.Execute | RolePermissions.Read, settings);
 
             Console.WriteLine("Applying Execute And Read ACLs to Shared Documents directory recursively...");
             var sharedDocumentsDirectoryClient = rootDirectoryClient.GetSubDirectoryClient("Shared Documents");
-            await ApplyACLsForDirectory(sharedDocumentsDirectoryClient, RolePermissions.Execute | RolePermissions.Read, recursive: true);
+            await ApplyACLsForDirectory(sharedDocumentsDirectoryClient, RolePermissions.Execute | RolePermissions.Read,settings, recursive: true);
 
             Console.WriteLine("Applying Execute and Read ACLs to User Documents directory...");
             var userDocumentsDirectoryClient = rootDirectoryClient.GetSubDirectoryClient("User Documents");
-            await ApplyACLsForDirectory(userDocumentsDirectoryClient, RolePermissions.Execute | RolePermissions.Read);
+            await ApplyACLsForDirectory(userDocumentsDirectoryClient, RolePermissions.Execute | RolePermissions.Read, settings);
 
             Console.WriteLine("Applying Execute and Read ACLs to Alice's document directory...");
             var aliceDirectoryClient = userDocumentsDirectoryClient.GetSubDirectoryClient("Alice");
-            await ApplyACLsForDirectory(aliceDirectoryClient, RolePermissions.Execute | RolePermissions.Read);
+            await ApplyACLsForDirectory(aliceDirectoryClient, RolePermissions.Execute | RolePermissions.Read, settings);
 
             Console.WriteLine(@"Applying Execute and Read ACLs to ""Alice.txt""...");
             var aliceTxtFile = aliceDirectoryClient.GetFileClient("alice.txt");
-            await ApplyACLsForFile(aliceTxtFile, RolePermissions.Execute | RolePermissions.Read);
+            await ApplyACLsForFile(aliceTxtFile, RolePermissions.Execute | RolePermissions.Read, settings);
 
             Console.WriteLine("Applying Execute and Read ACLs to John's document directory recursively...");
             var johnDirectoryClient = userDocumentsDirectoryClient.GetSubDirectoryClient("John");
-            await ApplyACLsForDirectory(johnDirectoryClient, RolePermissions.Execute | RolePermissions.Read, recursive: true);
+            await ApplyACLsForDirectory(johnDirectoryClient, RolePermissions.Execute | RolePermissions.Read, settings, recursive: true);
 
             Console.WriteLine("Applying Execute and Read ACLs to Bob's document directory recursively...");
             var bobDirectoryClient = userDocumentsDirectoryClient.GetSubDirectoryClient("Bob");
-            await ApplyACLsForDirectory(bobDirectoryClient, RolePermissions.Execute | RolePermissions.Read, recursive: true);
+            await ApplyACLsForDirectory(bobDirectoryClient, RolePermissions.Execute | RolePermissions.Read, settings, recursive: true);
 
             Console.WriteLine(@"Removing Execute and Read ACLs from ""c.txt""");
             var cClient = bobDirectoryClient.GetSubDirectoryClient("Reports").GetFileClient("c.txt");
-            await RemoveACLsForFile(cClient);
+            await RemoveACLsForFile(cClient, settings);
+
+            Console.WriteLine(@"Removing Execute and Read ACLs from Bob's Sales directory recursively...");
+            var salesClient = bobDirectoryClient.GetSubDirectoryClient("Sales");
+            await RemoveACLsForDirectory(salesClient, settings, recursive: true);
         }
 
-        static async Task ApplyACLsForDirectory(DataLakeDirectoryClient directoryClient, RolePermissions newACLs, bool recursive = false)
+        static async Task ApplyACLsForDirectory(DataLakeDirectoryClient directoryClient, RolePermissions newACLs, AppSettings settings, bool recursive = false)
         {
             PathAccessControl directoryAccessControl =
                 await directoryClient.GetAccessControlAsync();
 
-            List<PathAccessControlItem> accessControlList = UpdateACLs(directoryAccessControl.AccessControlList, newACLs);
+            List<PathAccessControlItem> accessControlList = UpdateACLs(directoryAccessControl.AccessControlList, newACLs, settings);
 
             if (recursive)
             {
@@ -122,37 +134,54 @@ namespace DataLakeACLIndexing
             }
         }
 
-        static async Task ApplyACLsForFile(DataLakeFileClient fileClient, RolePermissions newACLs)
+        static async Task RemoveACLsForDirectory(DataLakeDirectoryClient directoryClient, AppSettings settings, bool recursive = false)
+        {
+            PathAccessControl directoryAccessControl =
+                await directoryClient.GetAccessControlAsync();
+
+            List<PathAccessControlItem> accessControlList = RemoveACLs(directoryAccessControl.AccessControlList, settings);
+
+            if (recursive)
+            {
+                await directoryClient.SetAccessControlRecursiveAsync(accessControlList);
+            }
+            else
+            {
+                await directoryClient.SetAccessControlListAsync(accessControlList);
+            }
+        }
+
+        static async Task ApplyACLsForFile(DataLakeFileClient fileClient, RolePermissions newACLs, AppSettings settings)
         {
             PathAccessControl fileAccessControl =
                 await fileClient.GetAccessControlAsync();
 
-            List<PathAccessControlItem> accessControlList = UpdateACLs(fileAccessControl.AccessControlList, newACLs);
+            List<PathAccessControlItem> accessControlList = UpdateACLs(fileAccessControl.AccessControlList, newACLs, settings);
 
             await fileClient.SetAccessControlListAsync(accessControlList);
         }
 
-        static async Task RemoveACLsForFile(DataLakeFileClient fileClient)
+        static async Task RemoveACLsForFile(DataLakeFileClient fileClient, AppSettings settings)
         {
             PathAccessControl fileAccessControl =
                 await fileClient.GetAccessControlAsync();
 
-            List<PathAccessControlItem> accessControlList = RemoveACLs(fileAccessControl.AccessControlList);
+            List<PathAccessControlItem> accessControlList = RemoveACLs(fileAccessControl.AccessControlList, settings);
 
             await fileClient.SetAccessControlListAsync(accessControlList);
         }
 
-        static List<PathAccessControlItem> UpdateACLs(IEnumerable<PathAccessControlItem> existingACLs, RolePermissions newPermissionsForManagedIdentity)
+        static List<PathAccessControlItem> UpdateACLs(IEnumerable<PathAccessControlItem> existingACLs, RolePermissions newPermissionsForManagedIdentity, AppSettings settings)
         {
             List<PathAccessControlItem> accessControlList = existingACLs.ToList();
             PathAccessControlItem managedIdentityAcl = accessControlList.FirstOrDefault(
-                accessControlItem => accessControlItem.AccessControlType == AccessControlType.User && accessControlItem.EntityId == MANAGED_IDENTITY_ID);
+                accessControlItem => accessControlItem.AccessControlType == AccessControlType.User && accessControlItem.EntityId == settings.SearchManagedIdentityID);
             if (managedIdentityAcl == null)
             {
                 managedIdentityAcl = new PathAccessControlItem(
                     accessControlType: AccessControlType.User,
                     permissions: RolePermissions.Execute | RolePermissions.Read,
-                    entityId: MANAGED_IDENTITY_ID);
+                    entityId: settings.SearchManagedIdentityID);
                 accessControlList.Add(managedIdentityAcl);
             }
             else
@@ -163,22 +192,33 @@ namespace DataLakeACLIndexing
             return accessControlList;
         }
 
-        static List<PathAccessControlItem> RemoveACLs(IEnumerable<PathAccessControlItem> existingACLs)
+        static List<PathAccessControlItem> RemoveACLs(IEnumerable<PathAccessControlItem> existingACLs, AppSettings settings)
         {
             List<PathAccessControlItem> accessControlList = existingACLs.ToList();
             accessControlList.RemoveAll(
-                accessControlItem => accessControlItem.AccessControlType == AccessControlType.User && accessControlItem.EntityId == MANAGED_IDENTITY_ID);
+                accessControlItem => accessControlItem.AccessControlType == AccessControlType.User && accessControlItem.EntityId == settings.SearchManagedIdentityID);
 
             return accessControlList;
         }
 
-        static async Task CreateSearchResources()
+        static async Task CreateSearchResources(AppSettings settings)
         {
-            var searchCredential = new AzureKeyCredential(SEARCH_ADMIN_KEY);
-            Uri searchEndpointUri = new Uri(SEARCH_ENDPOINT);
-
-            Console.WriteLine("Creating search index {0}...", SEARCH_ACL_INDEX_NAME);
+            var searchCredential = new AzureKeyCredential(settings.SearchAdminKey);
+            Uri searchEndpointUri = new Uri(settings.SearchEndpoint);
             SearchIndexClient indexClient = new SearchIndexClient(searchEndpointUri, searchCredential);
+
+            Console.WriteLine("Deleting search index {0} if exists...", SEARCH_ACL_INDEX_NAME);
+            try
+            {
+                await indexClient.GetIndexAsync(SEARCH_ACL_INDEX_NAME);
+                await indexClient.DeleteIndexAsync(SEARCH_ACL_INDEX_NAME);
+            }
+            catch (RequestFailedException)
+            {
+                // Index didn't exist - continue
+            }
+    
+            Console.WriteLine("Creating search index {0}...", SEARCH_ACL_INDEX_NAME);
             await indexClient.CreateOrUpdateIndexAsync(
                 new SearchIndex(SEARCH_ACL_INDEX_NAME, fields: new[]
                 {
@@ -193,7 +233,7 @@ namespace DataLakeACLIndexing
                 new SearchIndexerDataSourceConnection(
                     name: SEARCH_ACL_DATASOURCE_NAME,
                     type: SearchIndexerDataSourceType.AzureBlob,
-                    connectionString: "ResourceId=" + DATA_LAKE_RESOURCE_ID,
+                    connectionString: "ResourceId=" + settings.DataLakeResourceID,
                     container: new SearchIndexerDataContainer(name: DATA_LAKE_FILESYSTEM_NAME)));
 
             Console.WriteLine("Deleting search indexer {0} if exists...", SEARCH_ACL_INDEXER_NAME);
@@ -223,6 +263,15 @@ namespace DataLakeACLIndexing
                         }
                     }
                 });
+        }
+
+        class AppSettings
+        {
+            public string SearchManagedIdentityID { get; set; }
+            public string SearchAdminKey { get; set; }
+            public string SearchEndpoint { get; set; }
+            public string DataLakeEndpoint { get; set;}
+            public string DataLakeResourceID { get; set; }
         }
     }
 }
