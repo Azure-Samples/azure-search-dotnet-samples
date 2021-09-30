@@ -20,45 +20,45 @@ Normally, when setting up [managed identity with Azure Blob Storage or Data Lake
 
 + [.NET 3](https://dotnet.microsoft.com/download/dotnet/5.0)
 + [Git](https://git-scm.com/downloads)
-+ [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
++ [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal) on a billable tier (free tier is not supported)
 + [Azure Storage](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal) with the "Enable hierarchical namespace" option
-+ [Visual Studio Code](https://code.visualstudio.com/download) with the [Azure Tools](https://docs.microsoft.com/dotnet/azure/configure-vs-code#install-the-azure-tools-extension-pack) extension pack
++ Client app: [Visual Studio](https://visualstudio.microsoft.com/downloads/), PowerShell, or [Visual Studio Code](https://code.visualstudio.com/download) with the [Azure Tools](https://docs.microsoft.com/dotnet/azure/configure-vs-code#install-the-azure-tools-extension-pack) extension pack
 
 ## Clone the search sample with git
 
-1. At a terminal, download the sample application to your local computer.
+At a terminal, download the sample application to your local computer.
 
-    ```bash
-    git clone https://github.com/Azure-Samples/azure-search-dotnet-samples
-    ```
-
-1. [Sign in to the Azure portal](https://portal.azure.com). The following tasks are completed in the portal, unless specified.
+```bash
+git clone https://github.com/Azure-Samples/azure-search-dotnet-samples
+```
 
 ## Set up Azure resources
 
+1. [Sign in to the Azure portal](https://portal.azure.com). 
+
 1. [Create a resource group if one doesn't already exist](https://docs.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups).
 
-1. [Create a search service if one doesn't already exist](https://docs.microsoft.com/azure/search/search-create-service-portal). The [Basic service tier](https://azure.microsoft.com/pricing/details/search/) is enough to run the sample code.
+1. [Create a Cognitive Search service if one doesn't already exist](https://docs.microsoft.com/azure/search/search-create-service-portal), at [Basic tier](https://azure.microsoft.com/pricing/details/search/) or above.
 
 1. Enable a managed identity for your search service using either of the following approaches:
 
-   + [System-managed identity](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-1---turn-on-system-assigned-managed-identity).
+   + [System-managed identity](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-1---turn-on-system-assigned-managed-identity)
 
    + [User-managed identity](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-2---assign-a-user-assigned-managed-identity-to-the-search-service-preview)
 
-1. [Create a storage account if one doesn't already exist](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal). Ensure "Enable hierarchical namespace" is checked to enable Data Lake Storage Gen 2 on the storage account.
+1. [Create an Azure Storage account if one doesn't already exist](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal). Make sure that **Enable hierarchical namespace** is checked to enable Data Lake Storage Gen 2 on the storage account.
 
 ## Grant permissions in Azure Storage
 
 Search must be able to connect to Azure Storage, and the user who runs the app must be able to load and then secure that data. In this step, create role assignments in Azure Storage to support both tasks.
 
-1. [Create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) that allows the search service's managed identity access to the storage account:
+1. In your storage account page in the portal, [create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) that allows the search service's managed identity access to the storage account:
 
-    + Choose [**Reader**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#reader) instead of **Storage Blob Data Reader**.
+    + Choose [**Reader**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#reader) (do not use **Storage Blob Data Reader**)
 
-1. [Create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) for the user running sample application:
+1. Repeat the previous step, this time [creating a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) for the user running sample application. The role must be able to upload sample data and create role assignments in Data Lake Gen2 storage:
 
-    + The sample code adds sample data and sets up Access Control Lists in the Data Lake Gen2 storage account. Choose a role that supports these tasks: [**Storage Blob Data Contributor**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) or [**Storage Blob Data Owner**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-owner).
+    + Choose a[**Storage Blob Data Contributor**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) or [**Storage Blob Data Owner**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-owner)
 
 ## Edit appsettings.json
 
@@ -88,15 +88,25 @@ Open the **appsettings.json** file in your local copy of the sample application 
 
 ## Run sample code and verify sample data
 
-1. Start Visual Studio Code.
+Use a client application that can connect to Azure and build a .NET project.
 
-1. On the side bar, select the Azure Tools extension and then sign in to your Azure account. 
+1. Using Visual Studio Code with the Azure Tools Extension:
 
-1. On the side bar, open Explorer, and then open the local folder containing the sample code.
+    1. On the side bar, select the Azure Tools extension and then sign in to your Azure account. 
 
-1. Right-click the folder name and open an integrated terminal.
+    1. On the side bar, open Explorer, and then open the local folder containing the sample code.
 
-1. Run the following command to execute the sample code: `dotnet run`
+    1. Right-click the folder name and open an integrated terminal.
+
+    1. Run the following command to execute the sample code: `dotnet run`
+
+1. Using PowerShell on a computer that has .NET:
+
+    1. With Administrator permissions in PowerShell, load the Az module: `Import-Module -Name Az`
+
+    1. Connect to Azure: `Connect-AzAccount`
+
+    1. Run the following command to execute the sample code: `dotnet run`
 
 1. When the sample data has finished indexing, the sample will exit with a message "Completed indexing sample data"
 
