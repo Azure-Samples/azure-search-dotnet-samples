@@ -28,9 +28,9 @@ Normally, when setting up [managed identity with Azure Blob Storage or Data Lake
 
 At a terminal, download the sample application to your local computer.
 
-    ```bash
-    git clone https://github.com/Azure-Samples/azure-search-dotnet-samples
-    ```
+```bash
+git clone https://github.com/Azure-Samples/azure-search-dotnet-samples
+```
 
 ## Set up Azure resources
 
