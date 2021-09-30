@@ -26,19 +26,19 @@ Normally, when setting up [managed identity with Azure Blob Storage or Data Lake
 
 ## Clone the search sample with git
 
-1. At a terminal, download the sample application to your local computer.
+At a terminal, download the sample application to your local computer.
 
     ```bash
     git clone https://github.com/Azure-Samples/azure-search-dotnet-samples
     ```
 
-1. [Sign in to the Azure portal](https://portal.azure.com). The following tasks are completed in the portal, unless specified.
-
 ## Set up Azure resources
+
+1. [Sign in to the Azure portal](https://portal.azure.com). 
 
 1. [Create a resource group if one doesn't already exist](https://docs.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups).
 
-1. [Create a search service if one doesn't already exist](https://docs.microsoft.com/azure/search/search-create-service-portal). The [Basic service tier](https://azure.microsoft.com/pricing/details/search/) is enough to run the sample code.
+1. [Create a Cognitive Search service if one doesn't already exist](https://docs.microsoft.com/azure/search/search-create-service-portal). The [Basic service tier](https://azure.microsoft.com/pricing/details/search/) is enough to run the sample code.
 
 1. Enable a managed identity for your search service using either of the following approaches:
 
@@ -46,19 +46,19 @@ Normally, when setting up [managed identity with Azure Blob Storage or Data Lake
 
    + [User-managed identity](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-2---assign-a-user-assigned-managed-identity-to-the-search-service-preview)
 
-1. [Create a storage account if one doesn't already exist](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal). Ensure "Enable hierarchical namespace" is checked to enable Data Lake Storage Gen 2 on the storage account.
+1. [Create an Azure Storage account if one doesn't already exist](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal). Make sure that **Enable hierarchical namespace** is checked to enable Data Lake Storage Gen 2 on the storage account.
 
 ## Grant permissions in Azure Storage
 
 Search must be able to connect to Azure Storage, and the user who runs the app must be able to load and then secure that data. In this step, create role assignments in Azure Storage to support both tasks.
 
-1. [Create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) that allows the search service's managed identity access to the storage account:
+1. In your storage account page in the portal, [create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) that allows the search service's managed identity access to the storage account:
 
     + Choose [**Reader**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#reader) instead of **Storage Blob Data Reader**.
 
-1. [Create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) for the user running sample application:
+1. Repeat the previous step, this time [creating a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) for the user running sample application:
 
-    + The sample code adds sample data and sets up Access Control Lists in the Data Lake Gen2 storage account. Choose a role that supports these tasks: [**Storage Blob Data Contributor**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) or [**Storage Blob Data Owner**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-owner).
+    + Choose a role that that can upload sample data and create role assignments in Data Lake Gen2 storage: [**Storage Blob Data Contributor**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) or [**Storage Blob Data Owner**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-owner).
 
 ## Edit appsettings.json
 
