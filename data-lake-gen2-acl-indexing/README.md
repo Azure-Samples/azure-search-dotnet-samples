@@ -2,22 +2,27 @@
 page_type: sample
 languages:
   - csharp
-name: Index Data Lake Gen2 using Access Control Lists with Managed Identity
-description: "Index a subset of your Data Lake Gen2 by using Access Control Lists to allow certain files and directories to be accessed by an indexer"
+name: Index Azure Data Lake Gen2 using a managed identity
+description: "Index a subset of your Azure Data Lake Gen2 data by using access control lists to allow certain files and directories to be accessed by an indexer in Azure Cognitive Search."
 products:
   - azure
   - azure-cognitive-search
 urlFragment: data-lake-gen2-acl-indexing
 ---
 
-# Index Data Lake Gen2 Using Access Control Lists
+# Index Data Lake Gen2 using Azure AD
 
-Normally, when setting up [managed identity with Azure Blob or Data Lake Storage](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#2---add-a-role-assignment) the [Storage Blob Data Reader role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) is used. This grants full access to all files in the storage account, which may be undesirable if [Access Control Lists](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control) are being used. This tutorial demonstrates how to update Access Control Lists to grant the search service's managed identity access to certain files and directories
+This Azure Cognitive Search sample shows you how to configure an indexer connection to Azure Data Lake Gen2 that uses a managed identity and role assignments for selective data access. The sample loads data and sets up permissions for data access, and then runs the indexer to create and load a search index.
+
+Normally, when setting up [managed identity with Azure Blob Storage or Data Lake Storage](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#2---add-a-role-assignment), the [Storage Blob Data Reader role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) is used. However, this role grants full access to all files in the storage account, which may be undesirable if you are using [Access Control Lists](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control) for more selective access. This sample shows you how to constrain data access to specific files and users.
 
 ## Prerequisites
 
 + [.NET 3](https://dotnet.microsoft.com/download/dotnet/5.0)
 + [Git](https://git-scm.com/downloads)
++ [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
++ [Azure Storage](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal) with the "Enable hierarchical namespace" option
++ [Visual Studio Code](https://code.visualstudio.com/download) with the [Azure Tools](https://docs.microsoft.com/dotnet/azure/configure-vs-code#install-the-azure-tools-extension-pack) extension pack
 
 ## Clone the search sample with git
 
@@ -27,49 +32,86 @@ Normally, when setting up [managed identity with Azure Blob or Data Lake Storage
     git clone https://github.com/Azure-Samples/azure-search-dotnet-samples
     ```
 
-1. Open the [Azure Portal](https://portal.azure.com). The following tasks are completed in the Portal, unless specified.
+1. [Sign in to the Azure portal](https://portal.azure.com). The following tasks are completed in the portal, unless specified.
 
-## Setup Azure resources
+## Set up Azure resources
 
-1. [Create a resource group if one doesn't already exist](https://docs.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups)
+1. [Create a resource group if one doesn't already exist](https://docs.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups).
+
 1. [Create a search service if one doesn't already exist](https://docs.microsoft.com/azure/search/search-create-service-portal). The [Basic service tier](https://azure.microsoft.com/pricing/details/search/) is enough to run the sample code.
-1. If using System Assigned Managed Identity, [enable it on your search service](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-1---turn-on-system-assigned-managed-identity). If using User Assigned Managed Identity, [assign it to your search service](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-2---assign-a-user-assigned-managed-identity-to-the-search-service-preview)
+
+1. Enable a managed identity for your search service using either of the following approaches:
+
+   + [System-managed identity](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-1---turn-on-system-assigned-managed-identity).
+
+   + [User-managed identity](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-2---assign-a-user-assigned-managed-identity-to-the-search-service-preview)
+
 1. [Create a storage account if one doesn't already exist](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal). Ensure "Enable hierarchical namespace" is checked to enable Data Lake Storage Gen 2 on the storage account.
-1. [Assign the role](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) for the search service's managed identity to the storage account
-    1. Use the [Reader role](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#reader) instead of Storage Blob Data Reader.
-1. [Assign roles](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) to the user running sample application
-    1. For the sample code to add the sample data and setup Access Control Lists correctly in the Data Lake Gen2 storage account, the user running the code should have [Storage Blob Data Contributor](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) and [Storage Blob Data Owner](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-owner) permissions on the Data Lake Gen2 storage account
 
-## Setup sample code
+## Grant permissions in Azure Storage
 
-1. Open the "appsettings.json" file in the local copy of the sample application
-1. Change the following values:
-    1. "searchManagedIdentityId": "Object (principal) ID for User Assigned or System Managed Identity for Search Service".
-        1. If using a System Managed Identity, [copy the ID out of the Identity tab](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-1---turn-on-system-assigned-managed-identity) on the Search Service's portal overview page .
-        1. If using a User Assigned Managed Identity, copy the [Object ID from the User Assigned Managed Identity portal overview page](https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-manage-user-assigned-managed-identities?pivots=identity-mi-methods-azp#list-user-assigned-managed-identities)
-1. "searchAdminKey": "Admin key for Search Service"
-    1. Find the Admin key in the [Keys tab](https://docs.microsoft.com/azure/search/search-security-api-keys#find-existing-keys) on the Search Service's portal page
-1. "searchEndpoint": "https://search-service-name.search.windows.net"
-    1. Find the Url in the [Search Service's overview portal page](https://docs.microsoft.com/azure/search/search-manage#overview-home-page)
-1. "dataLakeResourceID": "/subscriptions/subscription-id/resourceGroups/resource-group-name/providers/Microsoft.Storage/storageAccounts/storageaccountname"
-    1. Replace "subscription-id" with the Azure subscription id of the storage account
-    1. Replace "resource-group-name" with the Azure resource group name the storage account is provisioned in
-    1. Replace "storageaccountname" with the name of the storage account
-1. "dataLakeEndpoint": "https://storageaccountname.dfs.core.windows.net"
-    1. Replace "storageaccountname" with the name of the storage account
+Search must be able to connect to Azure Storage, and the user who runs the app must be able to load and then secure that data. In this step, create role assignments in Azure Storage to support both tasks.
+
+1. [Create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) that allows the search service's managed identity access to the storage account:
+
+    + Choose [**Reader**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#reader) instead of **Storage Blob Data Reader**.
+
+1. [Create a role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current) for the user running sample application:
+
+    + The sample code adds sample data and sets up Access Control Lists in the Data Lake Gen2 storage account. Choose a role that supports these tasks: [**Storage Blob Data Contributor**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor) or [**Storage Blob Data Owner**](https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-owner).
+
+## Edit appsettings.json
+
+Open the **appsettings.json** file in your local copy of the sample application and change the following values.
+
+1. "searchManagedIdentityId": "Object (principal) ID for User-assigned or System Managed Identity for Search Service":
+
+    + For a system-assigned managed identity, go the search service's dashboard in the portal. In the left navigation pane, select Identity and then [copy the ID for the system managed identity](https://docs.microsoft.com/azure/search/search-howto-managed-identities-storage#option-1---turn-on-system-assigned-managed-identity).
+
+    + For a user-assigned managed identity, [list the user-managed identities for your subscription](https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/how-manage-user-assigned-managed-identities?pivots=identity-mi-methods-azp#list-user-assigned-managed-identities) and then copy the object ID.
+
+1. "searchAdminKey": "Admin key for Search Service":
+
+    + Find the Admin API key in the [Keys tab](https://docs.microsoft.com/azure/search/search-security-api-keys#find-existing-keys) on the search service's portal page.
+
+1. "searchEndpoint": "https://<search-service-name>.search.windows.net":
+
+    + Find the URI in the [search service's Overview portal page](https://docs.microsoft.com/azure/search/search-manage#overview-home-page).
+
+1. "dataLakeResourceID": "/subscriptions/<subscription-id>/resourceGroups/<resource-group-name>/providers/Microsoft.Storage/storageAccounts/<storageaccountname>":
+
+    + Find the resource ID in the storage account's service dashboard in the portal. Go to Settings > Endpoint > Data Lake Storage, and then copy the resource ID.
+
+1. "dataLakeEndpoint": "https://<storageaccountname>.dfs.core.windows.net":
+
+    + Find the endpoint in the storage account's service dashboard in the portal. Go to Settings > Endpoint > Data Lake Storage, and then copy the primary endpoint.
 
 ## Run sample code and verify sample data
 
-1. Navigate to the local copy of the sample code in a terminal
+1. Start Visual Studio Code.
+
+1. On the side bar, select the Azure Tools extension and then sign in to your Azure account. 
+
+1. On the side bar, open Explorer, and then open the local folder containing the sample code.
+
+1. Right-click the folder name and open an integrated terminal.
+
 1. Run the following command to execute the sample code: `dotnet run`
+
 1. When the sample data has finished indexing, the sample will exit with a message "Completed indexing sample data"
-1. Use [Search Explorer in the portal](https://docs.microsoft.com/azure/search/search-explorer) to view "acltestindex" to see the indexed sample data. Only data with an [Access Control List](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control) allowing the indexer's identity will appear in the index
+
+1. Return to the Azure portal and your search service. Use [Search Explorer](https://docs.microsoft.com/azure/search/search-explorer) to view "acltestindex" to see the indexed sample data. Only data with an [Access Control List](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control) allowing the indexer's identity will appear in the index.
 
 ## Clean up resources
 
-1. To clean up resources created in this tutorial, [delete the resource group](https://docs.microsoft.com/azure/azure-resource-manager/management/delete-resource-group) that contains the resources
+To clean up resources created in this tutorial, [delete the resource group](https://docs.microsoft.com/azure/azure-resource-manager/management/delete-resource-group) that contains the resources.
 
 ## Next Steps
 
-1. To learn more about how Azure Data Lake Storage Gen2 works with Access Control, please review [Access control lists (ACLs) in Azure Data Lake Storage Gen2](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control) and [Permissions table: Combining Azure RBAC and ACL](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control-model#permissions-table-combining-azure-rbac-and-acl)
-1. To learn more about how to use the Azure Data Lake Storage Gen2 .NET SDK to modify Access Control Lists, please review [Use .NET to manage ACLs in Azure Data Lake Storage Gen2](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-acl-dotnet)
+Learn more about how Azure Data Lake Storage Gen2 works with access control lists:
+
++ [Access control lists (ACLs) in Azure Data Lake Storage Gen2](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control)
+
++ [Permissions table: Combining Azure RBAC and ACL](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-access-control-model#permissions-table-combining-azure-rbac-and-acl)
+
++ [Use .NET to manage ACLs in Azure Data Lake Storage Gen2](https://docs.microsoft.com/azure/storage/blobs/data-lake-storage-acl-dotnet)
