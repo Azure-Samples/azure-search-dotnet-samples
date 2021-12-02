@@ -38,19 +38,24 @@ namespace MultipleSearchServices
                 new System.CommandLine.Option<int>(
                     new[] { "--pageSize" },
                     getDefaultValue: () => 50,
-                    description: "Amount of results to return per query page from each search service. Default is 50, maximum is 100, minimum is 1")
+                    description: "Amount of results to return per query page from each search service. Default is 50, maximum is 100, minimum is 1"),
+                new System.CommandLine.Option<string>(
+                    new[] { "--searchFields" },
+                    getDefaultValue: () => null,
+                    description: "Comma-separated list of fields to search")
             };
             rootCommand.Description = "Setup and query multiple indexes across search services";
             rootCommand.Handler = CommandHandler.Create<
                 bool,
                 string,
                 int,
-                int>(RunCommand);
+                int,
+                string>(RunCommand);
             await rootCommand.InvokeAsync(args);
 
         }
 
-        static async Task RunCommand(bool initialize, string query, int page, int pageSize)
+        static async Task RunCommand(bool initialize, string query, int page, int pageSize, string searchFields)
         {
             if (pageSize < 1 || pageSize > 100)
             {
@@ -64,7 +69,7 @@ namespace MultipleSearchServices
             var services = new List<Service>();
             foreach (IConfigurationSection section in configuration.GetChildren())
             {
-                var service = new Service();
+                var service = new Service { Name = section.Key };
                 try
                 {
                     section.Bind(service);
@@ -86,10 +91,17 @@ namespace MultipleSearchServices
 
             if (!String.IsNullOrEmpty(query))
             {
-                List<SearchResult<BookModel>> results = await RunQueryAsync(query, page, pageSize, services);
-                foreach (SearchResult<BookModel> result in results)
+                (int actualPageNumber, List<(Service, SearchResult<BookModel>)> results) = await RunQueryAsync(query, page, pageSize, searchFields, services);
+                if (actualPageNumber != page)
                 {
-                    Console.WriteLine("Score {0}, Title {1}, Id {2}", result.Score, result.Document.title, result.Document.goodreads_book_id);
+                    Console.WriteLine("Page {0}: No results", page);
+                    return;
+                }
+
+                Console.WriteLine("Page {0} size: {1}", actualPageNumber, results.Count);
+                foreach ((Service service, SearchResult<BookModel> result) in results)
+                {
+                    Console.WriteLine("Service {0}, Score {1}, Title {2}, Id {3}", service.Name, result.Score, result.Document.title, result.Document.goodreads_book_id);
                 }
             }
         }
@@ -139,66 +151,70 @@ namespace MultipleSearchServices
             Console.WriteLine("Finished bulk inserting book data");
         }
 
-        static async Task<List<SearchResult<BookModel>>> RunQueryAsync(string query, int pageNumber, int pageSize, List<Service> services)
+        static async Task<(int, List<(Service, SearchResult<BookModel>)>)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, List<Service> services)
         {
-            var options = new SearchOptions { Size = pageSize };
-            var searchResults = new List<IAsyncEnumerator<Page<SearchResult<BookModel>>>>();
+            var searchResults = new List<(Service, IAsyncEnumerator<Page<SearchResult<BookModel>>>)>();
             foreach (Service service in services)
             {
-                SearchResults<BookModel> response = await service.SearchClient.SearchAsync<BookModel>(query, options);
-                searchResults.Add(response.GetResultsAsync().AsPages().GetAsyncEnumerator());
+                IAsyncEnumerable<Page<SearchResult<BookModel>>> response = SearchAsync(service, query, pageSize, searchFields);
+                searchResults.Add((service, response.GetAsyncEnumerator()));
             }
 
             int currentPageNumber = 0;
-            var currentPage = new List<SearchResult<BookModel>>();
+            var currentPage = new List<(Service, SearchResult<BookModel>)>();
             do
             {
-                var resultPages = new List<Page<SearchResult<BookModel>>>();
-                var nextSearchResults = new List<IAsyncEnumerator<Page<SearchResult<BookModel>>>>();
-                foreach (IAsyncEnumerator<Page<SearchResult<BookModel>>> pageEnumerator in searchResults)
+                var resultPages = new List<(Service, Page<SearchResult<BookModel>>)>();
+                var nextSearchResults = new List<(Service, IAsyncEnumerator<Page<SearchResult<BookModel>>>)>();
+                foreach ((Service service, IAsyncEnumerator<Page<SearchResult<BookModel>>> pageEnumerator) in searchResults)
                 {
                     if (await pageEnumerator.MoveNextAsync())
                     {
-                        resultPages.Add(pageEnumerator.Current);
-                        nextSearchResults.Add(pageEnumerator);
+                        resultPages.Add((service, pageEnumerator.Current));
+                        nextSearchResults.Add((service, pageEnumerator));
                     }
                 }
 
                 searchResults = nextSearchResults;
-                var mergedSearchResults = new List<SearchResult<BookModel>>();
-                foreach (Page<SearchResult<BookModel>> resultPage in resultPages)
+                var mergedSearchResults = new List<(Service, SearchResult<BookModel>)>();
+                foreach ((Service service, Page<SearchResult<BookModel>> resultPage) in resultPages)
                 {
-                    mergedSearchResults.AddRange(resultPage.Values);
+                    foreach (SearchResult<BookModel> result in resultPage.Values)
+                    {
+                        mergedSearchResults.Add((service, result));
+                    }
                 }
 
                 mergedSearchResults.Sort((a, b) =>
                 {
-                    if (a.Score.HasValue && b.Score.HasValue)
+                    (_, SearchResult<BookModel> resultA) = a;
+                    (_, SearchResult<BookModel> resultB) = b;
+                    if (resultA.Score.HasValue && resultB.Score.HasValue)
                     {
-                        return a.Score.Value.CompareTo(b.Score.Value);
+                        return resultB.Score.Value.CompareTo(resultA.Score.Value);
                     }
 
-                    if (a.Score.HasValue && !b.Score.HasValue)
-                    {
-                        return 1;
-                    }
-
-                    if (!a.Score.HasValue && b.Score.HasValue)
+                    if (resultA.Score.HasValue && !resultB.Score.HasValue)
                     {
                         return -1;
+                    }
+
+                    if (!resultA.Score.HasValue && resultB.Score.HasValue)
+                    {
+                        return 1;
                     }
 
                     return 0;
                 });
 
-                foreach (SearchResult<BookModel> mergedSearchResult in mergedSearchResults)
+                foreach ((Service service, SearchResult<BookModel> mergedSearchResult) in mergedSearchResults)
                 {
-                    currentPage.Add(mergedSearchResult);
+                    currentPage.Add((service, mergedSearchResult));
                     if (currentPage.Count == pageSize)
                     {
                         if (currentPageNumber == pageNumber)
                         {
-                            return currentPage;
+                            return (currentPageNumber, currentPage);
                         }
 
                         currentPage.Clear();
@@ -208,11 +224,42 @@ namespace MultipleSearchServices
             }
             while (searchResults.Any());
 
-            return currentPage;
+            return (currentPageNumber, currentPage);
+        }
+
+        static async IAsyncEnumerable<Page<SearchResult<BookModel>>> SearchAsync(Service service, string query, int pageSize, string searchFields)
+        {
+            int skip = 0;
+            int currentResultCount;
+            do
+            {
+                currentResultCount = 0;
+                var options = new SearchOptions { Size = pageSize, Skip = skip };
+                if (!String.IsNullOrEmpty(searchFields))
+                {
+                    foreach (string searchField in searchFields.Split(','))
+                    {
+                        options.SearchFields.Add(searchField);
+                    }
+                }
+
+                Response<SearchResults<BookModel>> results = await service.SearchClient.SearchAsync<BookModel>(query, options);
+                await foreach (Page<SearchResult<BookModel>> page in results.Value.GetResultsAsync().AsPages())
+                {
+                    currentResultCount += page.Values.Count;
+                    skip += page.Values.Count;
+                    if (page.Values.Count > 0)
+                    {
+                        yield return page;
+                    }
+                }
+            }
+            while (currentResultCount > 0);
         }
 
         class Service
         {
+            public string Name { get; set; }
             public string AdminKey { get; set; }
             public string SearchEndpoint { get; set; }
             public string IndexName { get; set; }
