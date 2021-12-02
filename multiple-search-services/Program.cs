@@ -17,6 +17,7 @@ namespace MultipleSearchServices
 {
     class Program
     {
+        // URL of Good Books data to populate test indexes
         const string BOOKS_URL = "https://raw.githubusercontent.com/zygmuntz/goodbooks-10k/master/books.csv";
 
         async static Task Main(string[] args)
@@ -83,12 +84,14 @@ namespace MultipleSearchServices
                 services.Add(service);
             }
 
+            // Setup test data if requested
             if (initialize)
             {
                 await CreateIndexesAsync(services);
                 await BulkInsertAsync(services);
             }
 
+            // Run query if requested
             if (!String.IsNullOrEmpty(query))
             {
                 (int actualPageNumber, List<(Service, SearchResult<BookModel>)> results) = await RunQueryAsync(query, page, pageSize, searchFields, services);
@@ -106,6 +109,7 @@ namespace MultipleSearchServices
             }
         }
 
+        // Create test indexes for good books data
         static async Task CreateIndexesAsync(List<Service> services)
         {
             Console.WriteLine("Creating (or updating) search index");
@@ -118,6 +122,8 @@ namespace MultipleSearchServices
             }
         }
 
+        // Add good books data to test indexes
+        // Data is subdivided equally among all provided services
         static async Task BulkInsertAsync(List<Service> services)
         {
             Console.WriteLine("Download data file");
@@ -128,6 +134,8 @@ namespace MultipleSearchServices
             var books =
                 csv.ReplaceFirst("book_id", "id").FromCsv<List<BookModel>>();
 
+            // Try to evenly divide all data across each service
+            // If there are any books left over, put them in the last service
             int booksPerService = books.Count / services.Count;
             int remainingBooks = books.Count % services.Count;
             IEnumerable<BookModel> booksLeft = books;
@@ -151,8 +159,10 @@ namespace MultipleSearchServices
             Console.WriteLine("Finished bulk inserting book data");
         }
 
+        // Run the query and combine results across multiple services
         static async Task<(int, List<(Service, SearchResult<BookModel>)>)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, List<Service> services)
         {
+            // Page results from all services
             var searchResults = new List<(Service, IAsyncEnumerator<Page<SearchResult<BookModel>>>)>();
             foreach (Service service in services)
             {
@@ -160,10 +170,14 @@ namespace MultipleSearchServices
                 searchResults.Add((service, response.GetAsyncEnumerator()));
             }
 
+            // Merge each individual page from every service
+            // Sort the combined page by result score
             int currentPageNumber = 0;
             var currentPage = new List<(Service, SearchResult<BookModel>)>();
             do
             {
+                // Combine the current page of results from each service
+                // If the service has no more results, it is discarded
                 var resultPages = new List<(Service, Page<SearchResult<BookModel>>)>();
                 var nextSearchResults = new List<(Service, IAsyncEnumerator<Page<SearchResult<BookModel>>>)>();
                 foreach ((Service service, IAsyncEnumerator<Page<SearchResult<BookModel>>> pageEnumerator) in searchResults)
@@ -185,6 +199,7 @@ namespace MultipleSearchServices
                     }
                 }
 
+                // Sort the combined pages by score descending
                 mergedSearchResults.Sort((a, b) =>
                 {
                     (_, SearchResult<BookModel> resultA) = a;
@@ -207,6 +222,7 @@ namespace MultipleSearchServices
                     return 0;
                 });
 
+                // Return sub-pages of results from the combined page
                 foreach ((Service service, SearchResult<BookModel> mergedSearchResult) in mergedSearchResults)
                 {
                     currentPage.Add((service, mergedSearchResult));
@@ -224,16 +240,20 @@ namespace MultipleSearchServices
             }
             while (searchResults.Any());
 
+            // Return any leftover results as the last page
             return (currentPageNumber, currentPage);
         }
 
+        // Return all results from a service for a given query using a specific page size
         static async IAsyncEnumerable<Page<SearchResult<BookModel>>> SearchAsync(Service service, string query, int pageSize, string searchFields)
         {
+            // Client-side page through all the results from the service
             int skip = 0;
             int currentResultCount;
             do
             {
                 currentResultCount = 0;
+                // Specify specific fields to search if given
                 var options = new SearchOptions { Size = pageSize, Skip = skip };
                 if (!String.IsNullOrEmpty(searchFields))
                 {
@@ -243,10 +263,13 @@ namespace MultipleSearchServices
                     }
                 }
 
+                // Page through a single query. A continuation token may be returned for partial results from a single query
                 Response<SearchResults<BookModel>> results = await service.SearchClient.SearchAsync<BookModel>(query, options);
                 await foreach (Page<SearchResult<BookModel>> page in results.Value.GetResultsAsync().AsPages())
                 {
                     currentResultCount += page.Values.Count;
+                    // Skip ahead however many results we've seen when running the next query for client-side paging
+                    // For more information, please see https://docs.microsoft.com/azure/search/search-pagination-page-layout
                     skip += page.Values.Count;
                     if (page.Values.Count > 0)
                     {
