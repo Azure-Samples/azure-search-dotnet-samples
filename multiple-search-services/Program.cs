@@ -43,7 +43,11 @@ namespace MultipleSearchServices
                 new System.CommandLine.Option<string>(
                     new[] { "--searchFields" },
                     getDefaultValue: () => null,
-                    description: "Comma-separated list of fields to search")
+                    description: "Comma-separated list of fields to search"),
+                new System.CommandLine.Option<string>(
+                    new[] { "--facets" },
+                    getDefaultValue: () => null,
+                    description: "Comma-separated list of facets")
             };
             rootCommand.Description = "Setup and query multiple indexes across search services";
             rootCommand.Handler = CommandHandler.Create<
@@ -51,12 +55,12 @@ namespace MultipleSearchServices
                 string,
                 int,
                 int,
+                string,
                 string>(RunCommand);
             await rootCommand.InvokeAsync(args);
-
         }
 
-        static async Task RunCommand(bool initialize, string query, int page, int pageSize, string searchFields)
+        static async Task RunCommand(bool initialize, string query, int page, int pageSize, string searchFields, string facets)
         {
             if (pageSize < 1 || pageSize > 100)
             {
@@ -94,17 +98,38 @@ namespace MultipleSearchServices
             // Run query if requested
             if (!String.IsNullOrEmpty(query))
             {
-                (int actualPageNumber, List<(Service, SearchResult<BookModel>)> results) = await RunQueryAsync(query, page, pageSize, searchFields, services);
+                (int actualPageNumber, List<MultiSearchResult> multiResults, MultiSearchFacets multiFacets) = await RunQueryAsync(query, page, pageSize, searchFields, facets, services);
+                if (multiFacets.Facets.Any())
+                {
+                    Console.WriteLine("Faceted field count: {0}", multiFacets.Facets.Count);
+                    foreach (KeyValuePair<string, List<MultiSearchFacet>> multiFacetList in multiFacets.Facets)
+                    {
+                        Console.WriteLine(multiFacetList.Key);
+                        Console.WriteLine("Number of facets: {0}", multiFacetList.Value.Count);
+                        foreach (MultiSearchFacet multiFacet in multiFacetList.Value)
+                        {
+                            if (multiFacet.FacetType == FacetType.Value)
+                            {
+                                Console.WriteLine("Value {0}, Count {1}", multiFacet.Value, multiFacet.Count);
+                            }
+                            else if (multiFacet.FacetType == FacetType.Range)
+                            {
+                                Console.WriteLine("From {0}, To {1}, Count {2}", multiFacet.From, multiFacet.To, multiFacet.Count);
+                            }
+                        }
+                    }
+                }
+
                 if (actualPageNumber != page)
                 {
                     Console.WriteLine("Page {0}: No results", page);
                     return;
                 }
 
-                Console.WriteLine("Page {0} size: {1}", actualPageNumber, results.Count);
-                foreach ((Service service, SearchResult<BookModel> result) in results)
+                Console.WriteLine("Page {0} size: {1}", actualPageNumber, multiResults.Count);
+                foreach (MultiSearchResult multiResult in multiResults)
                 {
-                    Console.WriteLine("Service {0}, Score {1}, Title {2}, Id {3}", service.Name, result.Score, result.Document.title, result.Document.goodreads_book_id);
+                    Console.WriteLine("Service {0}, Score {1}, Title {2}, Id {3}", multiResult.Service.Name, multiResult.Result.Score, multiResult.Result.Document.title, multiResult.Result.Document.goodreads_book_id);
                 }
             }
         }
@@ -160,61 +185,67 @@ namespace MultipleSearchServices
         }
 
         // Run the query and combine results across multiple services
-        static async Task<(int, List<(Service, SearchResult<BookModel>)>)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, List<Service> services)
+        static async Task<(int, List<MultiSearchResult>, MultiSearchFacets)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, string facets, List<Service> services)
         {
             // Page results from all services
-            var searchResults = new List<(Service, IAsyncEnumerator<Page<SearchResult<BookModel>>>)>();
+            var searchResults = new List<IAsyncEnumerator<MultiSearchResultsPage>>();
             foreach (Service service in services)
             {
-                IAsyncEnumerable<Page<SearchResult<BookModel>>> response = SearchAsync(service, query, pageSize, searchFields);
-                searchResults.Add((service, response.GetAsyncEnumerator()));
+                IAsyncEnumerable<MultiSearchResultsPage> response = SearchAsync(service, query, pageSize, searchFields, facets);
+                searchResults.Add(response.GetAsyncEnumerator());
             }
 
             // Merge each individual page from every service
             // Sort the combined page by result score
             int currentPageNumber = 0;
-            var currentPage = new List<(Service, SearchResult<BookModel>)>();
+            var currentPage = new List<MultiSearchResult>();
+            var mergedFacets = new MultiSearchFacets();
             do
             {
                 // Combine the current page of results from each service
                 // If the service has no more results, it is discarded
-                var resultPages = new List<(Service, Page<SearchResult<BookModel>>)>();
-                var nextSearchResults = new List<(Service, IAsyncEnumerator<Page<SearchResult<BookModel>>>)>();
-                foreach ((Service service, IAsyncEnumerator<Page<SearchResult<BookModel>>> pageEnumerator) in searchResults)
+                var resultPages = new List<MultiSearchResultsPage>();
+                var nextSearchResults = new List<IAsyncEnumerator<MultiSearchResultsPage>>();
+                foreach (IAsyncEnumerator<MultiSearchResultsPage> pageEnumerator in searchResults)
                 {
                     if (await pageEnumerator.MoveNextAsync())
                     {
-                        resultPages.Add((service, pageEnumerator.Current));
-                        nextSearchResults.Add((service, pageEnumerator));
+                        resultPages.Add(pageEnumerator.Current);
+                        nextSearchResults.Add(pageEnumerator);
                     }
                 }
 
                 searchResults = nextSearchResults;
-                var mergedSearchResults = new List<(Service, SearchResult<BookModel>)>();
-                foreach ((Service service, Page<SearchResult<BookModel>> resultPage) in resultPages)
+                var mergedSearchResults = new List<MultiSearchResult>();
+                foreach (MultiSearchResultsPage resultPage in resultPages)
                 {
-                    foreach (SearchResult<BookModel> result in resultPage.Values)
+                    foreach (SearchResult<BookModel> result in resultPage.Page)
                     {
-                        mergedSearchResults.Add((service, result));
+                        mergedSearchResults.Add(new MultiSearchResult { Service = resultPage.Service, Result = result });
+                    }
+
+                    if (resultPage.Facets != null)
+                    {
+                        MergeFacets(resultPage.Facets, mergedFacets);
                     }
                 }
 
                 // Sort the combined pages by score descending
                 mergedSearchResults.Sort((a, b) =>
                 {
-                    (_, SearchResult<BookModel> resultA) = a;
-                    (_, SearchResult<BookModel> resultB) = b;
-                    if (resultA.Score.HasValue && resultB.Score.HasValue)
+                    MultiSearchResult resultA = a;
+                    MultiSearchResult resultB = b;
+                    if (resultA.Result.Score.HasValue && resultB.Result.Score.HasValue)
                     {
-                        return resultB.Score.Value.CompareTo(resultA.Score.Value);
+                        return resultB.Result.Score.Value.CompareTo(resultA.Result.Score.Value);
                     }
 
-                    if (resultA.Score.HasValue && !resultB.Score.HasValue)
+                    if (resultA.Result.Score.HasValue && !resultB.Result.Score.HasValue)
                     {
                         return -1;
                     }
 
-                    if (!resultA.Score.HasValue && resultB.Score.HasValue)
+                    if (!resultA.Result.Score.HasValue && resultB.Result.Score.HasValue)
                     {
                         return 1;
                     }
@@ -223,14 +254,14 @@ namespace MultipleSearchServices
                 });
 
                 // Return sub-pages of results from the combined page
-                foreach ((Service service, SearchResult<BookModel> mergedSearchResult) in mergedSearchResults)
+                foreach (MultiSearchResult mergedSearchResult in mergedSearchResults)
                 {
-                    currentPage.Add((service, mergedSearchResult));
+                    currentPage.Add(mergedSearchResult);
                     if (currentPage.Count == pageSize)
                     {
                         if (currentPageNumber == pageNumber)
                         {
-                            return (currentPageNumber, currentPage);
+                            return (currentPageNumber, currentPage, mergedFacets);
                         }
 
                         currentPage.Clear();
@@ -241,18 +272,19 @@ namespace MultipleSearchServices
             while (searchResults.Any());
 
             // Return any leftover results as the last page
-            return (currentPageNumber, currentPage);
+            return (currentPageNumber, currentPage, mergedFacets);
         }
 
         // Return all results from a service for a given query using a specific page size
-        static async IAsyncEnumerable<Page<SearchResult<BookModel>>> SearchAsync(Service service, string query, int pageSize, string searchFields)
+        static async IAsyncEnumerable<MultiSearchResultsPage> SearchAsync(Service service, string query, int pageSize, string searchFields, string facets)
         {
             // Client-side page through all the results from the service
             int skip = 0;
-            int currentResultCount;
+            var searchResults = new List<SearchResult<BookModel>>();
+            bool returnedFacets = false;
             do
             {
-                currentResultCount = 0;
+                searchResults.Clear();
                 // Specify specific fields to search if given
                 var options = new SearchOptions { Size = pageSize, Skip = skip };
                 if (!String.IsNullOrEmpty(searchFields))
@@ -262,23 +294,143 @@ namespace MultipleSearchServices
                         options.SearchFields.Add(searchField);
                     }
                 }
+                // Specify facets if given
+                if (!String.IsNullOrEmpty(facets))
+                {
+                    foreach (string facet in facets.Split(','))
+                    {
+                        options.Facets.Add(facet);
+                    }
+                }
 
                 // Page through a single query. A continuation token may be returned for partial results from a single query
                 Response<SearchResults<BookModel>> results = await service.SearchClient.SearchAsync<BookModel>(query, options);
                 await foreach (Page<SearchResult<BookModel>> page in results.Value.GetResultsAsync().AsPages())
                 {
-                    currentResultCount += page.Values.Count;
                     // Skip ahead however many results we've seen when running the next query for client-side paging
                     // For more information, please see https://docs.microsoft.com/azure/search/search-pagination-page-layout
                     skip += page.Values.Count;
-                    if (page.Values.Count > 0)
-                    {
-                        yield return page;
-                    }
+                    searchResults.AddRange(page.Values);
+                }
+
+                // Facets only need to be returned on the first page of results since the same query is run repeatedly
+                // with different skip values, which doesn't change the returned facet values
+                if (searchResults.Any())
+                {
+                    yield return new MultiSearchResultsPage { Service = service, Page = searchResults, Facets = !returnedFacets ? results.Value.Facets : null };
+                    returnedFacets = true;
                 }
             }
-            while (currentResultCount > 0);
+            while (searchResults.Any());
         }
+
+        // Merge facets across multiple search services
+        static void MergeFacets(IDictionary<string, IList<FacetResult>> singleServiceFacets, MultiSearchFacets mergedFacets)
+        {
+            foreach (KeyValuePair<string, IList<FacetResult>> resultFacets in singleServiceFacets)
+            {
+                string fieldName = resultFacets.Key;
+                IList<FacetResult> serviceFacets = resultFacets.Value;
+                if (mergedFacets.Facets.TryGetValue(fieldName, out List<MultiSearchFacet> multiServiceFacets))
+                {
+                    // If a facet can be merged into an existing multi-service facet, combine the counts
+                    // Otherwise, add a new multi-service facet matching the existing facet
+                    foreach (FacetResult facet in serviceFacets)
+                    {
+                        bool foundFacet = false;
+                        foreach (MultiSearchFacet multiServiceFacet in multiServiceFacets)
+                        {
+                            if (multiServiceFacet.CanMergeFacet(facet))
+                            {
+                                foundFacet = true;
+                                multiServiceFacet.Count += facet.Count.Value;
+                                break;
+                            }
+                        }
+
+                        if (!foundFacet)
+                        {
+                            multiServiceFacets.Add(new MultiSearchFacet(facet));
+                        }
+                    }
+                }
+                else
+                {
+                    // Initialize the multi-service facet list with the facets from this service for this field
+                    mergedFacets.Facets.Add(fieldName, serviceFacets.Select(f => new MultiSearchFacet(f)).ToList());
+                }
+            }
+        }
+
+        class MultiSearchResultsPage
+        {
+            public Service Service { get; set; }
+            public IEnumerable<SearchResult<BookModel>> Page { get; set; }
+            public IDictionary<string, IList<FacetResult>> Facets { get; set; }
+        }
+
+        class MultiSearchResult
+        {
+            public Service Service { get; set; }
+            public SearchResult<BookModel> Result { get; set; }
+        }
+
+        class MultiSearchFacets
+        {
+            public MultiSearchFacets()
+            {
+                Facets = new Dictionary<string, List<MultiSearchFacet>>();
+            }
+
+            public Dictionary<string, List<MultiSearchFacet>> Facets { get; }
+        }
+
+        class MultiSearchFacet
+        {
+            public MultiSearchFacet(FacetResult facetResult)
+            {
+                Value = facetResult.Value;
+                From = facetResult.From;
+                To = facetResult.To;
+                FacetType = facetResult.FacetType;
+                if (facetResult.Count.HasValue)
+                {
+                    Count = facetResult.Count.Value;
+                }
+            }
+
+            public FacetType FacetType { get; set; }
+            public object Value { get; set; }
+            public object From { get; set; }
+            public object To { get; set; }
+            public long Count { get; set; }
+            
+            public bool CanMergeFacet(FacetResult result)
+            {
+                // Trim strings before attempting to merge facets
+                // Facets in different search services may have leading or trailing whitespace
+                if (result.Value is string resultString && Value is string valueString)
+                {
+                    if (!resultString.Trim().Equals(valueString.Trim()))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (result.Value != Value)
+                    {
+                        return false;
+                    }
+                }
+
+                return result.To == To &&
+                    result.From == result.From &&
+                    result.FacetType == result.FacetType &&
+                    result.Count.HasValue;
+            }
+        }
+
 
         class Service
         {
