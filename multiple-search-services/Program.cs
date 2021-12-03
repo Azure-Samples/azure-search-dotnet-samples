@@ -106,6 +106,8 @@ namespace MultipleSearchServices
                     {
                         Console.WriteLine(multiFacetList.Key);
                         Console.WriteLine("Number of facets: {0}", multiFacetList.Value.Count);
+                        // Sort facets in desecending order by count before usage
+                        multiFacetList.Value.Sort();
                         foreach (MultiSearchFacet multiFacet in multiFacetList.Value)
                         {
                             if (multiFacet.FacetType == FacetType.Value)
@@ -158,6 +160,12 @@ namespace MultipleSearchServices
             Console.WriteLine("Reading and parsing raw CSV data");
             var books =
                 csv.ReplaceFirst("book_id", "id").FromCsv<List<BookModel>>();
+            foreach (BookModel book in books)
+            {
+                // Faceting is sensitive to whitespace. Normalize by removing whitespace at the beginning and end
+                // of the author names
+                book.authors = book.authors.Select(author => author.Trim()).ToArray();
+            }
 
             // Try to evenly divide all data across each service
             // If there are any books left over, put them in the last service
@@ -385,7 +393,7 @@ namespace MultipleSearchServices
             public Dictionary<string, List<MultiSearchFacet>> Facets { get; }
         }
 
-        class MultiSearchFacet
+        class MultiSearchFacet : IComparable<MultiSearchFacet>
         {
             public MultiSearchFacet(FacetResult facetResult)
             {
@@ -407,27 +415,38 @@ namespace MultipleSearchServices
             
             public bool CanMergeFacet(FacetResult result)
             {
-                // Trim strings before attempting to merge facets
-                // Facets in different search services may have leading or trailing whitespace
-                if (result.Value is string resultString && Value is string valueString)
+                return CompareFacetField(result.Value, Value) &&
+                    CompareFacetField(result.To, To) &&
+                    CompareFacetField(result.From, From) &&
+                    CompareFacetField(result.FacetType, FacetType) &&
+                    result.Count.HasValue;
+            }
+
+            // Compare parts of different facets
+            private static bool CompareFacetField(object a, object b)
+            {
+                if (a == null && b == null)
                 {
-                    if (!resultString.Trim().Equals(valueString.Trim()))
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (result.Value != Value)
-                    {
-                        return false;
-                    }
+                    return true;
                 }
 
-                return result.To == To &&
-                    result.From == result.From &&
-                    result.FacetType == result.FacetType &&
-                    result.Count.HasValue;
+                if (a != null && b == null)
+                {
+                    return false;
+                }
+
+                if (a == null && b != null)
+                {
+                    return false;
+                }
+
+                return a.Equals(b);
+            }
+
+            // Compare a multi search facet to another one. Order by count descending
+            public int CompareTo(MultiSearchFacet other)
+            {
+                return other.Count.CompareTo(Count);
             }
         }
 
