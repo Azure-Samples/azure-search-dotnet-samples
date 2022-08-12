@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32804.467
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "check-storage-usage", "check-storage-usage.csproj", "{6FB7258C-3EC6-4EA4-8E75-3D1189D9351C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FB7258C-3EC6-4EA4-8E75-3D1189D9351C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FB7258C-3EC6-4EA4-8E75-3D1189D9351C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FB7258C-3EC6-4EA4-8E75-3D1189D9351C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FB7258C-3EC6-4EA4-8E75-3D1189D9351C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1204B124-F064-4D4D-9DA5-3BAC2EC09490}
+	EndGlobalSection
+EndGlobal
