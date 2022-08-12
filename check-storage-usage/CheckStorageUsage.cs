@@ -13,17 +13,10 @@ namespace check_storage_usage
 {
     public class CheckStorageUsage
     {
-        private readonly IConfiguration _configuration;
-
-        public CheckStorageUsage(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         // Run on a timer
         // https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=in-process&pivots=programming-language-csharp#ncrontab-expressions
         [FunctionName("CheckStorageUsage")]
-        public async Task Run([TimerTrigger("0 30 * * * *")]TimerInfo timer, ILogger log)
+        public async Task Run([TimerTrigger("0 */30 * * * *")]TimerInfo timer, ILogger log)
         {
             string serviceName = Environment.GetEnvironmentVariable("ServiceName");
             log.LogInformation($"Checking search storage usage for {serviceName}: {DateTime.Now}");
