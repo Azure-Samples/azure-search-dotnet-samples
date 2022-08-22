@@ -1,0 +1,13 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+        "ServiceName": "<search service name>",
+        "ServiceAdminApiKey": "<search service admin api key>",
+        "StorageUsedPercentThreshold":  0.8,
+        "CommunicationServicesConnectionString": "<connection string>",
+        "ToEmailAddress": "a@example.org",
+        "FromEmailAddress": "donotreply@<azure communication services email domain>"
+    }
+}

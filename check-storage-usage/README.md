@@ -36,9 +36,11 @@ This .NET Core application runs as an [Azure Function](https://docs.microsoft.co
 
 ## Run the sample
 
+1. Run the function locally [using Visual Studio](https://docs.microsoft.com/azure/azure-functions/functions-develop-local)
+
 1. Deploy the sample to Azure [using Visual Studio](https://docs.microsoft.com/azure/azure-functions/functions-create-your-first-function-visual-studio?tabs=in-process#publish-the-project-to-azure).
 
-1. Navigate to the deployed Function App in the Azure Portal.
+1. Navigate to the deployed Function App in the Azure portal.
 
 1. [Update the application settings of the Function App](https://docs.microsoft.com/azure/azure-functions/functions-how-to-use-azure-function-app-settings?tabs=portal). In the Azure portal, navigate to **Configuration** section under **Settings**. Add the following **Application Settings**:
 
@@ -51,7 +53,7 @@ This .NET Core application runs as an [Azure Function](https://docs.microsoft.co
 
 ## Verify results
 
-[An email is sent](https://docs.microsoft.com/azure/communication-services/quickstarts/email/send-email) to the provided to address that the search service has low storage available. A log message is also emitted. Use [Application Insights](https://docs.microsoft.com/azure/azure-functions/analyze-telemetry-data) or [log streaming](https://docs.microsoft.com/azure/azure-functions/streaming-logs) to view these log messages.
+[An email is sent](https://docs.microsoft.com/azure/communication-services/quickstarts/email/send-email) to the provided email address that the search service has low storage available.
 
 ## Next steps
 
