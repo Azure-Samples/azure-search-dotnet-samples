@@ -1,24 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Communication.Email;
 using Azure.Communication.Email.Models;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace check_storage_usage
 {
     public class CheckStorageUsage
     {
-        // Run on a timer
-        // https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=in-process&pivots=programming-language-csharp#ncrontab-expressions
+        // Run on a timer every 30 minutes
+        // https://docs.microsoft.com/azure/azure-functions/functions-bindings-timer
         [FunctionName("CheckStorageUsage")]
         public async Task Run([TimerTrigger("0 */30 * * * *")]TimerInfo timer, ILogger log)
         {
