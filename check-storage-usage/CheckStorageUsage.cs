@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Communication.Email;
+using Azure.Communication.Email.Models;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using Microsoft.AspNetCore.Hosting;
@@ -33,7 +37,20 @@ namespace check_storage_usage
 
             if (storagedUsedPercent > storageUsedPercentThreshold)
             {
-                log.LogInformation("Search service {0} is using {1:P2} of its storage which exceeds the alerting threshold of {2:P2}", serviceName, storagedUsedPercent, storageUsedPercentThreshold);
+                string connectionString = Environment.GetEnvironmentVariable("CommunicationServicesConnectionString");
+                var emailClient = new EmailClient(connectionString);
+
+                string subject = string.Format("Low storage space on search service {0}", serviceName);
+                string body = string.Format("Search service {0} is using {1:P2} of its storage which exceeds the alerting threshold of {2:P2}", serviceName, storagedUsedPercent, storageUsedPercentThreshold);
+                EmailContent emailContent = new EmailContent(subject);
+                emailContent.PlainText = body;
+                string toEmailAddress = Environment.GetEnvironmentVariable("ToEmailAddress");
+                string fromEmailAddress = Environment.GetEnvironmentVariable("FromEmailAddress");
+                List<EmailAddress> emailAddresses = new List<EmailAddress> { new EmailAddress(toEmailAddress) };
+                EmailRecipients emailRecipients = new EmailRecipients(emailAddresses);
+                EmailMessage emailMessage = new EmailMessage(fromEmailAddress, emailContent, emailRecipients);
+                Response<SendEmailResult> response = emailClient.Send(emailMessage);
+                log.LogInformation("Sent email about low storage, status code {0}", response.GetRawResponse().Status);
             }
         }
     }
