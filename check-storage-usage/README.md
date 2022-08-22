@@ -24,8 +24,11 @@ This .NET Core application runs as an [Azure Function](https://docs.microsoft.co
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
 - [Azure Functions](https://docs.microsoft.com/azure/azure-functions/functions-overview)
+- [Azure Communication Services](https://docs.microsoft.com/azure/communication-services/overview)
 
 ## Setup
+
+1. Configure a [Communication Services](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource) resource [to send email](https://docs.microsoft.com/azure/communication-services/quickstarts/email/create-email-communication-resource).
 
 1. Clone or download this sample repository.
 
@@ -42,10 +45,13 @@ This .NET Core application runs as an [Azure Function](https://docs.microsoft.co
    + `ServiceName` is the name of your search service.
    + `ServiceAdminKey` is the [Admin API Key to access your search service](https://docs.microsoft.com/azure/search/search-security-api-keys#find-existing-keys).
    + `StorageUsedPercentThreshold` is the threshold used for determining if a search service is using too much storage. This should be a decimal number between 0 and 1 which translates to a percentage of used storage. For example, 0.8 is 80% of used storage.
+   + `CommunicationServicesConnectionString` is a connection string for your [Communication Services resource](https://docs.microsoft.com/azure/communication-services/concepts/authentication#access-key).
+   + `ToEmailAddress` is the email address that will be notified of low storage in the search service.
+   + `FromEmailAddress` is the email address that the notification email will be sent from. It must be in the [domain associated with your Communication Services email resource](https://docs.microsoft.com/azure/communication-services/concepts/email/email-domain-and-sender-authentication)
 
 ## Verify results
 
-A log message is emitted  when used storage on the search service exceeds the threshold. Use [Application Insights](https://docs.microsoft.com/azure/azure-functions/analyze-telemetry-data) or [log streaming](https://docs.microsoft.com/azure/azure-functions/streaming-logs) to view these log messages.
+[An email is sent](https://docs.microsoft.com/azure/communication-services/quickstarts/email/send-email) to the provided to address that the search service has low storage available. A log message is also emitted. Use [Application Insights](https://docs.microsoft.com/azure/azure-functions/analyze-telemetry-data) or [log streaming](https://docs.microsoft.com/azure/azure-functions/streaming-logs) to view these log messages.
 
 ## Next steps
 

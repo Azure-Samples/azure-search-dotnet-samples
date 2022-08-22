@@ -5,6 +5,7 @@
     <RootNamespace>check_storage_usage</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Azure.Communication.Email" Version="1.0.0-beta.1" />
     <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
