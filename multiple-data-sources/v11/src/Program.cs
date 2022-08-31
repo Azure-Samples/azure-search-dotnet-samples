@@ -26,19 +26,19 @@ namespace AzureSearch.SDKHowTo
 
             string indexName = "hotel-rooms-sample";
 
-            // First, create the search index
-            Console.WriteLine("Deleting index if it exists...\n");
+            // Next, create the search index
+            Console.WriteLine("Deleting index...\n");
             await DeleteIndexIfExistsAsync(indexName, indexClient);
 
             Console.WriteLine("Creating index...\n");
             await CreateIndexAsync(indexName, indexClient);
 
             // Set up a CosmosDB data source and indexer, and run the indexer to import hotel data
-            Console.WriteLine("Load hotel data from Cosmos DB...\n");
+            Console.WriteLine("Indexing Cosmos DB hotel data...\n");
             await CreateAndRunCosmosDbIndexerAsync(indexName, indexerClient);
 
             // Set up a Blob Storage data source and indexer, and run the indexer to merge hotel room data
-            Console.WriteLine("Merge hotel room data from Azure Blob Storage...\n");
+            Console.WriteLine("Indexing and merging hotel room data from blob storage...\n");
             await CreateAndRunBlobIndexerAsync(indexName, indexerClient);
 
             Console.WriteLine("Complete.  Press any key to end application...\n");
@@ -140,6 +140,15 @@ namespace AzureSearch.SDKHowTo
 
             Console.WriteLine("Creating Blob Storage indexer...\n");
 
+            // Add a field mapping to match the Id field in the documents to 
+            // the HotelId key field in the index
+            List<FieldMapping> map = new List<FieldMapping> {
+                new FieldMapping("Id")
+                {
+                    TargetFieldName =  "HotelId"
+                }
+            };
+
             IndexingParameters parameters = new IndexingParameters();
             parameters.Configuration.Add("parsingMode", "json");
 
@@ -152,10 +161,6 @@ namespace AzureSearch.SDKHowTo
                 Schedule = new IndexingSchedule(TimeSpan.FromDays(1))
             };
 
-            // For the Cosmos DB data, the identifier fields are identical (HotelId).
-            // For the blobs, the identifier field names differ (Id versus HotelId)
-            // If field names don't match, create a field map so that the indexer
-            // knows how to resolve the association.
             blobIndexer.FieldMappings.Add(new FieldMapping("Id") { TargetFieldName = "HotelId" });
 
             // Reset the indexer if it already exists
