@@ -21,9 +21,9 @@ This sample is a C# console application that uses .NET Core. The code is describ
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
-- [Sample data](https://github.com/Azure-Samples/azure-search-sample-data/tree/master/ai-enrichment-mixed-media)
-- [Azure Storage](https://docs.microsoft.com/azure/storage/common/storage-quickstart-create-account) 
-- [Azure Cognitive Search](https://docs.microsoft.com/azure/search/search-create-service-portal)
+- [Sample file set (mixed content types)](https://github.com/Azure-Samples/azure-search-sample-data/tree/master/mixedContent)
+- [Azure Storage account](https://docs.microsoft.com/azure/storage/common/storage-quickstart-create-account) 
+- [Azure Cognitive Search service](https://docs.microsoft.com/en-us/azure/search/search-create-service-portal)
 
 ## Setup
 
@@ -35,7 +35,7 @@ This sample is a C# console application that uses .NET Core. The code is describ
 
 This sample is available in two versions.
 
-+ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/dotnet/api/overview/azure/search/client10) client libraries
++ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
 
 + **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
 
