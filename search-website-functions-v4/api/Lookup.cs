@@ -23,7 +23,7 @@ namespace WebSearch.Function
             _logger = loggerFactory.CreateLogger<Lookup>();
         }
 
-        [Function("Lookup")]
+        [Function("lookup")]
         public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, FunctionContext executionContext)
         {
 

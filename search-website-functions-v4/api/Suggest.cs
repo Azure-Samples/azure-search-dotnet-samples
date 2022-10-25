@@ -25,7 +25,7 @@ namespace WebSearch.Function
             _logger = loggerFactory.CreateLogger<Lookup>();
         }
 
-        [Function("Suggest")]
+        [Function("suggest")]
         public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, FunctionContext executionContext)
         {
 
