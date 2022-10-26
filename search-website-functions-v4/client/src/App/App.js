@@ -28,9 +28,12 @@ export default function App() {
     if (response) {
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.indexOf("application/json") !== -1) {
-        response.json()
-          .then(response => setUser(response))
-          .catch(error => console.error('Error:', error));
+        if (!response.ok) {
+          console.error('Error:', response.status)
+        } else {
+          const user = await response.json();
+          setUser(user);
+        }
       }
     }
   }
