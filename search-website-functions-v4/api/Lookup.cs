@@ -16,12 +16,13 @@ namespace WebSearch.Function
         private static string searchServiceName = Environment.GetEnvironmentVariable("SearchServiceName", EnvironmentVariableTarget.Process);
         private static string searchIndexName = Environment.GetEnvironmentVariable("SearchIndexName", EnvironmentVariableTarget.Process) ?? "good-books";
 
-        private readonly ILogger _logger;
+        private readonly ILogger<Lookup> _logger;
 
-        public Lookup(ILoggerFactory loggerFactory)
+        public Lookup(ILogger<Lookup> logger)
         {
-            _logger = loggerFactory.CreateLogger<Lookup>();
+            _logger = logger;
         }
+
 
         [Function("lookup")]
         public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, FunctionContext executionContext)
