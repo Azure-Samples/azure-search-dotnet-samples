@@ -1,7 +1,6 @@
 ﻿using Azure.Search.Documents.Indexes.Models;
 using System.Collections.Generic;
 
-
 namespace AzureSearch.BulkInsert
 {
     public class BookSearchIndex : SearchIndex
