@@ -83,7 +83,8 @@ namespace WebSearch.Function
                 return null;
             }
 
-            List<string> filterExpressions = new List<string>();
+            List<string> filterExpressions = new();
+
 
             List<SearchFilter> authorFilters = filters.Where(f => f.field == "authors").ToList();
             List<SearchFilter> languageFilters = filters.Where(f => f.field == "language_code").ToList();
