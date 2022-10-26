@@ -22,9 +22,8 @@ SearchIndexClient clientIndex = new SearchIndexClient(
     searchEndpointUri,
     new AzureKeyCredential(SEARCH_KEY));
 
-CreateIndexAsync(clientIndex).Wait();
-BulkInsertAsync(client).Wait();
-
+await CreateIndexAsync(clientIndex);
+await BulkInsertAsync(client);
 
 static async Task CreateIndexAsync(SearchIndexClient clientIndex)
 {
