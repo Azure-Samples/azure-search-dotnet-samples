@@ -34,9 +34,9 @@ namespace WebSearch.Function
             var data = JsonSerializer.Deserialize<RequestBodySearch>(requestBody);
 
             // Cognitive Search 
-            Uri serviceEndpoint = new Uri($"https://{searchServiceName}.search.windows.net/");
+            Uri serviceEndpoint = new($"https://{searchServiceName}.search.windows.net/");
 
-            SearchClient searchClient = new SearchClient(
+            SearchClient searchClient = new(
                 serviceEndpoint,
                 searchIndexName,
                 new AzureKeyCredential(searchApiKey)
