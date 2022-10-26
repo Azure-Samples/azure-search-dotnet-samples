@@ -38,7 +38,8 @@ static async Task CreateIndexAsync(SearchIndexClient clientIndex)
 static async Task BulkInsertAsync(SearchClient client)
 {
     Console.WriteLine("Download data file");
-    using HttpClient httpClient = new HttpClient();
+    using HttpClient httpClient = new();
+
     var csv = await httpClient.GetStringAsync(BOOKS_URL);
 
     Console.WriteLine("Reading and parsing raw CSV data");
