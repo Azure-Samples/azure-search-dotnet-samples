@@ -35,7 +35,7 @@ namespace WebSearch.Function
             string documentId = query["id"].ToString();
 
             // Cognitive Search 
-            Uri serviceEndpoint = new Uri($"https://{searchServiceName}.search.windows.net/");
+            Uri serviceEndpoint = new($"https://{searchServiceName}.search.windows.net/");
 
             SearchClient searchClient = new SearchClient(
                 serviceEndpoint,
