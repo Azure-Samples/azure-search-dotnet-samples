@@ -47,6 +47,7 @@ namespace WebSearch.Models
         public string value { get; set; }
         public long? count { get; set; }
     }
+
     class SearchOutput
     {
         [JsonPropertyName("count")]
