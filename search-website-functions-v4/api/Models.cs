@@ -1,7 +1,6 @@
 ﻿using Azure.Search.Documents.Models;
 using System.Text.Json.Serialization;
 
-
 namespace WebSearch.Models
 {
     public class RequestBodyLookUp
