@@ -25,7 +25,9 @@ namespace WebSearch.Function
 
 
         [Function("lookup")]
-        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, FunctionContext executionContext)
+        public async Task<HttpResponseData> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req, 
+            FunctionContext executionContext)
         {
 
             // Get Document Id
