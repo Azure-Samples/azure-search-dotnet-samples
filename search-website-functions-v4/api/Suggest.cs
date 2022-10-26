@@ -18,11 +18,11 @@ namespace WebSearch.Function
         private static string searchServiceName = Environment.GetEnvironmentVariable("SearchServiceName", EnvironmentVariableTarget.Process);
         private static string searchIndexName = Environment.GetEnvironmentVariable("SearchIndexName", EnvironmentVariableTarget.Process) ?? "good-books";
 
-        private readonly ILogger _logger;
+        private readonly ILogger<Lookup> _logger;
 
-        public Suggest(ILoggerFactory loggerFactory)
+        public Suggest(ILogger<Lookup> logger)
         {
-            _logger = loggerFactory.CreateLogger<Lookup>();
+            _logger = logger;
         }
 
         [Function("suggest")]
