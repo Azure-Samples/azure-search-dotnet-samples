@@ -6,7 +6,7 @@ import "./SearchBar.css";
 
 export default function SearchBar(props) {
 
-    let [q, setQ] = useState("");
+    let [q, setQ] = useState('');
     let [suggestions, setSuggestions] = useState([]);
     let [showSuggestions, setShowSuggestions] = useState(false);
 
