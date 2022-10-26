@@ -5,7 +5,8 @@ namespace AzureSearch.BulkInsert
 {
     public class BookSearchIndex : SearchIndex
     {
-        SearchField id = new SearchField("id", SearchFieldDataType.String)
+        SearchField id = new("id", SearchFieldDataType.String)
+
         {
             IsFacetable = false,
             IsFilterable = false,
