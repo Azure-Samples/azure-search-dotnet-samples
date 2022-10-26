@@ -30,7 +30,6 @@ namespace WebSearch.Function
             [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, 
             FunctionContext executionContext)
         {
-
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var data = JsonSerializer.Deserialize<RequestBodySearch>(requestBody);
 
