@@ -37,7 +37,8 @@ namespace WebSearch.Function
             // Cognitive Search 
             Uri serviceEndpoint = new($"https://{searchServiceName}.search.windows.net/");
 
-            SearchClient searchClient = new SearchClient(
+            SearchClient searchClient = new(
+
                 serviceEndpoint,
                 searchIndexName,
                 new AzureKeyCredential(searchApiKey)
