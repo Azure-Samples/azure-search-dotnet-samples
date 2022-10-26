@@ -26,7 +26,9 @@ namespace WebSearch.Function
         }
 
         [Function("search")]
-        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, FunctionContext executionContext)
+        public async Task<HttpResponseData> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, 
+            FunctionContext executionContext)
         {
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
