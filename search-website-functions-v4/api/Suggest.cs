@@ -51,8 +51,10 @@ namespace WebSearch.Function
             };
 
             var suggesterResponse = await searchClient.SuggestAsync<BookModel>(data.SearchText, data.SuggesterName, options);
-            var searchSuggestions = new Dictionary<string, List<SearchSuggestion<BookModel>>>();
-            searchSuggestions["suggestions"] = suggesterResponse.Value.Results.ToList();
+            var searchSuggestions = new Dictionary<string, List<SearchSuggestion<BookModel>>>
+            {
+                ["suggestions"] = suggesterResponse.Value.Results.ToList()
+            };
 
             var response = req.CreateResponse(HttpStatusCode.Found);
             await response.WriteAsJsonAsync(searchSuggestions);
