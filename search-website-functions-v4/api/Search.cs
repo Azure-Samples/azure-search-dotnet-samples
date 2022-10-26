@@ -75,9 +75,10 @@ namespace WebSearch.Function
             await response.WriteAsJsonAsync(output);
             return response;
         }
+
         public static string CreateFilterExpression(List<SearchFilter> filters)
         {
-            if (filters == null || filters.Count <= 0)
+            if (filters is null or { Count: <= 0 })
             {
                 return null;
             }
