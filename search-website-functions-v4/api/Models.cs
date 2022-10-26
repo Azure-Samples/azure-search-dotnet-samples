@@ -34,7 +34,6 @@ namespace WebSearch.Models
 
         [JsonPropertyName("filters")]
         public List<SearchFilter> Filters { get; set; }
-
     }
 
 
