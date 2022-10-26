@@ -36,7 +36,6 @@ namespace WebSearch.Models
         public List<SearchFilter> Filters { get; set; }
     }
 
-
     public class SearchFilter
     {
         public string field { get; set; }
