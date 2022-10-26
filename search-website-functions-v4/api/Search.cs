@@ -55,7 +55,7 @@ namespace WebSearch.Function
 
             SearchResults<SearchDocument> searchResults = searchClient.Search<SearchDocument>(data.SearchText, options);
 
-            var facetOutput = new Dictionary<String, IList<FacetValue>>();
+            var facetOutput = new Dictionary<string, IList<FacetValue>>();
             foreach (var facetResult in searchResults.Facets)
             {
                 facetOutput[facetResult.Key] = facetResult.Value
