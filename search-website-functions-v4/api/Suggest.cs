@@ -1,14 +1,12 @@
-using System.Net;
-using Azure.Search.Documents.Models;
-using Azure.Search.Documents;
 using Azure;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using WebSearch.Models;
-using Azure.Core;
+using System.Net;
 using System.Text.Json;
-using System.Reflection.Metadata;
+using WebSearch.Models;
 
 namespace WebSearch.Function
 {
