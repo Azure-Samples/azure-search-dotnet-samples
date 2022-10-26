@@ -26,7 +26,9 @@ namespace WebSearch.Function
         }
 
         [Function("suggest")]
-        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, FunctionContext executionContext)
+        public async Task<HttpResponseData> RunAsync(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, 
+            FunctionContext executionContext)
         {
 
             // Get Document Id
