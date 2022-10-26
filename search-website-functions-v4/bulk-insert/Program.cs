@@ -11,14 +11,14 @@ const string SEARCH_ENDPOINT = "https://YOUR-SEARCH-RESOURCE-NAME.search.windows
 const string SEARCH_KEY = "YOUR-SEARCH-ADMIN-KEY";
 const string SEARCH_INDEX_NAME = "good-books";
 
-Uri searchEndpointUri = new Uri(SEARCH_ENDPOINT);
+Uri searchEndpointUri = new(SEARCH_ENDPOINT);
 
-SearchClient client = new SearchClient(
+SearchClient client = new(
     searchEndpointUri,
     SEARCH_INDEX_NAME,
     new AzureKeyCredential(SEARCH_KEY));
 
-SearchIndexClient clientIndex = new SearchIndexClient(
+SearchIndexClient clientIndex = new(
     searchEndpointUri,
     new AzureKeyCredential(SEARCH_KEY));
 
