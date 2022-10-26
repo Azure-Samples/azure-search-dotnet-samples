@@ -59,7 +59,8 @@ namespace WebSearch.Function
             foreach (var facetResult in searchResults.Facets)
             {
                 facetOutput[facetResult.Key] = facetResult.Value
-                           .Select(x => new FacetValue() { value = x.Value.ToString(), count = x.Count })
+                           .Select(x => new FacetValue { value = x.Value.ToString(), count = x.Count })
+
                            .ToList();
             }
 
