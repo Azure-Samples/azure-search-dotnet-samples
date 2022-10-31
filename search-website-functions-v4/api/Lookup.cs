@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text.Json;
 using WebSearch.Models;
 
 namespace WebSearch.Function
@@ -52,7 +53,15 @@ namespace WebSearch.Function
 
             var response = req.CreateResponse(HttpStatusCode.Found);
             response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-            await response.WriteAsJsonAsync(output);
+
+            JsonSerializerOptions jsonSerializerOptions = new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true
+            };
+            await response.WriteAsJsonAsync(
+              JsonSerializer.Serialize<LookupOutput>(output, jsonSerializerOptions));
+
             return response;
         }
     }

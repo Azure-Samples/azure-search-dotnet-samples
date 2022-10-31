@@ -6,7 +6,7 @@ export default function AppFooter() {
   return (
       <footer className="footer">
         <hr />
-        &copy; {new Date().getFullYear()} Microsoft
+        &copy; 2020 Microsoft
       </footer>
   );
 };

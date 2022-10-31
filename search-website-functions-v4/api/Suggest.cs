@@ -55,7 +55,13 @@ namespace WebSearch.Function
             };
 
             var response = req.CreateResponse(HttpStatusCode.Found);
-            await response.WriteAsJsonAsync(searchSuggestions);
+            JsonSerializerOptions jsonSerializerOptions = new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true
+            };
+            await response.WriteAsJsonAsync(
+              JsonSerializer.Serialize<Dictionary<string, List<SearchSuggestion<BookModel>>>>(searchSuggestions, jsonSerializerOptions));
             return response;
         }
     }

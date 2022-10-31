@@ -8,6 +8,7 @@ import Pager from '../../components/Pager/Pager';
 import Facets from '../../components/Facets/Facets';
 import SearchBar from '../../components/SearchBar/SearchBar';
 
+import apiBaseUrl from "../../config";
 import "./Search.css";
 
 export default function Search() {
@@ -37,7 +38,7 @@ export default function Search() {
       filters: filters
     };
 
-    axios.post( '/api/search', body)
+    axios.post( `${apiBaseUrl || ""}/api/search`, body)
       .then(response => {
             console.log(JSON.stringify(response.data))
             setResults(response.data.results);

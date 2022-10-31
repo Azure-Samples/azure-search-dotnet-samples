@@ -6,6 +6,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using WebSearch.Models;
 using SearchFilter = WebSearch.Models.SearchFilter;
 
@@ -70,8 +71,15 @@ namespace WebSearch.Function
                 Facets = facetOutput
             };
 
+            
             var response = req.CreateResponse(HttpStatusCode.Found);
-            await response.WriteAsJsonAsync(output);
+            JsonSerializerOptions jsonSerializerOptions = new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true
+            };
+            await response.WriteAsJsonAsync(
+              JsonSerializer.Serialize<SearchOutput>(output, jsonSerializerOptions));
             return response;
         }
 

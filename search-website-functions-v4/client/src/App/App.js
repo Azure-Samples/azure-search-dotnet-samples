@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import { createHashRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 
 // Context for user authentication
 import { AuthContext } from '../contexts/AuthContext';
 
 // App shell components
 import AppHeader from '../components/AppHeader/AppHeader';
+//import AppFooter from '../components/AppFooter/AppFooter';
 
 // React Router page components
 import Home from '../pages/Home/Home';
 import Search from '../pages/Search/Search';
 import Details from '../pages/Details/Details';
+import Status from '../pages/Status/Status';
 
 // Bootstrap styles, optionally with jQuery and Popper
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -44,18 +46,23 @@ export default function App() {
     fetchAuth()
   }, []);
 
+  const router = createHashRouter(
+    createRoutesFromElements(
+      <>
+      <Route path="/" element={<Home />} />
+      <Route path="/search" element={<Search />} />
+      <Route path="/details/:id" element={<Details />} />
+      <Route path="/status" element={<Status />} />
+      </>
+    )
+  );
+
+
   return (
     <AuthContext.Provider value={user}>
       <div className="container-fluid app">
         <AppHeader />
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/details/:id" element={<Details />} />
-          </Routes>
-        </Router>
-        {/* <AppFooter /> */}
+        <RouterProvider router={router} />
       </div>
     </AuthContext.Provider>
   );
