@@ -61,7 +61,6 @@ export default function App() {
         <AppHeader />
         <RouterProvider router={router} />
       </div>
-      0838
     </AuthContext.Provider>
   );
 }
