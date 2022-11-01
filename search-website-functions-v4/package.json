@@ -1,45 +1,27 @@
 {
-  "name": "sample",
-  "version": "0.1.0",
-  "private": true,
-  "proxy": "http://localhost:7071",
+  "name": "search-website-functions-v4",
+  "version": "1.0.0",
+  "description": "This sample is a React template for [Azure Cognitive Search](https://docs.microsoft.com/en-us/azure/search/search-what-is-azure-search). It leverages the [Azure SDK for Javascript/Typescript](https://github.com/Azure/azure-sdk-for-js/tree/master/sdk/search/search-documents/) and [Azure Static Web Apps](https://aka.ms/swadocs) to make it easy to get up and running with a simple web application. It includes a search page with faceted navigation, a search bar for free form search and suggested queries, and tabbed page results.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
   "dependencies": {
-    "@material-ui/core": "^4.11.0",
-    "@material-ui/icons": "^4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.56",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "axios": "^0.21.2",
-    "bootstrap": "^4.5.2",
-    "jquery": "^3.5.1",
-    "popper.js": "^1.16.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.4",
-    "styled-components": "^5.2.0"
+    "concurrently": "^7.5.0"
+  },
+  "devDependencies": {
+    "@azure/static-web-apps-cli": "^1.0.3",
+    "@playwright/test": "^1.27.1",
+    "azure-functions-core-tools": "^4.0.4829"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "pretest": "npm run start",
+    "start:client": "cd client && npm start",
+    "start:api": "cd api && npm start",
+    "start": "concurrently \"npm run start:client\" \"npm run start:api\"",
+    "playwright_test": "playwright test"
   },
-  "proxy": "http://localhost:7071",
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
