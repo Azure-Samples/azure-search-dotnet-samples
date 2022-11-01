@@ -1,0 +1,27 @@
+{
+  "name": "search-website-functions-v4",
+  "version": "1.0.0",
+  "description": "This sample is a React template for [Azure Cognitive Search](https://docs.microsoft.com/en-us/azure/search/search-what-is-azure-search). It leverages the [Azure SDK for Javascript/Typescript](https://github.com/Azure/azure-sdk-for-js/tree/master/sdk/search/search-documents/) and [Azure Static Web Apps](https://aka.ms/swadocs) to make it easy to get up and running with a simple web application. It includes a search page with faceted navigation, a search bar for free form search and suggested queries, and tabbed page results.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "concurrently": "^7.5.0"
+  },
+  "devDependencies": {
+    "@azure/static-web-apps-cli": "^1.0.3",
+    "@playwright/test": "^1.27.1",
+    "azure-functions-core-tools": "^4.0.4829"
+  },
+  "scripts": {
+    "pretest": "npm run start",
+    "start:client": "cd client && npm start",
+    "start:api": "cd api && npm start",
+    "start": "concurrently \"npm run start:client\" \"npm run start:api\"",
+    "playwright_test": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
