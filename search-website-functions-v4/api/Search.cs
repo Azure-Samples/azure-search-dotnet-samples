@@ -1,4 +1,5 @@
 using Azure;
+using Azure.Core.Serialization;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Microsoft.Azure.Functions.Worker;
@@ -64,22 +65,21 @@ namespace WebSearch.Function
                            .ToList();
             }
 
+            // Data to return 
             var output = new SearchOutput
             {
                 Count = searchResults.TotalCount,
                 Results = searchResults.GetResults().ToList(),
                 Facets = facetOutput
             };
-
             
             var response = req.CreateResponse(HttpStatusCode.Found);
-            JsonSerializerOptions jsonSerializerOptions = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true
-            };
-            await response.WriteAsJsonAsync(
-              JsonSerializer.Serialize<SearchOutput>(output, jsonSerializerOptions));
+
+            // Serialize data
+            var serializer = new JsonObjectSerializer(
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            await response.WriteAsJsonAsync(output, serializer);
+
             return response;
         }
 

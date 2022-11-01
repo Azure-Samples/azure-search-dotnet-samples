@@ -1,4 +1,5 @@
 using Azure;
+using Azure.Core.Serialization;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Microsoft.Azure.Functions.Worker;
@@ -46,6 +47,7 @@ namespace WebSearch.Function
 
             var getDocumentResponse = await searchClient.GetDocumentAsync<SearchDocument>(documentId);
 
+            // Data to return 
             var output = new LookupOutput
             {
                 Document = getDocumentResponse.Value
@@ -54,13 +56,10 @@ namespace WebSearch.Function
             var response = req.CreateResponse(HttpStatusCode.Found);
             response.Headers.Add("Content-Type", "application/json; charset=utf-8");
 
-            JsonSerializerOptions jsonSerializerOptions = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true
-            };
-            await response.WriteAsJsonAsync(
-              JsonSerializer.Serialize<LookupOutput>(output, jsonSerializerOptions));
+            // Serialize data
+            var serializer = new JsonObjectSerializer(
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            await response.WriteAsJsonAsync(output, serializer);
 
             return response;
         }

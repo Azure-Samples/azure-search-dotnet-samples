@@ -4,28 +4,28 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # User-specific files
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
+*/**/*.suo
+*/**/*.user
+*/**/*.userosscache
+*/**/*.sln.docstates
 
 # User-specific files (MonoDevelop/Xamarin Studio)
-*.userprefs
+*/**/*.userprefs
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
+*/**/[Dd]ebug/
+*/**/[Dd]ebugPublic/
+*/**/[Rr]elease/
+*/**/[Rr]eleases/
+*/**/x64/
+*/**/x86/
+*/**/bld/
+*/**/[Bb]in/
+*/**/[Oo]bj/
+*/**/[Ll]og/
 
 # Visual Studio 2015/2017 cache/options directory
-.vs/
+*/**/.vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
@@ -49,6 +49,8 @@ dlldata.c
 BenchmarkDotNet.Artifacts/
 
 # .NET Core
+*/**/project-lock.json
+*.bak
 project.lock.json
 project.fragment.lock.json
 artifacts/
@@ -261,7 +263,7 @@ FakesAssemblies/
 
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
-node_modules/
+*/**/node_modules/
 
 # Visual Studio 6 build log
 *.plg

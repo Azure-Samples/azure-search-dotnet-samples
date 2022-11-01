@@ -1,4 +1,5 @@
 using Azure;
+using Azure.Core.Serialization;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
 using Microsoft.Azure.Functions.Worker;
@@ -49,19 +50,20 @@ namespace WebSearch.Function
             };
 
             var suggesterResponse = await searchClient.SuggestAsync<BookModel>(data.SearchText, data.SuggesterName, options);
+            
+            // Data to return
             var searchSuggestions = new Dictionary<string, List<SearchSuggestion<BookModel>>>
             {
                 ["suggestions"] = suggesterResponse.Value.Results.ToList()
             };
 
             var response = req.CreateResponse(HttpStatusCode.Found);
-            JsonSerializerOptions jsonSerializerOptions = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true
-            };
-            await response.WriteAsJsonAsync(
-              JsonSerializer.Serialize<Dictionary<string, List<SearchSuggestion<BookModel>>>>(searchSuggestions, jsonSerializerOptions));
+
+            // Serialize data
+            var serializer = new JsonObjectSerializer(
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            await response.WriteAsJsonAsync(searchSuggestions, serializer);
+            
             return response;
         }
     }
