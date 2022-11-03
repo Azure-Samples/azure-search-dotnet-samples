@@ -11,14 +11,9 @@ This sample is available in two versions:
 + **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
 + **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
 
-## Create your first app
+## Add search to your web site
 
-This MVC sample is a collection of projects that demonstrate a user experience using fictitious hotels data. The first project creates a basic search page. Additional projects build on the first, adding pagination, autocomplete and suggested queries, and ordered results. The index is pre-built and hosted so that you can focus on the application itself.
-
-This sample is available in two versions:
-
-+ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
-+ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
+This sample builds a website to search through a catalog of books then deploys the website to an Azure Static Web App. The search experience includes a React app for the front-end. This app includes a search bar for free text queries, suggestions for type-ahead queries, and document lookup. 
 
 ## Multiple data sources
 
@@ -50,6 +45,15 @@ This sample is available in two versions:
 ## AI Enrichment
 
 This .NET Core console app creates an AI enrichment pipeline consisting of an index, indexer, data source, and skillset. The skillset calls Azure Cognitive Services image analysis and OCR, and natural language processing, extract information and structure from heterogeneous blob content, making it searchable in Azure Cognitive Search.
+
+This sample is available in two versions:
+
++ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
++ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
+
+## Create your first app
+
+This MVC sample is a collection of projects that demonstrate a user experience using fictitious hotels data. The first project creates a basic search page. Additional projects build on the first, adding pagination, autocomplete and suggested queries, and ordered results. The index is pre-built and hosted so that you can focus on the application itself.
 
 This sample is available in two versions:
 
