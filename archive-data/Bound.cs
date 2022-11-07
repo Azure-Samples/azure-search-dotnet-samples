@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.CommandLine;
 
 namespace archive_data
 {
@@ -90,6 +91,12 @@ namespace archive_data
             }
 
             return Convert.ToString(bound);
+        }
+
+        public static string GenerateBoundFilter(string field, object lowestBound, object partitionLowerBound, object partitionUpperBound)
+        {
+            string lowerBoundFilter = partitionLowerBound.Equals(lowestBound) ? "ge" : "gt";
+            return  $"{field} {lowerBoundFilter} {SerializeBound(partitionLowerBound)} and {field} le {SerializeBound(partitionUpperBound)}";
         }
     }
 }

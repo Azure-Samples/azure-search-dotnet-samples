@@ -1,4 +1,6 @@
 ﻿using System.CommandLine;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
@@ -49,6 +51,10 @@ namespace archive_data
                 name: "--lower-bound",
                 description: "Smallest value to use to partition the index data. Defaults to the smallest value in the index.",
                 getDefaultValue: () => null);
+            var partitionFileOption = new Option<string>(
+                name: "--partition-path",
+                description: "Path to write the JSON description of partitions to. Should end in .json",
+                getDefaultValue: () => null);
 
             var boundsCommand = new Command("get-bounds", "Find and display the largest and lowest value for the specified field. Used to determine how to partition index data for export")
             {
@@ -77,8 +83,15 @@ namespace archive_data
                 lowerBoundOption,
                 upperBoundOption,
             };
-            partitionCommand.SetHandler(async (string endpoint, string adminKey, string indexName, string fieldName, string inputLowerBound, string inputUpperBound) =>
+            partitionCommand.SetHandler(async (string endpoint, string adminKey, string indexName, string fieldName, string inputLowerBound, string inputUpperBound, string partitionFilePath) =>
             {
+                if (string.IsNullOrEmpty(partitionFilePath))
+                {
+                    partitionFilePath = $"{indexName}-partitions.json";
+                }
+                partitionFilePath = Path.GetFullPath(partitionFilePath);
+                File.Delete(partitionFilePath);
+
                 (SearchField field, SearchClient searchClient) = await InitializeAsync(endpoint, adminKey, indexName, fieldName);
                 object lowerBound;
                 if (string.IsNullOrEmpty(inputLowerBound))
@@ -101,11 +114,30 @@ namespace archive_data
                 }
 
 
-            }, endpointOption, adminKeyOption, indexOption, fieldOption, lowerBoundOption, upperBoundOption);
+                List<Partition> partitions = await new PartitionGenerator(searchClient, field, lowerBound, upperBound).GeneratePartitions();
+
+                var serializerOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                };
+                var output = new PartitionFile
+                {
+                    Endpoint = endpoint,
+                    IndexName = indexName,
+                    FieldName = fieldName,
+                    TotalDocumentCount = partitions.Sum(partition => partition.DocumentCount),
+                    Partitions = partitions
+                };
+                File.WriteAllText(partitionFilePath, JsonSerializer.Serialize(output, options: serializerOptions));
+                Console.WriteLine($"Wrote partitions to {partitionFilePath}");
+            }, endpointOption, adminKeyOption, indexOption, fieldOption, lowerBoundOption, upperBoundOption, partitionFileOption);
 
             var rootCommand = new RootCommand(description: "Export data from a search index. Requires a filterable and sortable field.")
             {
-                boundsCommand
+                boundsCommand,
+                partitionCommand
             };
             await rootCommand.InvokeAsync(args);
         }
