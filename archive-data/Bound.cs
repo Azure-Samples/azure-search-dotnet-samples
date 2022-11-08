@@ -1,20 +1,20 @@
 ﻿using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 using Azure.Search.Documents;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.CommandLine;
 
-namespace archive_data
+namespace export_data
 {
+    /// <summary>
+    /// Potential value for the sortable and filterable field, used as a bound between different potential partitions
+    /// </summary>
     public static class Bound
     {
         public static async Task<object> FindUpperBoundAsync(SearchField field, SearchClient searchClient) =>
             DeserializeBound(field, await FindUpperBoundDocumentAsync(field, searchClient));
 
+        /// <summary>
+        /// Find the largest value of the sortable and filterable field in the index
+        /// </summary>
         public static async Task<SearchDocument> FindUpperBoundDocumentAsync(SearchField field, SearchClient searchClient)
         {
             var upperBoundOptions = new SearchOptions();
@@ -35,6 +35,9 @@ namespace archive_data
         public static async Task<object> FindLowerBoundAsync(SearchField field, SearchClient searchClient) =>
             DeserializeBound(field, await FindLowerBoundDocumentAsync(field, searchClient));
 
+        /// <summary>
+        /// Find the smallest value of the sortable and filterable field in the index
+        /// </summary>
         public static async Task<SearchDocument> FindLowerBoundDocumentAsync(SearchField field, SearchClient searchClient)
         {
             var lowerBoundOptions = new SearchOptions();
@@ -93,6 +96,10 @@ namespace archive_data
             return Convert.ToString(bound);
         }
 
+        // Strategy: If the partition's lower bound is the lowest possible value of the field, include it in the partition
+        // Otherwise, exclude it from the partition
+        // Always include the highest value in the partition
+        // To learn more about filter syntax, please visit https://learn.microsoft.com/azure/search/search-filters
         public static string GenerateBoundFilter(string field, object lowestBound, object partitionLowerBound, object partitionUpperBound)
         {
             string lowerBoundFilter = partitionLowerBound.Equals(lowestBound) ? "ge" : "gt";

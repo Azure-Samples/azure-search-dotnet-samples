@@ -1,7 +1,7 @@
 ﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 
-namespace archive_data
+namespace export_data
 {
     public static class Util
     {
@@ -9,6 +9,7 @@ namespace archive_data
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true,
+            // Required to put non-ASCII characters in JSON files. To learn more, please visit https://learn.microsoft.com/dotnet/api/system.text.encodings.web.javascriptencoder.unsaferelaxedjsonescaping
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
     }

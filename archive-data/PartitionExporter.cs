@@ -4,7 +4,7 @@ using Azure.Search.Documents.Models;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace archive_data
+namespace export_data
 {
     public class PartitionExporter
     {

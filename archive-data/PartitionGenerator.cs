@@ -2,14 +2,25 @@
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 
-namespace archive_data
+namespace export_data
 {
+    /// <summary>
+    /// Splits up a search index into smaller partitions
+    /// </summary>
+    /// <remarks>
+    /// Requires a sortable and filterable field. Max partition size is 100,000, to learn more please visit
+    /// https://learn.microsoft.com/azure/search/search-pagination-page-layout#paging-results
+    /// </remarks>
     public class PartitionGenerator
     {
         private const long MaximumDocumentCount = 100000;
+        // Search client for paging through results
         private readonly SearchClient _searchClient;
+        // Sortable filterable field to partition documents
         private readonly SearchField _field;
+        // Lowest value for the field. Documents with a field value less than this will not be partitioned
         private readonly object _lowerBound;
+        // Highest value for the field. Documents with a field value greater than this will not be partitioned
         private readonly object _upperBound;
 
         public PartitionGenerator(SearchClient searchClient, SearchField field, object lowerBound, object upperBound)
@@ -26,6 +37,8 @@ namespace archive_data
             return await SplitPartition(initialPartition);
         }
 
+        // Strategy: Keep splitting the initial partition in half until all partitions are <= 100,000 documents
+        // Then merge all the partitions back together to create larger ones
         private async Task<List<Partition>> SplitPartition(Partition partition)
         {
             if (partition.DocumentCount <= MaximumDocumentCount)
@@ -42,6 +55,7 @@ namespace archive_data
             return MergePartitions(partitions);
         }
 
+        // Merges smaller partitions into the largest ones possible
         private List<Partition> MergePartitions(List<Partition> partitions)
         {
             partitions.Sort();
@@ -70,6 +84,7 @@ namespace archive_data
             return mergedPartitions;
         }
 
+        // Execute a filtered search against the index to generate a candidate partition
         private async Task<Partition> GeneratePartition(object partitionLowerBound, object partitionUpperBound)
         {
             SearchOptions options = CreatePartitionSearchOptions(partitionLowerBound, partitionUpperBound);
@@ -96,6 +111,7 @@ namespace archive_data
                 Filter = Bound.GenerateBoundFilter(_field.Name, _lowerBound, partitionLowerBound, partitionUpperBound)
             };
 
+        // Get a value for the sortable and filterable field between the lower and upper bound.
         public static object GetMidpoint(object lowerBound, object upperBound)
         {
             if (lowerBound is DateTimeOffset lowerBoundDate && upperBound is DateTimeOffset upperBoundDate)

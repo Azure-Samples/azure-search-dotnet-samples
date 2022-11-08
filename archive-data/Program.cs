@@ -5,10 +5,12 @@ using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 
-namespace archive_data
+namespace export_data
 {
     public static class Program
     {
+        // Supported field types for the partition bounds
+        // To learn more about field types, please visit https://learn.microsoft.com/rest/api/searchservice/supported-data-types
         private static readonly SearchFieldDataType[] SupportedFieldTypes = new[]
         {
             SearchFieldDataType.DateTimeOffset
@@ -16,6 +18,7 @@ namespace archive_data
 
         public static async Task Main(string[] args)
         {
+            // Setup command line arguments
             var endpointOption = new Option<string>(
                 name: "--endpoint",
                 description: "Endpoint of the search service to export data from");
@@ -188,6 +191,7 @@ namespace archive_data
             return new SearchClient(endpointUri, indexName, credential);
         }
 
+        // Fetch the index definition and validate that the field meets the sortable and filterable requirements
         public static async Task<SearchField> GetFieldAsync(SearchIndexClient searchIndexClient, string indexName, string fieldName)
         {
             SearchIndex index = await searchIndexClient.GetIndexAsync(indexName);

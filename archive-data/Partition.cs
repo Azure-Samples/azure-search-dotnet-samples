@@ -1,13 +1,21 @@
-﻿namespace archive_data
+﻿namespace export_data
 {
+    /// <summary>
+    /// Represents a sub-partition of a search index
+    /// </summary>
     public record Partition : IComparable<Partition>
     {
+        // Highest value included in this partition
         public object UpperBound { get; init; }
 
+        // Lowest value, might be included in this partition
         public object LowerBound { get; init; }
 
+        // Approximate document count included in this partition
         public long DocumentCount { get; init; }
 
+        // Filter query string used to retrieve this partition
+        // To learn more, please visit https://learn.microsoft.com/azure/search/search-filters
         public string Filter { get; init; }
 
         public int CompareTo(Partition other)
