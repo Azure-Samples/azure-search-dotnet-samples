@@ -21,16 +21,28 @@ namespace export_data
             // Setup command line arguments
             var endpointOption = new Option<string>(
                 name: "--endpoint",
-                description: "Endpoint of the search service to export data from");
+                description: "Endpoint of the search service to export data from. Example: https://example.search.windows.net")
+            {
+                IsRequired = true,
+            };
             var adminKeyOption = new Option<string>(
                 name: "--admin-key",
-                description: "Admin key to the search service to export data from");
+                description: "Admin key to the search service to export data from")
+            {
+                IsRequired = true
+            };
             var indexOption = new Option<string>(
                 name: "--index-name",
-                description: "Name of the index to export data from");
+                description: "Name of the index to export data from")
+            {
+                IsRequired = true
+            };
             var fieldOption = new Option<string>(
                 name: "--field-name",
-                description: "Name of field used to partition the index data. This field must be filterable and sortable.");
+                description: "Name of field used to partition the index data. This field must be filterable and sortable.")
+            {
+                IsRequired = true
+            };
             var upperBoundOption = new Option<string>(
                 name: "--upper-bound",
                 description: "Largest value to use to partition the index data. Defaults to the largest value in the index.",
@@ -43,6 +55,12 @@ namespace export_data
                 name: "--partition-path",
                 description: "Path of the file with JSON description of partitions. Should end in .json. Default is <index name>-partitions.json",
                 getDefaultValue: () => null);
+            var partitionFileRequiredOption = new Option<string>(
+                name: "--partition-path",
+                description: "Path of the file with JSON description of partitions. Should end in .json.")
+            {
+                IsRequired = true
+            };
             var exportDirectoryOption = new Option<string>(
                 name: "--export-path",
                 description: "Directory to write JSON Lines partition files to. Every line in the partition file contains a JSON object with the contents of the Search document. Format of file names is <index name>-<partition id>-documents.jsonl",
@@ -89,7 +107,8 @@ namespace export_data
                 indexOption,
                 fieldOption,
                 lowerBoundOption,
-                upperBoundOption
+                upperBoundOption,
+                partitionFileOption
             };
             partitionCommand.SetHandler(async (string endpoint, string adminKey, string indexName, string fieldName, string inputLowerBound, string inputUpperBound, string partitionFilePath) =>
             {
@@ -135,7 +154,7 @@ namespace export_data
 
             var exportPartitionsCommand = new Command(name: "export-partitions", description: "Exports data from a search index using a pre-generated partition file from partition-index")
             {
-                partitionFileOption,
+                partitionFileRequiredOption,
                 adminKeyOption,
                 exportDirectoryOption,
                 concurrentPartitionsOption,
@@ -163,7 +182,7 @@ namespace export_data
                     partitionsToInclude.ToList(),
                     partitionsToExclude.ToHashSet())
                 .ExportAsync();
-            }, partitionFileOption, adminKeyOption, exportDirectoryOption, concurrentPartitionsOption, pageSizeOption, includePartitionsOption, excludePartitionsOption);
+            }, partitionFileRequiredOption, adminKeyOption, exportDirectoryOption, concurrentPartitionsOption, pageSizeOption, includePartitionsOption, excludePartitionsOption);
 
             var rootCommand = new RootCommand(description: "Export data from a search index. Requires a filterable and sortable field.")
             {
