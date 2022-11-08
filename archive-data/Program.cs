@@ -1,11 +1,9 @@
 ﻿using System.CommandLine;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using Azure;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace archive_data
 {
@@ -13,36 +11,23 @@ namespace archive_data
     {
         private static readonly SearchFieldDataType[] SupportedFieldTypes = new[]
         {
-            SearchFieldDataType.DateTimeOffset,
-            SearchFieldDataType.Double,
-            SearchFieldDataType.Int64,
-            SearchFieldDataType.Int32,
-            SearchFieldDataType.String
+            SearchFieldDataType.DateTimeOffset
         };
 
         public static async Task Main(string[] args)
         {
-            // Read settings from appsettings.json
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true)
-                .Build();
-
             var endpointOption = new Option<string>(
                 name: "--endpoint",
-                description: "Endpoint of the search service to export data from",
-                getDefaultValue: () => configuration["searchEndpoint"]);
+                description: "Endpoint of the search service to export data from");
             var adminKeyOption = new Option<string>(
                 name: "--admin-key",
-                description: "Admin key to the search service to export data from",
-                getDefaultValue: () => configuration["searchAdminKey"]);
+                description: "Admin key to the search service to export data from");
             var indexOption = new Option<string>(
                 name: "--index-name",
-                description: "Name of the index to export data from",
-                getDefaultValue: () => configuration["indexName"]);
+                description: "Name of the index to export data from");
             var fieldOption = new Option<string>(
                 name: "--field-name",
-                description: "Name of field used to partition the index data. This field must be filterable and sortable.",
-                getDefaultValue: () => configuration["fieldName"]);
+                description: "Name of field used to partition the index data. This field must be filterable and sortable.");
             var upperBoundOption = new Option<string>(
                 name: "--upper-bound",
                 description: "Largest value to use to partition the index data. Defaults to the largest value in the index.",
@@ -53,7 +38,27 @@ namespace archive_data
                 getDefaultValue: () => null);
             var partitionFileOption = new Option<string>(
                 name: "--partition-path",
-                description: "Path to write the JSON description of partitions to. Should end in .json",
+                description: "Path of the file with JSON description of partitions. Should end in .json. Default is <index name>-partitions.json",
+                getDefaultValue: () => null);
+            var exportDirectoryOption = new Option<string>(
+                name: "--export-path",
+                description: "Directory to write JSON Lines partition files to. Every line in the partition file contains a JSON object with the contents of the Search document. Format of file names is <index name>-<partition id>-documents.jsonl",
+                getDefaultValue: () => ".");
+            var concurrentPartitionsOption = new Option<int>(
+                name: "--concurrent-partitions",
+                description: "Number of partitions to concurrently export. Default is 2",
+                getDefaultValue: () => 2);
+            var pageSizeOption = new Option<int>(
+                name: "--page-size",
+                description: "Page size to use when running export queries. Default is 1000",
+                getDefaultValue: () => 1000);
+            var includePartitionsOption = new Option<int[]>(
+                name: "--include-partition",
+                description: "List of partitions by index to include in the export. Example: --include-partition 0 --include-partition 1 only runs the export on first 2 partitions",
+                getDefaultValue: () => null);
+            var excludePartitionsOption = new Option<int[]>(
+                name: "--exclude-partition",
+                description: "List of partitions by index to exclude from the export. Example: --exclude-partition 0 --exclude-partition 1 runs the export on every partition except the first 2",
                 getDefaultValue: () => null);
 
             var boundsCommand = new Command("get-bounds", "Find and display the largest and lowest value for the specified field. Used to determine how to partition index data for export")
@@ -65,7 +70,7 @@ namespace archive_data
             };
             boundsCommand.SetHandler(async (string endpoint, string adminKey, string indexName, string fieldName) =>
             {
-                (SearchField field, SearchClient searchClient) = await InitializeAsync(endpoint, adminKey, indexName, fieldName);
+                (SearchField field, SearchClient searchClient) = await InitializeFieldAndSearchClientAsync(endpoint, adminKey, indexName, fieldName);
 
                 object lowerBound = await Bound.FindLowerBoundAsync(field, searchClient);
                 Console.WriteLine($"Lower Bound {Bound.SerializeBound(lowerBound)}");
@@ -81,7 +86,7 @@ namespace archive_data
                 indexOption,
                 fieldOption,
                 lowerBoundOption,
-                upperBoundOption,
+                upperBoundOption
             };
             partitionCommand.SetHandler(async (string endpoint, string adminKey, string indexName, string fieldName, string inputLowerBound, string inputUpperBound, string partitionFilePath) =>
             {
@@ -89,10 +94,8 @@ namespace archive_data
                 {
                     partitionFilePath = $"{indexName}-partitions.json";
                 }
-                partitionFilePath = Path.GetFullPath(partitionFilePath);
-                File.Delete(partitionFilePath);
 
-                (SearchField field, SearchClient searchClient) = await InitializeAsync(endpoint, adminKey, indexName, fieldName);
+                (SearchField field, SearchClient searchClient) = await InitializeFieldAndSearchClientAsync(endpoint, adminKey, indexName, fieldName);
                 object lowerBound;
                 if (string.IsNullOrEmpty(inputLowerBound))
                 {
@@ -115,13 +118,6 @@ namespace archive_data
 
 
                 List<Partition> partitions = await new PartitionGenerator(searchClient, field, lowerBound, upperBound).GeneratePartitions();
-
-                var serializerOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    WriteIndented = true,
-                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                };
                 var output = new PartitionFile
                 {
                     Endpoint = endpoint,
@@ -130,19 +126,52 @@ namespace archive_data
                     TotalDocumentCount = partitions.Sum(partition => partition.DocumentCount),
                     Partitions = partitions
                 };
-                File.WriteAllText(partitionFilePath, JsonSerializer.Serialize(output, options: serializerOptions));
+                File.WriteAllText(partitionFilePath, JsonSerializer.Serialize(output, options: Util.SerializerOptions));
                 Console.WriteLine($"Wrote partitions to {partitionFilePath}");
             }, endpointOption, adminKeyOption, indexOption, fieldOption, lowerBoundOption, upperBoundOption, partitionFileOption);
+
+            var exportPartitionsCommand = new Command(name: "export-partitions", description: "Exports data from a search index using a pre-generated partition file from partition-index")
+            {
+                partitionFileOption,
+                adminKeyOption,
+                exportDirectoryOption,
+                concurrentPartitionsOption,
+                pageSizeOption,
+                includePartitionsOption,
+                excludePartitionsOption
+            };
+            exportPartitionsCommand.SetHandler(async (partitionFilePath, adminKey, exportDirectory, concurrentPartitions, pageSize, partitionsToInclude, partitionsToExclude) =>
+            {
+                if (partitionsToExclude.Any() && partitionsToInclude.Any())
+                {
+                    throw new ArgumentException("Only pass either --include-partition or --exclude-partition, not both");
+                }
+
+                using FileStream input = File.OpenRead(partitionFilePath);
+                var partitionFile = JsonSerializer.Deserialize<PartitionFile>(input, options: Util.SerializerOptions);
+                SearchClient searchClient = InitializeSearchClient(partitionFile.Endpoint, adminKey, partitionFile.IndexName);
+
+                await new PartitionExporter(
+                    partitionFile,
+                    searchClient,
+                    exportDirectory,
+                    concurrentPartitions,
+                    pageSize,
+                    partitionsToInclude.ToList(),
+                    partitionsToExclude.ToHashSet())
+                .ExportAsync();
+            }, partitionFileOption, adminKeyOption, exportDirectoryOption, concurrentPartitionsOption, pageSizeOption, includePartitionsOption, excludePartitionsOption);
 
             var rootCommand = new RootCommand(description: "Export data from a search index. Requires a filterable and sortable field.")
             {
                 boundsCommand,
-                partitionCommand
+                partitionCommand,
+                exportPartitionsCommand
             };
             await rootCommand.InvokeAsync(args);
         }
 
-        public static async Task<(SearchField field, SearchClient searchClient)> InitializeAsync(string endpoint, string adminKey, string indexName, string fieldName)
+        public static async Task<(SearchField field, SearchClient searchClient)> InitializeFieldAndSearchClientAsync(string endpoint, string adminKey, string indexName, string fieldName)
         {
             var endpointUri = new Uri(endpoint);
             var credential = new AzureKeyCredential(adminKey);
@@ -152,6 +181,13 @@ namespace archive_data
             return (field, searchClient);
         }
 
+        public static SearchClient InitializeSearchClient(string endpoint, string key, string indexName)
+        {
+            var endpointUri = new Uri(endpoint);
+            var credential = new AzureKeyCredential(key);
+            return new SearchClient(endpointUri, indexName, credential);
+        }
+
         public static async Task<SearchField> GetFieldAsync(SearchIndexClient searchIndexClient, string indexName, string fieldName)
         {
             SearchIndex index = await searchIndexClient.GetIndexAsync(indexName);
@@ -159,16 +195,16 @@ namespace archive_data
 
             if (field == null)
             {
-                throw new ArgumentException(nameof(fieldName), $"Could not find {fieldName} in {indexName}");
+                throw new ArgumentException($"Could not find {fieldName} in {indexName}", nameof(fieldName));
             }
             if (!(field.IsSortable ?? false) || !(field.IsFilterable ?? false))
             {
-                throw new ArgumentException(nameof(fieldName), $"{fieldName} must be sortable and filterable");
+                throw new ArgumentException($"{fieldName} must be sortable and filterable", nameof(fieldName));
             }
             if (!SupportedFieldTypes.Contains(field.Type))
             {
                 string supportedFieldTypesList = string.Join(", ", SupportedFieldTypes.Select(type => type.ToString()));
-                throw new ArgumentException(nameof(fieldName), $"{fieldName} is of type {field.Type}, supported types {supportedFieldTypesList}");
+                throw new ArgumentException($"{fieldName} is of type {field.Type}, supported types {supportedFieldTypesList}", nameof(fieldName));
             }
 
             return field;
