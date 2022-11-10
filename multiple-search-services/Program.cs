@@ -69,7 +69,7 @@ namespace MultipleSearchServices
 
             // Read settings from appsettings.json
             IConfigurationRoot configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile("appsettings.json", optional: false)
                 .Build();
             var services = new List<Service>();
             foreach (IConfigurationSection section in configuration.GetChildren())
