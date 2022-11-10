@@ -10,7 +10,7 @@ products:
 urlFragment: export-data
 ---
 
-# Check Azure Cognitive Search service storage usage
+# Export Azure Cognitive Search service index data
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
