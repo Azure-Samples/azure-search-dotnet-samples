@@ -63,7 +63,7 @@ namespace export_data
             };
             var exportDirectoryOption = new Option<string>(
                 name: "--export-path",
-                description: "Directory to write JSON Lines partition files to. Every line in the partition file contains a JSON object with the contents of the Search document. Format of file names is <index name>-<partition id>-documents.jsonl",
+                description: "Directory to write JSON Lines partition files to. Every line in the partition file contains a JSON object with the contents of the Search document. Format of file names is <index name>-<partition id>-documents.json",
                 getDefaultValue: () => ".");
             var concurrentPartitionsOption = new Option<int>(
                 name: "--concurrent-partitions",
@@ -80,6 +80,22 @@ namespace export_data
             var excludePartitionsOption = new Option<int[]>(
                 name: "--exclude-partition",
                 description: "List of partitions by index to exclude from the export. Example: --exclude-partition 0 --exclude-partition 1 runs the export on every partition except the first 2",
+                getDefaultValue: () => null);
+            var exportFieldOption = new Option<string>(
+                name: "--export-field-name",
+                description: "Name of the Edm.Boolean field the continuous export process will update to track which documents have been exported. Default is 'exported'",
+                getDefaultValue: () => "exported");
+            var exportFileOption = new Option<string>(
+                name: "--export-path",
+                description: "Path to write JSON Lines file to. Every line in the file contains a JSON object with the contents of the Search document. Format of file is <index name>-documents.json",
+                getDefaultValue: () => null);
+            var includeFieldsOption = new Option<string[]>(
+                name: "--include-field",
+                description: "List of fields to include in the export. Example: --include-field field1 --include-field field2.",
+                getDefaultValue: () => null);
+            var excludeFieldsOption = new Option<string[]>(
+                name: "--exclude-field",
+                description: "List of fields to exclude in the export. Example: --exclude-field field1 --exclude-field field2.",
                 getDefaultValue: () => null);
 
             var boundsCommand = new Command("get-bounds", "Find and display the largest and lowest value for the specified field. Used to determine how to partition index data for export")
@@ -160,10 +176,22 @@ namespace export_data
                 concurrentPartitionsOption,
                 pageSizeOption,
                 includePartitionsOption,
-                excludePartitionsOption
+                excludePartitionsOption,
+                includeFieldsOption,
+                excludeFieldsOption
             };
-            exportPartitionsCommand.SetHandler(async (partitionFilePath, adminKey, exportDirectory, concurrentPartitions, pageSize, partitionsToInclude, partitionsToExclude) =>
+            exportPartitionsCommand.SetHandler(async (invocationContext) =>
             {
+                string partitionFilePath = invocationContext.ParseResult.GetValueForOption<string>(partitionFileRequiredOption);
+                string adminKey = invocationContext.ParseResult.GetValueForOption<string>(adminKeyOption);
+                string exportDirectory = invocationContext.ParseResult.GetValueForOption<string>(exportDirectoryOption);
+                int concurrentPartitions = invocationContext.ParseResult.GetValueForOption<int>(concurrentPartitionsOption);
+                int pageSize = invocationContext.ParseResult.GetValueForOption<int>(pageSizeOption);
+                int[] partitionsToInclude = invocationContext.ParseResult.GetValueForOption<int[]>(includePartitionsOption);
+                int[] partitionsToExclude = invocationContext.ParseResult.GetValueForOption<int[]>(excludePartitionsOption);
+                string[] fieldsToInclude = invocationContext.ParseResult.GetValueForOption<string[]>(includeFieldsOption);
+                string[] fieldsToExclude = invocationContext.ParseResult.GetValueForOption<string[]>(excludeFieldsOption);
+
                 if (partitionsToExclude.Any() && partitionsToInclude.Any())
                 {
                     throw new ArgumentException("Only pass either --include-partition or --exclude-partition, not both");
@@ -172,23 +200,60 @@ namespace export_data
                 using FileStream input = File.OpenRead(partitionFilePath);
                 var partitionFile = JsonSerializer.Deserialize<PartitionFile>(input, options: Util.SerializerOptions);
                 SearchClient searchClient = InitializeSearchClient(partitionFile.Endpoint, adminKey, partitionFile.IndexName);
+                SearchIndexClient searchIndexClient = InitializeSearchIndexClient(partitionFile.Endpoint, adminKey);
+                SearchIndex index = await searchIndexClient.GetIndexAsync(partitionFile.IndexName);
 
                 await new PartitionExporter(
                     partitionFile,
                     searchClient,
+                    index,
                     exportDirectory,
                     concurrentPartitions,
                     pageSize,
-                    partitionsToInclude.ToList(),
-                    partitionsToExclude.ToHashSet())
+                    partitionsToInclude,
+                    partitionsToExclude.ToHashSet(),
+                    fieldsToInclude,
+                    fieldsToExclude.ToHashSet())
                 .ExportAsync();
-            }, partitionFileRequiredOption, adminKeyOption, exportDirectoryOption, concurrentPartitionsOption, pageSizeOption, includePartitionsOption, excludePartitionsOption);
+            });
+
+            var exportContinuousCommand = new Command(name: "export-continuous", description: "Exports data from a search service by adding a column to track which documents have been exported and continually updating it")
+            {
+                endpointOption,
+                adminKeyOption,
+                indexOption,
+                exportFieldOption,
+                pageSizeOption,
+                exportFileOption,
+                includeFieldsOption,
+                excludeFieldsOption
+            };
+            exportContinuousCommand.SetHandler(async (endpoint, adminKey, indexName, exportField, pageSize, exportFilePath, fieldsToInclude, fieldsToExclude) =>
+            {
+                if (fieldsToInclude.Any() && fieldsToExclude.Any())
+                {
+                    throw new ArgumentException("Only pass either --include-field or --exclude-field, not both");
+                }
+
+                if (string.IsNullOrEmpty(exportFilePath))
+                {
+                    exportFilePath = $"{indexName}-documents.json";
+                }
+
+                SearchClient searchClient = InitializeSearchClient(endpoint, adminKey, indexName);
+                SearchIndexClient searchIndexClient = InitializeSearchIndexClient(endpoint, adminKey);
+                SearchIndex index = await searchIndexClient.GetIndexAsync(indexName);
+
+                await new ContinuousExporter(searchClient, index, searchIndexClient, exportField, pageSize, exportFilePath, fieldsToInclude, fieldsToExclude.ToHashSet()).ExportAsync();
+                
+            }, endpointOption, adminKeyOption, indexOption, exportFieldOption, pageSizeOption, exportFileOption, includeFieldsOption, excludeFieldsOption);
 
             var rootCommand = new RootCommand(description: "Export data from a search index. Requires a filterable and sortable field.")
             {
                 boundsCommand,
                 partitionCommand,
-                exportPartitionsCommand
+                exportPartitionsCommand,
+                exportContinuousCommand
             };
             await rootCommand.InvokeAsync(args);
         }
@@ -208,6 +273,13 @@ namespace export_data
             var endpointUri = new Uri(endpoint);
             var credential = new AzureKeyCredential(key);
             return new SearchClient(endpointUri, indexName, credential);
+        }
+
+        public static SearchIndexClient InitializeSearchIndexClient(string endpoint, string key)
+        {
+            var endpointUri = new Uri(endpoint);
+            var credential = new AzureKeyCredential(key);
+            return new SearchIndexClient(endpointUri, credential);
         }
 
         // Fetch the index definition and validate that the field meets the sortable and filterable requirements

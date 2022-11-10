@@ -1,6 +1,7 @@
 ﻿using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
+using System.Collections.Concurrent;
 
 namespace export_data
 {
@@ -13,6 +14,7 @@ namespace export_data
     /// </remarks>
     public class PartitionGenerator
     {
+        // Max page size is 100,000
         private const long MaximumDocumentCount = 100000;
         // Search client for paging through results
         private readonly SearchClient _searchClient;
@@ -33,25 +35,25 @@ namespace export_data
 
         public async Task<List<Partition>> GeneratePartitions()
         {
-            Partition initialPartition = await GeneratePartition(_lowerBound, _upperBound);
-            return await SplitPartition(initialPartition);
-        }
+            var partitions = new List<Partition>();
+            var dataToPartition = new Stack<Partition>();
+            dataToPartition.Push(await GeneratePartition(_lowerBound, _upperBound));
 
-        // Strategy: Keep splitting the initial partition in half until all partitions are <= 100,000 documents
-        // Then merge all the partitions back together to create larger ones
-        private async Task<List<Partition>> SplitPartition(Partition partition)
-        {
-            if (partition.DocumentCount <= MaximumDocumentCount)
+            // Keep splitting the initial partition in half until all partitions are <= 100,000 documents
+            while (dataToPartition.TryPop(out Partition nextPartition))
             {
-                return new List<Partition> { partition };
+                if (nextPartition.DocumentCount <= MaximumDocumentCount)
+                {
+                    partitions.Add(nextPartition);
+                    continue;
+                }
+
+                object midpoint = GetMidpoint(nextPartition.LowerBound, nextPartition.UpperBound);
+                dataToPartition.Push(await GeneratePartition(nextPartition.LowerBound, midpoint));
+                dataToPartition.Push(await GeneratePartition(midpoint, nextPartition.UpperBound));
             }
 
-            object midpoint = GetMidpoint(partition.LowerBound, partition.UpperBound);
-            Partition left = await GeneratePartition(partition.LowerBound, midpoint);
-            Partition right = await GeneratePartition(midpoint, partition.UpperBound);
-
-            List<Partition> partitions = await SplitPartition(left);
-            partitions.AddRange(await SplitPartition(right));
+            // Then merge all the partitions back together to create larger ones
             return MergePartitions(partitions);
         }
 
