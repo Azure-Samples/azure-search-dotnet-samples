@@ -1,22 +1,26 @@
 ﻿using Azure;
 using Azure.Search.Documents;
+using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace export_data
 {
-    public class PartitionExporter
+    /// <summary>
+    /// Export documents partitioned by a sortable and filterable field in the index
+    /// </summary>
+    public class PartitionExporter : Exporter
     {
         private readonly PartitionFile _partitionFile;
         private readonly SearchClient _searchClient;
         private readonly string _exportDirectory;
         private readonly int _concurrentPartitions;
         private readonly int _pageSize;
-        private readonly List<int> _partitionIdsToInclude;
-        private readonly HashSet<int> _partitionIdsToExclude;
+        private readonly int[] _partitionIdsToInclude;
+        private readonly ISet<int> _partitionIdsToExclude;
 
-        public PartitionExporter(PartitionFile partitionFile, SearchClient searchClient, string exportDirectory, int concurrentPartitions, int pageSize, List<int> partitionIdsToInclude, HashSet<int> partitionIdsToExclude)
+        public PartitionExporter(PartitionFile partitionFile, SearchClient searchClient, SearchIndex index, string exportDirectory, int concurrentPartitions, int pageSize, int[] partitionIdsToInclude, ISet<int> partitionIdsToExclude, string[] fieldsToInclude, ISet<string> fieldsToExclude) : base(index, fieldsToInclude, fieldsToExclude)
         {
             _partitionFile = partitionFile;
             _searchClient = searchClient;
@@ -27,7 +31,7 @@ namespace export_data
             _partitionIdsToExclude = partitionIdsToExclude;
         }
 
-        public async Task ExportAsync()
+        public override async Task ExportAsync()
         {
             if (!Directory.Exists(_exportDirectory))
             {
@@ -36,7 +40,7 @@ namespace export_data
 
             var cancellationTokenSource = new CancellationTokenSource();
             var partitions = new ConcurrentQueue<PartitionToExport>();
-            if (_partitionIdsToInclude != null && _partitionIdsToInclude.Count > 0)
+            if (_partitionIdsToInclude != null && _partitionIdsToInclude.Length > 0)
             {
                 foreach (int id in _partitionIdsToInclude)
                 {
@@ -82,14 +86,15 @@ namespace export_data
 
         private async Task ExportPartitionAsync(int partitionId, Partition partition, CancellationToken cancellationToken)
         {
-            string exportPath = Path.Combine(_exportDirectory, $"{_searchClient.IndexName}-{partitionId}-documents.jsonl");
-            using FileStream exportOutput = File.OpenWrite(exportPath);
+            string exportPath = Path.Combine(_exportDirectory, $"{_searchClient.IndexName}-{partitionId}-documents.json");
+            using FileStream exportOutput = File.Open(exportPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
             var options = new SearchOptions
             {
                 Filter = partition.Filter,
                 Size = _pageSize,
                 Skip = 0
             };
+            AddSelect(options);
             options.OrderBy.Add($"{_partitionFile.FieldName} asc");
 
             int lastPageSize;
