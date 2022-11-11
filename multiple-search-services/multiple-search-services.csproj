@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.5.0" />
-    <PackageReference Include="Azure.Search.Documents" Version="11.3.0" />
+    <PackageReference Include="Azure.Search.Documents" Version="11.5.0-beta.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="ServiceStack.Text" Version="5.13.2" />
