@@ -331,7 +331,7 @@ namespace MultipleSearchServices
             {
                 searchResults.Clear();
                 // Specify specific fields to search if given
-                var options = new SearchOptions { Size = pageSize, Skip = skip, IncludeTotalCount = count, QueryType = queryType, QueryLanguage = queryLanguage };
+                var options = new SearchOptions { Size = pageSize, Skip = skip, IncludeTotalCount = count, QueryType = queryType, QueryLanguage = queryLanguage, SemanticConfigurationName = service.SemanticConfigurationName };
 
                 if (!String.IsNullOrEmpty(searchFields))
                 {
@@ -525,6 +525,7 @@ namespace MultipleSearchServices
             public string AdminKey { get; set; }
             public string SearchEndpoint { get; set; }
             public string IndexName { get; set; }
+            public string SemanticConfigurationName { get; set; }
 
             public Uri SearchEndpointUri => new Uri(SearchEndpoint);
             public AzureKeyCredential SearchKeyCredential => new AzureKeyCredential(AdminKey);
