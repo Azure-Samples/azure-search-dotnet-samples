@@ -55,7 +55,15 @@ namespace MultipleSearchServices
                 new System.CommandLine.Option<bool>(
                     new[] { "--count" },
                     getDefaultValue: () => false,
-                    description: "Include count of total results in output when running a query")
+                    description: "Include count of total results in output when running a query"),
+                new System.CommandLine.Option<string>(
+                    new[] { "--queryType" },
+                    getDefaultValue: () => null,
+                    description: "Set type of query"),
+                new System.CommandLine.Option<string>(
+                    new[] { "--queryLanguage" },
+                    getDefaultValue: () => null,
+                    description: "Set language of query")
             };
             rootCommand.Description = "Setup and query multiple indexes across search services";
             rootCommand.Handler = CommandHandler.Create<
@@ -66,16 +74,20 @@ namespace MultipleSearchServices
                 string,
                 string,
                 string,
-                bool>(RunCommand);
+                bool,
+                string,
+                string>(RunCommand);
             await rootCommand.InvokeAsync(args);
         }
 
-        static async Task RunCommand(bool initialize, string query, int page, int pageSize, string searchFields, string displayFields, string facets, bool count)
+        static async Task RunCommand(bool initialize, string query, int page, int pageSize, string searchFields, string displayFields, string facets, bool count, string queryType, string queryLanguage)
         {
             if (pageSize < 1 || pageSize > 100)
             {
                 throw new Exception("Invalid page size. Page size must be between 1 and 100");
             }
+
+            SearchQueryType searchQueryType = ParseQueryType(queryType);
 
             // Read settings from appsettings.json
             IConfigurationRoot configuration = new ConfigurationBuilder()
@@ -108,7 +120,7 @@ namespace MultipleSearchServices
             // Run query if requested
             if (!String.IsNullOrEmpty(query))
             {
-                (int actualPageNumber, List<MultiSearchResult> multiResults, MultiSearchFacets multiFacets, long totalCount) = await RunQueryAsync(query, page, pageSize, searchFields, displayFields, facets, count, services);
+                (int actualPageNumber, List<MultiSearchResult> multiResults, MultiSearchFacets multiFacets, long totalCount) = await RunQueryAsync(query, page, pageSize, searchFields, displayFields, facets, count, searchQueryType, queryLanguage, services);
 
                 if (count == true)
                 {
@@ -210,13 +222,13 @@ namespace MultipleSearchServices
         }
 
         // Run the query and combine results across multiple services
-        static async Task<(int, List<MultiSearchResult>, MultiSearchFacets, long)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, string displayFields, string facets, bool count, List<Service> services)
+        static async Task<(int, List<MultiSearchResult>, MultiSearchFacets, long)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, string displayFields, string facets, bool count, SearchQueryType queryType, string queryLanguage, List<Service> services)
         {
             // Page results from all services
             var searchResults = new List<IAsyncEnumerator<MultiSearchResultsPage>>();
             foreach (Service service in services)
             {
-                IAsyncEnumerable<MultiSearchResultsPage> response = SearchAsync(service, query, pageSize, searchFields, displayFields, facets, count);
+                IAsyncEnumerable<MultiSearchResultsPage> response = SearchAsync(service, query, pageSize, searchFields, displayFields, facets, count, queryType, queryLanguage);
                 searchResults.Add(response.GetAsyncEnumerator());
             }
 
@@ -308,7 +320,7 @@ namespace MultipleSearchServices
         }
 
         // Return all results from a service for a given query using a specific page size
-        static async IAsyncEnumerable<MultiSearchResultsPage> SearchAsync(Service service, string query, int pageSize, string searchFields, string displayFields, string facets, bool count)
+        static async IAsyncEnumerable<MultiSearchResultsPage> SearchAsync(Service service, string query, int pageSize, string searchFields, string displayFields, string facets, bool count, SearchQueryType queryType, string queryLanguage)
         {
             // Client-side page through all the results from the service
             int skip = 0;
@@ -319,7 +331,8 @@ namespace MultipleSearchServices
             {
                 searchResults.Clear();
                 // Specify specific fields to search if given
-                var options = new SearchOptions { Size = pageSize, Skip = skip, IncludeTotalCount = count };
+                var options = new SearchOptions { Size = pageSize, Skip = skip, IncludeTotalCount = count, QueryType = queryType, QueryLanguage = queryLanguage };
+
                 if (!String.IsNullOrEmpty(searchFields))
                 {
                     foreach (string searchField in searchFields.Split(','))
@@ -486,6 +499,25 @@ namespace MultipleSearchServices
             }
         }
 
+        private static SearchQueryType ParseQueryType(string queryType)
+        {
+            if (String.IsNullOrEmpty(queryType) || queryType.EqualsIgnoreCase("simple"))
+            {
+                return SearchQueryType.Simple;
+            }
+            else if (queryType.EqualsIgnoreCase("full"))
+            {
+                return SearchQueryType.Full;
+            }
+            else if (queryType.EqualsIgnoreCase("semantic"))
+            {
+                return SearchQueryType.Semantic;
+            }
+            else
+            {
+                throw new Exception("Invalid query type " + queryType);
+            }
+        }
 
         class Service
         {
