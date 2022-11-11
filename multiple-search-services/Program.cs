@@ -51,7 +51,11 @@ namespace MultipleSearchServices
                 new System.CommandLine.Option<string>(
                     new[] { "--facets" },
                     getDefaultValue: () => null,
-                    description: "Comma-separated list of facets")
+                    description: "Comma-separated list of facets"),
+                new System.CommandLine.Option<bool>(
+                    new[] { "--count" },
+                    getDefaultValue: () => false,
+                    description: "Include count of total results in output when running a query")
             };
             rootCommand.Description = "Setup and query multiple indexes across search services";
             rootCommand.Handler = CommandHandler.Create<
@@ -61,11 +65,12 @@ namespace MultipleSearchServices
                 int,
                 string,
                 string,
-                string>(RunCommand);
+                string,
+                bool>(RunCommand);
             await rootCommand.InvokeAsync(args);
         }
 
-        static async Task RunCommand(bool initialize, string query, int page, int pageSize, string searchFields, string displayFields, string facets)
+        static async Task RunCommand(bool initialize, string query, int page, int pageSize, string searchFields, string displayFields, string facets, bool count)
         {
             if (pageSize < 1 || pageSize > 100)
             {
@@ -103,7 +108,13 @@ namespace MultipleSearchServices
             // Run query if requested
             if (!String.IsNullOrEmpty(query))
             {
-                (int actualPageNumber, List<MultiSearchResult> multiResults, MultiSearchFacets multiFacets) = await RunQueryAsync(query, page, pageSize, searchFields, displayFields, facets, services);
+                (int actualPageNumber, List<MultiSearchResult> multiResults, MultiSearchFacets multiFacets, long totalCount) = await RunQueryAsync(query, page, pageSize, searchFields, displayFields, facets, count, services);
+
+                if (count == true)
+                {
+                    Console.WriteLine("Total count: {0}", totalCount);
+                }
+
                 if (multiFacets.Facets.Any())
                 {
                     Console.WriteLine("Faceted field count: {0}", multiFacets.Facets.Count);
@@ -199,13 +210,13 @@ namespace MultipleSearchServices
         }
 
         // Run the query and combine results across multiple services
-        static async Task<(int, List<MultiSearchResult>, MultiSearchFacets)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, string displayFields, string facets, List<Service> services)
+        static async Task<(int, List<MultiSearchResult>, MultiSearchFacets, long)> RunQueryAsync(string query, int pageNumber, int pageSize, string searchFields, string displayFields, string facets, bool count, List<Service> services)
         {
             // Page results from all services
             var searchResults = new List<IAsyncEnumerator<MultiSearchResultsPage>>();
             foreach (Service service in services)
             {
-                IAsyncEnumerable<MultiSearchResultsPage> response = SearchAsync(service, query, pageSize, searchFields, displayFields, facets);
+                IAsyncEnumerable<MultiSearchResultsPage> response = SearchAsync(service, query, pageSize, searchFields, displayFields, facets, count);
                 searchResults.Add(response.GetAsyncEnumerator());
             }
 
@@ -214,6 +225,7 @@ namespace MultipleSearchServices
             int currentPageNumber = 0;
             var currentPage = new List<MultiSearchResult>();
             var mergedFacets = new MultiSearchFacets();
+            var documentCounts = new Dictionary<string, long>();
             do
             {
                 // Combine the current page of results from each service
@@ -241,6 +253,12 @@ namespace MultipleSearchServices
                     if (resultPage.Facets != null)
                     {
                         MergeFacets(resultPage.Facets, mergedFacets);
+                    }
+
+                    // Total count on each page is the total count of results for the query in that service
+                    if (!documentCounts.ContainsKey(resultPage.Service.Name + resultPage.Service.IndexName))
+                    {
+                        documentCounts[resultPage.Service.Name + resultPage.Service.IndexName] = resultPage.TotalCount;
                     }
                 }
 
@@ -275,7 +293,7 @@ namespace MultipleSearchServices
                     {
                         if (currentPageNumber == pageNumber)
                         {
-                            return (currentPageNumber, currentPage, mergedFacets);
+                            return (currentPageNumber, currentPage, mergedFacets, documentCounts.Values.Sum());
                         }
 
                         currentPage.Clear();
@@ -286,21 +304,22 @@ namespace MultipleSearchServices
             while (searchResults.Any());
 
             // Return any leftover results as the last page
-            return (currentPageNumber, currentPage, mergedFacets);
+            return (currentPageNumber, currentPage, mergedFacets, documentCounts.Values.Sum());
         }
 
         // Return all results from a service for a given query using a specific page size
-        static async IAsyncEnumerable<MultiSearchResultsPage> SearchAsync(Service service, string query, int pageSize, string searchFields, string displayFields, string facets)
+        static async IAsyncEnumerable<MultiSearchResultsPage> SearchAsync(Service service, string query, int pageSize, string searchFields, string displayFields, string facets, bool count)
         {
             // Client-side page through all the results from the service
             int skip = 0;
+            long totalCount = 0;
             var searchResults = new List<SearchResult<SearchDocument>>();
             bool returnedFacets = false;
             do
             {
                 searchResults.Clear();
                 // Specify specific fields to search if given
-                var options = new SearchOptions { Size = pageSize, Skip = skip };
+                var options = new SearchOptions { Size = pageSize, Skip = skip, IncludeTotalCount = count };
                 if (!String.IsNullOrEmpty(searchFields))
                 {
                     foreach (string searchField in searchFields.Split(','))
@@ -326,8 +345,10 @@ namespace MultipleSearchServices
                 }
 
                 // Page through a single query. A continuation token may be returned for partial results from a single query
-                Response<SearchResults<SearchDocument>> results = await service.SearchClient.SearchAsync<SearchDocument>(query, options);
-                await foreach (Page<SearchResult<SearchDocument>> page in results.Value.GetResultsAsync().AsPages())
+                SearchResults<SearchDocument> results = await service.SearchClient.SearchAsync<SearchDocument>(query, options);
+                totalCount = results.TotalCount.GetValueOrDefault();
+
+                await foreach (Page<SearchResult<SearchDocument>> page in results.GetResultsAsync().AsPages())
                 {
                     // Skip ahead however many results we've seen when running the next query for client-side paging
                     // For more information, please see https://docs.microsoft.com/azure/search/search-pagination-page-layout
@@ -339,7 +360,7 @@ namespace MultipleSearchServices
                 // with different skip values, which doesn't change the returned facet values
                 if (searchResults.Any())
                 {
-                    yield return new MultiSearchResultsPage { Service = service, Page = searchResults, Facets = !returnedFacets ? results.Value.Facets : null };
+                    yield return new MultiSearchResultsPage { Service = service, Page = searchResults, Facets = !returnedFacets ? results.Facets : null, TotalCount = totalCount };
                     returnedFacets = true;
                 }
             }
@@ -389,6 +410,7 @@ namespace MultipleSearchServices
             public Service Service { get; set; }
             public IEnumerable<SearchResult<SearchDocument>> Page { get; set; }
             public IDictionary<string, IList<FacetResult>> Facets { get; set; }
+            public long TotalCount { get; set; }
         }
 
         class MultiSearchResult
