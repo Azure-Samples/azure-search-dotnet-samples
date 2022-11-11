@@ -160,7 +160,14 @@ namespace MultipleSearchServices
                 foreach (MultiSearchResult multiResult in multiResults)
                 {
                     string fields = String.Join(", ", multiResult.Result.Document.OrderBy(field => field.Key).Select(field => $"{field.Key} {field.Value}"));
-                    Console.WriteLine("Service {0}, Score {1}, {2}", multiResult.Service.Name, multiResult.Result.RerankerScore, fields);
+                    if (searchQueryType != SearchQueryType.Semantic)
+                    {
+                        Console.WriteLine("Service {0}, Score {1}, {2}", multiResult.Service.Name, multiResult.Result.Score, fields);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Service {0}, reranker score {1}, score {2}, {3}", multiResult.Service.Name, multiResult.Result.RerankerScore, multiResult.Result.Score, fields);
+                    }
                 }
             }
         }
@@ -279,17 +286,21 @@ namespace MultipleSearchServices
                 {
                     MultiSearchResult resultA = a;
                     MultiSearchResult resultB = b;
-                    if (resultA.Result.RerankerScore.HasValue && resultB.Result.RerankerScore.HasValue)
+                    // Use the reranker score in semantic queries, otherwise use the normal score
+                    double? resultAScore = queryType == SearchQueryType.Semantic ? resultA.Result.RerankerScore : resultA.Result.Score;
+                    double? resultBScore = queryType == SearchQueryType.Semantic ? resultB.Result.RerankerScore : resultB.Result.Score;
+
+                    if (resultAScore.HasValue && resultBScore.HasValue)
                     {
-                        return resultB.Result.RerankerScore.Value.CompareTo(resultA.Result.RerankerScore.Value);
+                        return resultBScore.Value.CompareTo(resultAScore.Value);
                     }
 
-                    if (resultA.Result.RerankerScore.HasValue && !resultB.Result.RerankerScore.HasValue)
+                    if (resultAScore.HasValue && !resultBScore.HasValue)
                     {
                         return -1;
                     }
 
-                    if (!resultA.Result.RerankerScore.HasValue && resultB.Result.RerankerScore.HasValue)
+                    if (!resultAScore.HasValue && resultBScore.HasValue)
                     {
                         return 1;
                     }
