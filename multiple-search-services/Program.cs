@@ -160,7 +160,7 @@ namespace MultipleSearchServices
                 foreach (MultiSearchResult multiResult in multiResults)
                 {
                     string fields = String.Join(", ", multiResult.Result.Document.OrderBy(field => field.Key).Select(field => $"{field.Key} {field.Value}"));
-                    Console.WriteLine("Service {0}, Score {1}, {2}", multiResult.Service.Name, multiResult.Result.Score, fields);
+                    Console.WriteLine("Service {0}, Score {1}, {2}", multiResult.Service.Name, multiResult.Result.RerankerScore, fields);
                 }
             }
         }
@@ -279,17 +279,17 @@ namespace MultipleSearchServices
                 {
                     MultiSearchResult resultA = a;
                     MultiSearchResult resultB = b;
-                    if (resultA.Result.Score.HasValue && resultB.Result.Score.HasValue)
+                    if (resultA.Result.RerankerScore.HasValue && resultB.Result.RerankerScore.HasValue)
                     {
-                        return resultB.Result.Score.Value.CompareTo(resultA.Result.Score.Value);
+                        return resultB.Result.RerankerScore.Value.CompareTo(resultA.Result.RerankerScore.Value);
                     }
 
-                    if (resultA.Result.Score.HasValue && !resultB.Result.Score.HasValue)
+                    if (resultA.Result.RerankerScore.HasValue && !resultB.Result.RerankerScore.HasValue)
                     {
                         return -1;
                     }
 
-                    if (!resultA.Result.Score.HasValue && resultB.Result.Score.HasValue)
+                    if (!resultA.Result.RerankerScore.HasValue && resultB.Result.RerankerScore.HasValue)
                     {
                         return 1;
                     }
