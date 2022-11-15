@@ -71,7 +71,7 @@ Use a client application that can build a .NET project.
 
     1. Run the following command to execute the sample code and initialize the services with Good Books test data: `dotnet run --initialize`
 
-    1. Run the following command to execute the sample code and query the services: `dotnet run --query <query text> -- facets <optional comma-separated list of facets> --searchFields <optional comma-separated list of fields to search> --displayFields <optional comma-separated list of fields to display --count <optional count of documents returned> --pageSize <optional number of documents returned per page> --queryType <optional to specify semantic>, --queryLanguage <required if queryType eq semantic>`
+    1. Run the following command to execute the sample code and query the services: `dotnet run --query <query text> -- facets <optional comma-separated list of facets> --searchFields <optional comma-separated list of fields to search> --displayFields <optional comma-separated list of fields to display --count <optional count of documents returned> --pageSize <optional number of documents returned per page> --queryType <optional to specify semantic> --queryLanguage <required if queryType equals semantic>`
 
 ## Clean up resources
 
