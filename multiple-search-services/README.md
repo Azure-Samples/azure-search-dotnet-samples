@@ -57,6 +57,8 @@ Open the **appsettings.json** file in your local copy of the sample application 
 
     + Required if you want to request a Semantic query. Find the Semantic Config in the [search service's desired index in the search explorer under the Configurations tab](https://learn.microsoft.com/en-us/azure/search/semantic-how-to-query-request?tabs=portal%2Cportal-query).
 
+    Note: You must create a Semantic Configuration first in the Portal or via the REST API before issuing a Semantic query. Additionally, you can find the list of query languages in the [List of supported languages](https://learn.microsoft.com/en-us/rest/api/searchservice/preview-api/search-documents#queryLanguage)
+
 ## Run sample code and verify sample data
 
 Use a client application that can build a .NET project.
