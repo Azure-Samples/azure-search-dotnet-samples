@@ -53,6 +53,12 @@ Open the **appsettings.json** file in your local copy of the sample application 
 
     + Find the URI in the [search service's Overview portal page](https://docs.microsoft.com/azure/search/search-manage#overview-home-page).
 
+1. "semanticConfigurationName": "Semantic Configuration Name on your index":
+
+    + Required if you want to request semantic reranking. You can choose an existing configuration or [create a new one in the portal](https://learn.microsoft.com/azure/search/semantic-how-to-query-request?tabs=portal%2Cportal-query).
+
+    **Note**: Semantic ranking comes with language requirements. See [List of supported languages](https://learn.microsoft.com/rest/api/searchservice/preview-api/search-documents#queryLanguage) for details.
+
 ## Run sample code and verify sample data
 
 Use a client application that can build a .NET project.
@@ -65,7 +71,7 @@ Use a client application that can build a .NET project.
 
     1. Run the following command to execute the sample code and initialize the services with Good Books test data: `dotnet run --initialize`
 
-    1. Run the following command to execute the sample code and query the services: `dotnet run --query <query text> -- facets <optional comma-separated list of facets> --searchFields <optional comma-separated list of fields to search> --displayFields <optional comma-separated list of fields to display`
+    1. Run the following command to execute the sample code and query the services: `dotnet run --query <query text> -- facets <optional comma-separated list of facets> --searchFields <optional comma-separated list of fields to search> --displayFields <optional comma-separated list of fields to display --count <optional count of documents returned> --pageSize <optional number of documents returned per page> --queryType <optional to specify semantic> --queryLanguage <required if queryType equals semantic>`
 
 ## Clean up resources
 
