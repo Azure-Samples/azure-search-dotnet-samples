@@ -55,9 +55,9 @@ Open the **appsettings.json** file in your local copy of the sample application 
 
 1. "semanticConfigurationName": "Semantic Configuration Name on your index":
 
-    + Required if you want to request a Semantic query. Find the Semantic Config in the [search service's desired index in the search explorer under the Configurations tab](https://learn.microsoft.com/en-us/azure/search/semantic-how-to-query-request?tabs=portal%2Cportal-query).
+    + Required if you want to request semantic reranking. You can choose an existing configuration or [create a new one in the portal](https://learn.microsoft.com/azure/search/semantic-how-to-query-request?tabs=portal%2Cportal-query).
 
-    **Note**: You must create a Semantic Configuration first in the Portal or via the REST API before issuing a Semantic query. Additionally, you can find the list of query languages in the [List of supported languages](https://learn.microsoft.com/en-us/rest/api/searchservice/preview-api/search-documents#queryLanguage)
+    **Note**: Semantic ranking comes with language requirements. See [List of supported languages](https://learn.microsoft.com/rest/api/searchservice/preview-api/search-documents#queryLanguage) for details.
 
 ## Run sample code and verify sample data
 
