@@ -2,11 +2,13 @@
 page_type: sample
 languages:
   - csharp
-name: Add search to a web app in C#
-description: "Search over sample book data in an Azure Static Web app written in C#. The client is built using the React JavaScript library."
+name: Add search to C# app
+description: |
+  Add document search to a web app. This C# sample uses the Azure.Search.Documents library to create, load, and query the index.
 products:
   - azure
   - azure-cognitive-search
+  - azure-static-web-app
 urlFragment: csharp-add-search-website
 ---
 

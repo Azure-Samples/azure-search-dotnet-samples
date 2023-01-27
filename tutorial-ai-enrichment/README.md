@@ -14,7 +14,7 @@ urlFragment: csharp-enrichment-tutorial
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-Demonstrates AI enrichment by building an indexing pipeline that detects and extracts text and text representations of images and scanned documents stored as blobs in Azure Blob storage. This sample leverages cognitive skills from the Cognitive Services APIs, such as entity recognition and language detection. It uses the REST APIs to make calls to Azure Cognitive Search, including index definition, data ingestion and AI enrichment, and query execution.
+This Azure Cognitive Search sample demonstrates AI enrichment by building an indexing pipeline that detects and extracts text and text representations of images and scanned documents stored as blobs in Azure Blob storage. This sample leverages cognitive skills from the Cognitive Services APIs, such as entity recognition and language detection. It uses the REST APIs to make calls to Azure Cognitive Search, including index definition, data ingestion and AI enrichment, and query execution.
 
 This sample is a C# console application that uses .NET Core. The code is described in [C# Tutorial: AI-generated searchable content from Azure blobs using the .NET SDK](https://docs.microsoft.com/azure/search/cognitive-search-tutorial-blob-dotnet). 
 
@@ -25,7 +25,7 @@ This sample is a C# console application that uses .NET Core. The code is describ
 - [Azure Storage](https://docs.microsoft.com/azure/storage/common/storage-quickstart-create-account) 
 - [Azure Cognitive Search](https://docs.microsoft.com/azure/search/search-create-service-portal)
 
-## Setup
+## Set up the sample
 
 1. Clone or download this sample repository.
 1. Extract contents if the download is a zip file. Make sure the files are read-write.

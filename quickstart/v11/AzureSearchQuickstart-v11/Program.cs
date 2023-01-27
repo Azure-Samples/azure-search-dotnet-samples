@@ -13,7 +13,7 @@ namespace AzureSearch.Quickstart
         static void Main(string[] args)
         {
             string serviceName = "<Put your search service NAME here>";
-            string apiKey = "<Put your search service ADMIN API KEY here";
+            string apiKey = "<Put your search service ADMIN API KEY here>";
             string indexName = "hotels-quickstart";
 
             // Create a SearchIndexClient to send create/delete index commands

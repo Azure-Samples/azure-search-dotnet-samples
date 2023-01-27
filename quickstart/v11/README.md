@@ -3,14 +3,15 @@ page_type: sample
 languages:
   - csharp
 name: Quickstart in C#
-description: "Learn the basic workflow in this .NET Core console app: create, load, and query a search index."
+description: |
+  Learn how to create, load, and query an Azure Cognitive Search index using the Azure SDK for .NET
 products:
   - azure
   - azure-cognitive-search
 urlFragment: csharp-quickstart
 ---
 
-# Quickstart sample for Cognitive Search in .NET
+# C# quickstart for Azure Cognitive Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
@@ -22,32 +23,20 @@ New and legacy versions are provided so that you can learn these operations with
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
+- [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) and the Azure SDK for .NEt
 
-## Setup
+## Set up the sample
 
 1. Clone or download this sample repository.
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
 1. Get the service name and admin API key of your service. You can find this information in the Azure portal.
 
-This sample is available in two versions.
-
-+ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/search/client10) client libraries
-
-+ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
-
-## Run the v11 sample
+## Run the sample
 
 1. Open the AzureSearchQuickstart-v11.sln project in Visual Studio
 1. Open **Program.cs**.
 1. Replace the placeholder values for service name and admin API key with valid values for your search service.
 1. Compile and run the project.
-
-## Run v10 sample
-
-1. Open the v10\AzureSearchQuickstart.sln project in Visual Studio
-1. Use **Tools > NuGet Package Manager** to check for updated packages.
-1. Update the appsettings.json with the service name and admin API key of your search service
-1. Compile and run the project
 
 ## Next steps
 
