@@ -12,7 +12,7 @@ namespace AzureSearch.Quickstart
     {
         static void Main(string[] args)
         {
-            string serviceName = "<Put your search service NAME here>;
+            string serviceName = "<Put your search service NAME here>";
             string apiKey = "<Put your search service ADMIN API KEY here>";
             string indexName = "hotels-quickstart";
 
@@ -21,8 +21,8 @@ namespace AzureSearch.Quickstart
             AzureKeyCredential credential = new AzureKeyCredential(apiKey);
             SearchIndexClient adminClient = new SearchIndexClient(serviceEndpoint, credential);
 
-            //// Create a SearchClient to load and query documents
-            //SearchClient srchclient = new SearchClient(serviceEndpoint, indexName, credential);
+            // Create a SearchClient to load and query documents
+            SearchClient srchclient = new SearchClient(serviceEndpoint, indexName, credential);
 
             // Delete index if it exists
             Console.WriteLine("{0}", "Deleting index...\n");
