@@ -1,9 +1,11 @@
 ﻿using System;
 using Azure;
+using Azure.Core;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
+using AzureSearchQuickstart_v11;
 
 namespace AzureSearch.Quickstart
 
@@ -12,17 +14,28 @@ namespace AzureSearch.Quickstart
     {
         static void Main(string[] args)
         {
-            string serviceName = "<Put your search service NAME here>";
-            string apiKey = "<Put your search service ADMIN API KEY here>";
-            string indexName = "hotels-quickstart";
+            string serviceName = "<your-service-here>";
+            string apiKey = "<your-key-here>";
+            string indexName = "hotels-sample-index";
 
             // Create a SearchIndexClient to send create/delete index commands
             Uri serviceEndpoint = new Uri($"https://{serviceName}.search.windows.net/");
             AzureKeyCredential credential = new AzureKeyCredential(apiKey);
-            SearchIndexClient adminClient = new SearchIndexClient(serviceEndpoint, credential);
+            SearchClientOptions indexClientOptions = new SearchClientOptions();
+            indexClientOptions.AddPolicy(new DefaultSemanticConfigHttpPipelinePolicy(), HttpPipelinePosition.PerCall);
 
-            // Create a SearchClient to load and query documents
-            SearchClient srchclient = new SearchClient(serviceEndpoint, indexName, credential);
+            SearchIndexClient adminClient = new SearchIndexClient(serviceEndpoint, credential, indexClientOptions);
+            
+            // Create a SearchClient that demonstrates the Debug feature
+            SearchClientOptions searchClientOptions = new SearchClientOptions();
+            searchClientOptions.AddPolicy(new DebugHttpPipelinePolicy(), HttpPipelinePosition.PerCall);
+            SearchClient srchclient = new SearchClient(serviceEndpoint, indexName, credential, searchClientOptions);
+
+            // Create a second SearchClient to demonstrate the Fallback feature
+            SearchClientOptions searchClientOptions2 = new SearchClientOptions();
+            searchClientOptions2.AddPolicy(new FallbackHttpPipelinePolicy(), HttpPipelinePosition.PerCall);
+            SearchClient srchclient2 = new SearchClient(serviceEndpoint, indexName, credential, searchClientOptions);
+
 
             // Delete index if it exists
             Console.WriteLine("{0}", "Deleting index...\n");
@@ -38,13 +51,16 @@ namespace AzureSearch.Quickstart
             Console.WriteLine("{0}", "Uploading documents...\n");
             UploadDocuments(ingesterClient);
 
-            // Wait 2 secondsfor indexing to complete before starting queries (for demo and console-app purposes only)
+            // Wait 2 seconds for indexing to complete before starting queries (for demo and console-app purposes only)
             Console.WriteLine("Waiting for indexing...\n");
             System.Threading.Thread.Sleep(2000);
 
             // Call the RunQueries method to invoke a series of queries
             Console.WriteLine("Starting queries...\n");
-            RunQueries(srchclient);
+            RunSemanticQueries(srchclient);
+
+            Console.WriteLine("Starting second batch of queries...\n");
+            RunSemanticQueries(srchclient2);
 
             // End the program
             Console.WriteLine("{0}", "Complete. Press any key to end this program...\n");
@@ -69,6 +85,24 @@ namespace AzureSearch.Quickstart
 
             var suggester = new SearchSuggester("sg", new[] { "HotelName", "Category", "Address/City", "Address/StateProvince" });
             definition.Suggesters.Add(suggester);
+
+            SemanticSettings semanticSettings = new SemanticSettings();
+            semanticSettings.Configurations.Add(new SemanticConfiguration
+                (
+                    "semconfig",
+                    new PrioritizedFields()
+                    {
+                        TitleField = new SemanticField { FieldName = "HotelName" },
+                        ContentFields = {
+                            new SemanticField { FieldName = "Category" }
+                        },
+                        KeywordFields = {
+                            new SemanticField { FieldName = "Address/City" }
+                        }
+                    }
+                )
+            );
+            definition.SemanticSettings = semanticSettings;
 
             adminClient.CreateOrUpdateIndex(definition);
         }
@@ -175,6 +209,52 @@ namespace AzureSearch.Quickstart
             }
         }
 
+        // Run semantic queries and print output.
+        private static void RunSemanticQueries(SearchClient srchclient)
+        {
+            SearchOptions options;
+            SearchResults<Hotel> response;
+
+            // Query 1
+            Console.WriteLine("Query #1: Search on empty term '*' to return all documents, showing a subset of fields...\n");
+
+            options = new SearchOptions()
+            {
+                IncludeTotalCount = true,
+                Filter = "",
+                OrderBy = { "" },
+                QueryType = SearchQueryType.Semantic,
+                QueryLanguage = QueryLanguage.EnUs,
+                SemanticConfigurationName = "semconfig"
+            };
+
+            options.Select.Add("HotelId");
+            options.Select.Add("HotelName");
+            options.Select.Add("Rating");
+
+            response = srchclient.Search<Hotel>("*", options);
+            WriteDocuments(response);
+
+            // Query 2
+            // Omit semantic config name, fallback to default semantic config.
+            Console.WriteLine("Query #2: Search on 'hotels', filter on 'Rating gt 4'\n");
+
+            options = new SearchOptions()
+            {
+                Filter = "Rating gt 4",
+                QueryType = SearchQueryType.Semantic,
+                QueryLanguage = QueryLanguage.EnUs,
+            };
+
+            options.Select.Add("HotelId");
+            options.Select.Add("HotelName");
+            options.Select.Add("Rating");
+
+            response = srchclient.Search<Hotel>("hotels", options);
+            WriteDocuments(response);
+
+        }
+
         // Run queries, use WriteDocuments to print output
         private static void RunQueries(SearchClient srchclient)
         {
@@ -188,7 +268,10 @@ namespace AzureSearch.Quickstart
             {
                 IncludeTotalCount = true,
                 Filter = "",
-                OrderBy = { "" }
+                OrderBy = { "" },
+                QueryType = SearchQueryType.Semantic,
+                QueryLanguage = QueryLanguage.EnUs,
+                SemanticConfigurationName = "semconfig"
             };
 
             options.Select.Add("HotelId");
@@ -199,12 +282,14 @@ namespace AzureSearch.Quickstart
             WriteDocuments(response);
 
             // Query 2
-            Console.WriteLine("Query #2: Search on 'hotels', filter on 'Rating gt 4', sort by Rating in descending order...\n");
+            Console.WriteLine("Query #2: Search on 'hotels', filter on 'Rating gt 4'\n");
 
             options = new SearchOptions()
             {
                 Filter = "Rating gt 4",
-                OrderBy = { "Rating desc" }
+                QueryType = SearchQueryType.Semantic,
+                QueryLanguage = QueryLanguage.EnUs,
+                SemanticConfigurationName = "semconfig"
             };
 
             options.Select.Add("HotelId");
@@ -219,7 +304,10 @@ namespace AzureSearch.Quickstart
 
             options = new SearchOptions()
             {
-                SearchFields = { "Tags" }
+                SearchFields = { "Tags" },
+                QueryType = SearchQueryType.Semantic,
+                QueryLanguage = QueryLanguage.EnUs,
+                SemanticConfigurationName = "semconfig"
             };
 
             options.Select.Add("HotelId");
@@ -235,7 +323,10 @@ namespace AzureSearch.Quickstart
 
             options = new SearchOptions()
             {
-                Filter = ""
+                Filter = "",
+                QueryType = SearchQueryType.Semantic,
+                QueryLanguage = QueryLanguage.EnUs,
+                SemanticConfigurationName = "semconfig"
             };
 
             options.Facets.Add("Category");
@@ -257,10 +348,10 @@ namespace AzureSearch.Quickstart
 
 
             // Query 6
-            Console.WriteLine("Query #6: Call Autocomplete on HotelName...\n");
+            //Console.WriteLine("Query #6: Call Autocomplete on HotelName...\n");
 
-            var autoresponse = srchclient.Autocomplete("sa", "sg");
-            WriteDocuments(autoresponse);
+            //var autoresponse = srchclient.Autocomplete("sa", "sg");
+            //WriteDocuments(autoresponse);
 
         }
 
