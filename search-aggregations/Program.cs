@@ -100,16 +100,18 @@ await GetAggregateStatisticsUsingPaging(
 async Task GetAggregateStatisticsUsingPaging(IEnumerable<double> sampleValues, SearchResults<SearchDocument> searchResults)
 {
     var runningStatistics = new RunningStatistics();
+    double sum = 0;
     AsyncPageable<SearchResult<SearchDocument>> resultPages = searchResults.GetResultsAsync();
     await foreach (Page<SearchResult<SearchDocument>> results in resultPages.AsPages())
     {
         double[] pageValues = results.Values.Select(result => result.Document["value"]).Cast<double>().ToArray();
         runningStatistics.PushRange(pageValues);
+        sum += pageValues.Sum();
     }
 
     Console.WriteLine("Expected Count: {0}, Aggregated Count: {1}", sampleValues.Count(), runningStatistics.Count);
     Console.WriteLine("Expected Average: {0:.##}, Aggregated Average: {1:.##}", sampleValues.Average(), runningStatistics.Mean);
     Console.WriteLine("Expected Min: {0:.##}, Aggregated Min: {1:.##}", sampleValues.Min(), runningStatistics.Minimum);
     Console.WriteLine("Expected Max: {0:.##}, Aggregated Max: {1:.##}", sampleValues.Max(), runningStatistics.Maximum);
-    Console.WriteLine();
+    Console.WriteLine("Expected Sum: {0:.##}, Aggregated Sum: {1:.##}", sampleValues.Sum(), sum);
 }
