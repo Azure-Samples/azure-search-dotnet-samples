@@ -54,7 +54,6 @@ IEnumerable<SearchDocument> GetDocuments()
     for (int i = 0; i < sampleValues.Length; i++)
     {
         double sampleValue = sampleValues[i];
-        var x = new SearchDocument();
         yield return new SearchDocument
         {
             ["id"] = i.ToString(CultureInfo.InvariantCulture),
