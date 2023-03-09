@@ -1,0 +1,99 @@
+﻿@model HotelDemoApp.Models.SearchData;
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div>
+    <img src="~/images/azure-logo.png" width="80" />
+    <h2>Search for Hotels</h2>
+
+    <p>Use this demo app to test server-side behaviors, including sorting, filters, and relevance tuning. Modify the RunQueryAsnc method to change the operation.
+    </p>
+
+    <p>The app connects to the sample hotels index on your search service using the default search configuration (simple search, with searchMode=Any).
+    </p>
+
+    <form asp-controller="Home" asp-action="Index">
+        <p>
+            <input type="text" name="searchText" />
+            <input type="submit" value="Search" />
+        </p>
+    </form>
+</div>
+
+<div>
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        @if (Model != null)
+        {
+            // Show the result count.
+            <p>@Model.resultList.TotalCount Results</p>
+
+            // Get search results.
+            var results = Model.resultList.GetResults().ToList();
+
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Rating</th>
+                            <th>Tags</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in results)
+                        {
+                            <tr>
+                                <td>@d.Document.HotelName</td>
+                                <td>@d.Document.Category</td>
+                                <td>@d.Document.Rating</td>
+                                <td>@d.Document.Tags[0]</td>
+                                <td>@d.Document.Address.City</td>
+                                <td>@d.Document.Address.StateProvince</td>
+                                <td>@d.Document.Description</td>
+                            </tr>
+                        }
+                    </tbody>
+                  </table>
+            }
+        }
+    }
+</div>
+
+@*<td>@Html.DisplayFor(modelItem => d.Document.HotelName</td>
+<td>@Html.DisplayFor(modelItem => d.Document.Category</td>
+<td>@Html.DisplayFor(modelItem => d.Document.Rating</td>
+<td>@Html.DisplayFor(modelItem => d.Document.Tags[0]</td>
+<td>@Html.DisplayFor(modelItem => d.Document.Address.City</td>
+<td>@Html.DisplayFor(modelItem => d.Document.Address.StateProvince</td>
+<td>@Html.DisplayFor(modelItem => d.Document.Description</td>*@
+
+@*                        @foreach( var d in results)
+{
+<tr>
+<td>@d.Document.HotelName</td>
+<td>@d.Document.Category</td>
+<td>@d.Document.Rating</td>
+<td>@d.Document.Tags[0]</td>
+<td>@d.Document.Address.City</td>
+<td>@d.Document.Address.StateProvince</td>
+<td>@d.Document.Description</td>
+</tr>
+}*@
+    @*                        @for (var i = 0; i < results.Count; i++)
+{
+<tr>
+<td>@results[i].Document.HotelName</td>
+<td>@results[i].Document.Category</td>
+<td>@results[i].Document.Rating</td>
+<td>@results[i].Document.Address.City</td>
+<td>@results[i].Document.Address.StateProvince</td>
+<td>@results[i].Document.Description</td>
+</tr>
+}*@
