@@ -1,18 +1,8 @@
----
-page_type: sample
-languages:
-  - csharp
-name: Create a search app using MVC
-description: "Create a search page enhanced with pagination controls, filters and facets, and typeahead queries. This sample is an ASP.NET Core MVC application."
-products:
-  - azure
-  - azure-cognitive-search
-urlFragment: create-first-app
----
-
 # Create your first Azure Cognitive Search application
 
-![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
+<b>This sample is now retired and no longer being updated.</b>
+
+## Original introduction
 
 In this sample, start with a basic search page layout and then enhance it with paging controls, type-ahead (autocomplete), filtering and facet navigation, and results management.
 
