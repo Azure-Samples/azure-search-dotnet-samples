@@ -10,7 +10,7 @@ products:
 urlFragment: create-mvc-app
 ---
 
-# Create your first Azure Cognitive Search application
+# Create a search app in ASP.NET Core
 
 In this sample, start with a basic ASP.NET Core (Model-View-Controller) app that connects to the hotels-sample-index on your search service for server-side operations. In Azure Cognitive Search, you can return sorted, filtered, and boosted results. The sample includes methods for sorting and filtering. For boosting, you can add a scoring profile to the hotels-sample-index to boost results based on criteria.
 
