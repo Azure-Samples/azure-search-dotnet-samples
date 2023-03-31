@@ -13,7 +13,7 @@ param primaryLocation string = 'eastus'
 
 param secondaryLocation string = 'westus'
 
-param cosmosDbAccountLocation string = resourceGroup().location
+param location string = resourceGroup().location
 
 @allowed([
   'free'
@@ -30,7 +30,7 @@ param searchServiceSku string = 'basic'
 @description('Replicas distribute search workloads across the service. You need at least two replicas to support high availability of query workloads (not applicable to the free tier).')
 @minValue(1)
 @maxValue(12)
-param serachServiceReplicaCount int = 1
+param searchServiceReplicaCount int = 1
 
 @description('Partitions allow for scaling of document count as well as faster indexing by sharding your index over multiple search units.')
 @allowed([
@@ -54,6 +54,17 @@ param dataSourceName string = 'cosmosdb-datasource'
 
 param dataSourceQuery string = ''
 
+param indexName string = 'cosmosdb-index'
+
+param indexerName string = 'cosmosdb-indexer'
+
+@description('This is the built-in Cosmos DB Account Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cosmos-db-account-reader-role')
+resource cosmosDbAccountReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+  scope: subscription()
+  name: 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8'
+}
+
+
 var locations = [
   {
     locationName: primaryLocation
@@ -65,10 +76,10 @@ var locations = [
   }
 ]
 
-resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
   name: toLower(cosmosDbAccountName)
   kind: 'GlobalDocumentDB'
-  location: cosmosDbAccountLocation
+  location: location
   properties: {
     consistencyPolicy: {
       defaultConsistencyLevel: 'Session'
@@ -80,7 +91,7 @@ resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
 }
 
 resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
-  parent: account
+  parent: cosmosDbAccount
   name: cosmosDbDatabaseName
   properties: {
     resource: {
@@ -105,12 +116,6 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
   }
 }
 
-@description('This is the built-in Cosmos DB Account Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cosmos-db-account-reader-role')
-resource cosmosDbAccountReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  scope: subscription()
-  name: 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8'
-}
-
 resource primarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
   name: '${searchServiceNamePrefix}-${primaryLocation}'
   location: primaryLocation
@@ -121,7 +126,7 @@ resource primarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    replicaCount: serachServiceReplicaCount
+    replicaCount: searchServiceReplicaCount
     partitionCount: searchServicePartitionCount
     hostingMode: searchServiceHostingMode
     authOptions: {
@@ -142,7 +147,7 @@ resource secondarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    replicaCount: serachServiceReplicaCount
+    replicaCount: searchServiceReplicaCount
     partitionCount: searchServicePartitionCount
     hostingMode: searchServiceHostingMode
     authOptions: {
@@ -154,8 +159,8 @@ resource secondarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
 }
 
 resource primaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: account
-  name: guid(account.id, primarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
+  scope: cosmosDbAccount
+  name: guid(cosmosDbAccount.id, primarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
   properties: {
     roleDefinitionId: cosmosDbAccountReaderRoleDefinition.id
     principalId: primarySearchService.identity.principalId
@@ -163,19 +168,32 @@ resource primaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/rol
 }
 
 resource secondaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: account
-  name: guid(account.id, secondarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
+  scope: cosmosDbAccount
+  name: guid(cosmosDbAccount.id, secondarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
   properties: {
     roleDefinitionId: cosmosDbAccountReaderRoleDefinition.id
     principalId: secondarySearchService.identity.principalId
   }
 }
 
-/*
-module setupCosmosDbIndexer 'search-indexer.bicep' = [for location in locations: {
-  name: 'setupCosmosDbIndexer'
+module setupPrimaryCosmosDbIndexer 'search-indexer.bicep' = {
+  name: 'setupPrimaryCosmosDbIndexer'
   params: {
-    dataSourceDefinition: '{"name": "${dataSourceName}", "container": { "name": "${cosmosDbContainerName}", "query": "${dataSourceQuery}" }, "credentials": { "connectionString": "ResourceId=${account.id};DatabaseName=${cosmosDbContainerName}" } }'
+    dataSourceDefinition: '{"name": "${dataSourceName}", "type": "cosmosdb", "container": { "name": "${cosmosDbContainerName}", "query": "${dataSourceQuery}" }, "credentials": { "connectionString": "ResourceId=${cosmosDbAccount.id};DatabaseName=${cosmosDbDatabaseName}" } }'
+    indexDefinition: '{"name": "${indexName}, "fields": [{ "name": "rid", "type": "Edm.String", "key": true }, { "name": "description", "type": "Edm.String", "retrievable": true, "searchable": true }] }'
+    indexerDefinition: '{"name": "${indexerName}, "dataSourceName": "${dataSourceName}", "targetIndexName": "${indexName}" }'
+    location: location
+    searchServiceName: primarySearchService.name
   }
 }
-*/
+
+module setupSecondaryCosmosDbIndexer 'search-indexer.bicep' = {
+  name: 'setupSecondaryCosmosDbIndexer'
+  params: {
+    dataSourceDefinition: '{"name": "${dataSourceName}", "type": "cosmosdb", "container": { "name": "${cosmosDbContainerName}", "query": "${dataSourceQuery}" }, "credentials": { "connectionString": "ResourceId=${cosmosDbAccount.id};DatabaseName=${cosmosDbDatabaseName}" } }'
+    indexDefinition: '{"name": "${indexName}, "fields": [{ "name": "rid", "type": "Edm.String", "key": true }, { "name": "description", "type": "Edm.String", "retrievable": true, "searchable": true }] }'
+    indexerDefinition: '{"name": "${indexerName}, "dataSourceName": "${dataSourceName}", "targetIndexName": "${indexName}" }'
+    location: location
+    searchServiceName: primarySearchService.name
+  }
+}

@@ -29,6 +29,7 @@ resource indexContributorRoleAssignment 'Microsoft.Authorization/roleAssignments
   properties: {
     roleDefinitionId: searchServiceContributorRoleDefinition.id
     principalId: deploymentIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
   }
 }
 
