@@ -7,7 +7,7 @@ param cosmosDbContainerName string = 'test-cosmosdb-account-container'
 @description('Service name must only contain lowercase letters, digits or dashes, cannot use dash as the first two or last one characters, cannot contain consecutive dashes, and is limited between 2 and 60 characters in length.')
 @minLength(2)
 @maxLength(50)
-param searchServiceNamePrefix string = 'test-provisioning-prefix'
+param searchServiceNamePrefix string = 'test-provisioning-prefix-2'
 
 param primaryLocation string = 'eastus'
 
@@ -176,12 +176,15 @@ resource secondaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/r
   }
 }
 
+var dataSourceDefinition = '{\\"\\"name\\"\\": \\"\\"${dataSourceName}\\"\\", \\"\\"type\\"\\": \\"\\"cosmosdb\\"\\", \\"\\"container\\"\\": { \\"\\"name\\"\\": \\"\\"${cosmosDbContainerName}\\"\\", \\"\\"query\\"\\": \\"\\"${dataSourceQuery}\\"\\" }, \\"\\"credentials\\"\\": { \\"\\"connectionString\\"\\": \\"\\"ResourceId=${cosmosDbAccount.id};DatabaseName=${cosmosDbDatabaseName}\\"\\" } }'
+var indexDefinition = '{\\"\\"name\\"\\": \\"\\"${indexName}\\"\\", \\"\\"fields\\"\\": [{ \\"\\"name\\"\\": \\"\\"rid\\"\\", \\"\\"type\\"\\": \\"\\"Edm.String\\"\\", \\"\\"key\\"\\": true }, { \\"\\"name\\"\\": \\"\\"description\\"\\", \\"\\"type\\"\\": \\"\\"Edm.String\\"\\", \\"\\"retrievable\\"\\": true, \\"\\"searchable\\"\\": true }] }'
+var indexerDefinition = '{\\"\\"name\\"\\": \\"\\"${indexerName}\\"\\", \\"\\"dataSourceName\\"\\": \\"\\"${dataSourceName}\\"\\", \\"\\"targetIndexName\\"\\": \\"\\"${indexName}\\"\\" }'
 module setupPrimaryCosmosDbIndexer 'search-indexer.bicep' = {
   name: 'setupPrimaryCosmosDbIndexer'
   params: {
-    dataSourceDefinition: '{"name": "${dataSourceName}", "type": "cosmosdb", "container": { "name": "${cosmosDbContainerName}", "query": "${dataSourceQuery}" }, "credentials": { "connectionString": "ResourceId=${cosmosDbAccount.id};DatabaseName=${cosmosDbDatabaseName}" } }'
-    indexDefinition: '{"name": "${indexName}, "fields": [{ "name": "rid", "type": "Edm.String", "key": true }, { "name": "description", "type": "Edm.String", "retrievable": true, "searchable": true }] }'
-    indexerDefinition: '{"name": "${indexerName}, "dataSourceName": "${dataSourceName}", "targetIndexName": "${indexName}" }'
+    dataSourceDefinition: dataSourceDefinition
+    indexDefinition: indexDefinition
+    indexerDefinition: indexerDefinition
     location: location
     searchServiceName: primarySearchService.name
   }
@@ -190,10 +193,10 @@ module setupPrimaryCosmosDbIndexer 'search-indexer.bicep' = {
 module setupSecondaryCosmosDbIndexer 'search-indexer.bicep' = {
   name: 'setupSecondaryCosmosDbIndexer'
   params: {
-    dataSourceDefinition: '{"name": "${dataSourceName}", "type": "cosmosdb", "container": { "name": "${cosmosDbContainerName}", "query": "${dataSourceQuery}" }, "credentials": { "connectionString": "ResourceId=${cosmosDbAccount.id};DatabaseName=${cosmosDbDatabaseName}" } }'
-    indexDefinition: '{"name": "${indexName}, "fields": [{ "name": "rid", "type": "Edm.String", "key": true }, { "name": "description", "type": "Edm.String", "retrievable": true, "searchable": true }] }'
-    indexerDefinition: '{"name": "${indexerName}, "dataSourceName": "${dataSourceName}", "targetIndexName": "${indexName}" }'
+    dataSourceDefinition: dataSourceDefinition
+    indexDefinition: indexDefinition
+    indexerDefinition: indexerDefinition
     location: location
-    searchServiceName: primarySearchService.name
+    searchServiceName: secondarySearchService.name
   }
 }

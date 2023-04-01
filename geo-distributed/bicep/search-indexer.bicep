@@ -34,7 +34,7 @@ resource indexContributorRoleAssignment 'Microsoft.Authorization/roleAssignments
 }
 
 resource setupIndexer 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'setupIndexer'
+  name: '${searchServiceName}-setupIndexer'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -46,26 +46,16 @@ resource setupIndexer 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: {
     azPowerShellVersion: '8.3'
     timeout: 'PT30M'
-    arguments: ' -dataSourceDefinition ${dataSourceDefinition} -indexDefinition ${indexDefinition} -indexerDefinition ${indexerDefinition} -searchServiceName ${searchServiceName}'
+    arguments: ' -dataSourceDefinition \\"${dataSourceDefinition}\\" -indexDefinition \\"${indexDefinition}\\" -indexerDefinition \\"${indexerDefinition}\\" -searchServiceName \\"${searchServiceName}\\"'
     scriptContent: '''
-      param(
-        [string] [Parameter(Mandatory=$true)] $searchServiceName
-        [string] [Parameter(Mandatory=$true)] $dataSourceDefinition,
-        [string] [Parameter(Mandatory=$true)] $indexDefinition,
-        [string] [Parameter(Mandatory=$true)] $indexerDefinition
-      )
+      param([string] [Parameter(Mandatory=$true)] $searchServiceName, [string] [Parameter(Mandatory=$true)] $dataSourceDefinition, [string] [Parameter(Mandatory=$true)] $indexDefinition, [string] [Parameter(Mandatory=$true)] $indexerDefinition)
 
       $ErrorActionPreference = 'Stop'
       $DeploymentScriptOutputs = @{}
 
       $token = Get-AzAccessToken -ResourceUrl https://search.azure.com | select -expand Token
 
-      Invoke-WebRequest
-        -Method 'PUT'
-        -Headers @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json'; }
-        -Body $indexDefinition
-        -Uri "https://$searchServiceName.search.windows.net/indexes?api-version=2021-04-30-Preview"
-      }
+      Invoke-WebRequest -Method 'POST' -Uri "https://$searchServiceName.search.windows.net/indexes?api-version=2021-04-30-Preview" -Headers @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json'; } -Body $indexDefinition
     '''
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
