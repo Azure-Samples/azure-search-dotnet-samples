@@ -50,6 +50,17 @@ param searchServicePartitionCount int = 1
 ])
 param searchServiceHostingMode string = 'default'
 
+@description('Storage Account type')
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_RAGRS'
+])
+param storageAccountType string = 'Standard_LRS'
+
+param storageAccountNamePrefix string = '${uniqueString(resourceGroup().id)}func'
+
+
 @description('This is the built-in Cosmos DB Account Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cosmos-db-account-reader-role')
 resource cosmosDbAccountReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
@@ -99,7 +110,23 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
       id: cosmosDbContainerName
       partitionKey: {
         paths: [
-          '/partitionKey'
+          '/id'
+        ]
+        kind: 'Hash'
+      }
+    }
+  }
+}
+
+resource leaseContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
+  parent: database
+  name: cosmosDbContainerName
+  properties: {
+    resource: {
+      id: 'leases'
+      partitionKey: {
+        paths: [
+          '/id'
         ]
         kind: 'Hash'
       }
@@ -112,9 +139,6 @@ resource primarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
   location: primaryLocation
   sku: {
     name: searchServiceSku
-  }
-  identity: {
-    type: 'SystemAssigned'
   }
   properties: {
     replicaCount: searchServiceReplicaCount
@@ -133,9 +157,6 @@ resource secondarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
   location: secondaryLocation
   sku: {
     name: searchServiceSku
-  }
-  identity: {
-    type: 'SystemAssigned'
   }
   properties: {
     replicaCount: searchServiceReplicaCount
@@ -167,24 +188,18 @@ resource secondaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/r
   }
 }
 
-var dataSourceConnectionString = 'ResourceId=${cosmosDbAccount.id};Database=${cosmosDbDatabaseName}'
-
-module setupPrimaryCosmosDbIndexer 'setup-search-service.bicep' = {
+module setupPrimaryService 'setup-search-service.bicep' = {
   name: 'setup-primary-search-service'
   params: {
-    dataSourceContainerName: cosmosDbContainerName
-    dataSourceConnectionString: dataSourceConnectionString
     dataSourceType: 'cosmosdb'
     location: location
     searchServiceName: primarySearchService.name
   }
 }
 
-module setupSecondaryCosmosDbIndexer 'setup-search-service.bicep' = {
+module setupSecondaryService 'setup-search-service.bicep' = {
   name: 'setup-secondary-search-service'
   params: {
-    dataSourceContainerName: cosmosDbContainerName
-    dataSourceConnectionString: dataSourceConnectionString
     dataSourceType: 'cosmosdb'
     location: location
     searchServiceName: secondarySearchService.name

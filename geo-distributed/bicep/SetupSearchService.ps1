@@ -56,19 +56,22 @@ try {
         -Headers  $headers `
         -Body (ConvertTo-Json $indexDefinition)
 
-    # https://learn.microsoft.com/rest/api/searchservice/create-data-source
-    Invoke-WebRequest `
-        -Method 'PUT' `
-        -Uri "$uri/datasources/$($dataSourceDefinition['name'])?api-version=$apiversion" `
-        -Headers $headers `
-        -Body (ConvertTo-Json $dataSourceDefinition)
+    if ($dataSourceContainerName.Length -gt 0 -and $dataSourceConnectionString.Length -gt 0)
+    {
+        # https://learn.microsoft.com/rest/api/searchservice/create-data-source
+        Invoke-WebRequest `
+            -Method 'PUT' `
+            -Uri "$uri/datasources/$($dataSourceDefinition['name'])?api-version=$apiversion" `
+            -Headers $headers `
+            -Body (ConvertTo-Json $dataSourceDefinition)
 
-    # https://learn.microsoft.com/rest/api/searchservice/create-indexer
-    Invoke-WebRequest `
-        -Method 'PUT' `
-        -Uri "$uri/indexers/$($indexerDefinition['name'])?api-version=$apiversion" `
-        -Headers $headers `
-        -Body (ConvertTo-Json $indexerDefinition)
+        # https://learn.microsoft.com/rest/api/searchservice/create-indexer
+        Invoke-WebRequest `
+            -Method 'PUT' `
+            -Uri "$uri/indexers/$($indexerDefinition['name'])?api-version=$apiversion" `
+            -Headers $headers `
+            -Body (ConvertTo-Json $indexerDefinition)
+    }
 } catch {
     Write-Error $_.ErrorDetails.Message
     throw
