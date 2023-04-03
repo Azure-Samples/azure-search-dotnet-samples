@@ -2,11 +2,11 @@ param searchServiceName string
 
 param location string
 
-param dataSourceDefinition string
+param dataSourceConnectionString string
 
-param indexDefinition string
+param dataSourceContainerName string
 
-param indexerDefinition string
+param dataSourceType string
 
 resource searchService 'Microsoft.Search/searchServices@2022-09-01' existing = {
   name: searchServiceName
@@ -46,19 +46,9 @@ resource setupIndexer 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: {
     azPowerShellVersion: '8.3'
     timeout: 'PT30M'
-    arguments: ' -dataSourceDefinition \\"${dataSourceDefinition}\\" -indexDefinition \\"${indexDefinition}\\" -indexerDefinition \\"${indexerDefinition}\\" -searchServiceName \\"${searchServiceName}\\"'
-    scriptContent: '''
-      param([string] [Parameter(Mandatory=$true)] $searchServiceName, [string] [Parameter(Mandatory=$true)] $dataSourceDefinition, [string] [Parameter(Mandatory=$true)] $indexDefinition, [string] [Parameter(Mandatory=$true)] $indexerDefinition)
-
-      $ErrorActionPreference = 'Stop'
-      $DeploymentScriptOutputs = @{}
-
-      $token = Get-AzAccessToken -ResourceUrl https://search.azure.com | select -expand Token
-
-      Invoke-WebRequest -Method 'POST' -Uri "https://$searchServiceName.search.windows.net/indexes?api-version=2021-04-30-Preview" -Headers @{ 'Authorization' = "Bearer $token"; 'Content-Type' = 'application/json'; } -Body $indexDefinition
-    '''
+    arguments: '-dataSourceContainerName \\"${dataSourceContainerName}\\" -dataSourceConnectionString \\"${dataSourceConnectionString}\\" -dataSourceType \\"${dataSourceType}\\" -searchServiceName \\"${searchServiceName}\\"'
+    scriptContent: loadTextContent('SetupIndexers.ps1')
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
   }
 }
-

@@ -50,14 +50,6 @@ param searchServicePartitionCount int = 1
 ])
 param searchServiceHostingMode string = 'default'
 
-param dataSourceName string = 'cosmosdb-datasource'
-
-param dataSourceQuery string = ''
-
-param indexName string = 'cosmosdb-index'
-
-param indexerName string = 'cosmosdb-indexer'
-
 @description('This is the built-in Cosmos DB Account Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cosmos-db-account-reader-role')
 resource cosmosDbAccountReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
@@ -176,26 +168,25 @@ resource secondaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/r
   }
 }
 
-var dataSourceDefinition = '{\\"\\"name\\"\\": \\"\\"${dataSourceName}\\"\\", \\"\\"type\\"\\": \\"\\"cosmosdb\\"\\", \\"\\"container\\"\\": { \\"\\"name\\"\\": \\"\\"${cosmosDbContainerName}\\"\\", \\"\\"query\\"\\": \\"\\"${dataSourceQuery}\\"\\" }, \\"\\"credentials\\"\\": { \\"\\"connectionString\\"\\": \\"\\"ResourceId=${cosmosDbAccount.id};DatabaseName=${cosmosDbDatabaseName}\\"\\" } }'
-var indexDefinition = '{\\"\\"name\\"\\": \\"\\"${indexName}\\"\\", \\"\\"fields\\"\\": [{ \\"\\"name\\"\\": \\"\\"rid\\"\\", \\"\\"type\\"\\": \\"\\"Edm.String\\"\\", \\"\\"key\\"\\": true }, { \\"\\"name\\"\\": \\"\\"description\\"\\", \\"\\"type\\"\\": \\"\\"Edm.String\\"\\", \\"\\"retrievable\\"\\": true, \\"\\"searchable\\"\\": true }] }'
-var indexerDefinition = '{\\"\\"name\\"\\": \\"\\"${indexerName}\\"\\", \\"\\"dataSourceName\\"\\": \\"\\"${dataSourceName}\\"\\", \\"\\"targetIndexName\\"\\": \\"\\"${indexName}\\"\\" }'
-module setupPrimaryCosmosDbIndexer 'search-indexer.bicep' = {
+var dataSourceConnectionString = 'ResourceId=${cosmosDbAccount.id};Database=${cosmosDbDatabaseName}'
+
+module setupPrimaryCosmosDbIndexer 'setup-search-indexer.bicep' = {
   name: 'setupPrimaryCosmosDbIndexer'
   params: {
-    dataSourceDefinition: dataSourceDefinition
-    indexDefinition: indexDefinition
-    indexerDefinition: indexerDefinition
+    dataSourceContainerName: cosmosDbContainerName
+    dataSourceConnectionString: dataSourceConnectionString
+    dataSourceType: 'cosmosdb'
     location: location
     searchServiceName: primarySearchService.name
   }
 }
 
-module setupSecondaryCosmosDbIndexer 'search-indexer.bicep' = {
+module setupSecondaryCosmosDbIndexer 'setup-search-indexer.bicep' = {
   name: 'setupSecondaryCosmosDbIndexer'
   params: {
-    dataSourceDefinition: dataSourceDefinition
-    indexDefinition: indexDefinition
-    indexerDefinition: indexerDefinition
+    dataSourceContainerName: cosmosDbContainerName
+    dataSourceConnectionString: dataSourceConnectionString
+    dataSourceType: 'cosmosdb'
     location: location
     searchServiceName: secondarySearchService.name
   }
