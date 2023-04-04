@@ -16,7 +16,6 @@ param secondaryLocation string = 'westus'
 param location string = resourceGroup().location
 
 @allowed([
-  'free'
   'basic'
   'standard'
   'standard2'
@@ -58,13 +57,19 @@ param searchServiceHostingMode string = 'default'
 ])
 param storageAccountType string = 'Standard_LRS'
 
-param storageAccountNamePrefix string = '${uniqueString(resourceGroup().id)}func'
+param funcPrefix string = '${uniqueString(resourceGroup().id)}func'
 
 
 @description('This is the built-in Cosmos DB Account Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cosmos-db-account-reader-role')
 resource cosmosDbAccountReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
   name: 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8'
+}
+
+@description('This is the built-in Search Service Contributor role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#search-service-contributor')
+resource searchServiceContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+  scope: subscription()
+  name: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
 }
 
 var locations = [
@@ -133,6 +138,89 @@ resource leaseContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/cont
     }
   }
 }
+
+var primaryStorageAccountName = '${funcPrefix}primary'
+var secondaryStorageAccountName = '${funcPrefix}secondary'
+
+var primaryHostingPlanName = '${funcPrefix}primaryplan'
+var secondaryHostingPlanName = '${funcPrefix}secondaryplan'
+
+var primaryFunctionAppName = '${funcPrefix}primaryfunc'
+var secondaryFunctionAppName = '${funcPrefix}secondaryfunc'
+
+resource primaryStorageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
+  name: primaryStorageAccountName
+  location: primaryLocation
+  sku: {
+    name: storageAccountType
+  }
+  kind: 'Storage'
+}
+
+resource secondaryStorageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
+  name: secondaryStorageAccountName
+  location: secondaryLocation
+  sku: {
+    name: storageAccountType
+  }
+  kind: 'Storage'
+}
+
+resource primaryHostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
+  name: primaryHostingPlanName
+  location: primaryLocation
+  sku: {
+    name: 'Y1'
+    tier: 'Dynamic'
+  }
+  properties: {}
+}
+
+resource secondaryHostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
+  name: secondaryHostingPlanName
+  location: secondaryLocation
+  sku: {
+    name: 'Y1'
+    tier: 'Dynamic'
+  }
+  properties: {}
+}
+
+resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
+  name: primaryFunctionAppName
+  location: primaryLocation
+  kind: 'functionapp'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    serverFarmId: primaryHostingPlan.id
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${primaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${primaryStorageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${primaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${secondaryStorageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet'
+        }
+      ]
+      ftpsState: 'FtpsOnly'
+      minTlsVersion: '1.2'
+    }
+    httpsOnly: true
+  }
+}
+
 
 resource primarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
   name: '${searchServiceNamePrefix}-${primaryLocation}'

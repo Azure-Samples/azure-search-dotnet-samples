@@ -333,3 +333,5 @@ ASALocalRun/
 
 .vs
 .vscode
+**/local.settings.json
+**/project.assets.json
