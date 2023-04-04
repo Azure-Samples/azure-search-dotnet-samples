@@ -14,6 +14,7 @@ $uri = "https://$searchServiceName.search.windows.net"
 $indexDefinition = $null
 $dataSourceDefinition = $null
 $indexerDefinition = $null
+$DeploymentScriptOutputs = @{}
 
 # Create data source, index, and indexer definitions
 switch ($dataSourceType)
@@ -42,6 +43,7 @@ switch ($dataSourceType)
             'dataSourceName' = 'cosmosdb-datasource';
             'schedule' = @{ 'interval' = 'PT5M' };
         }
+        $DeploymentScriptOutputs['indexName'] = 'cosmosdb-index'
     }
     default {
         throw "Unsupported data source type $dataSourceType"

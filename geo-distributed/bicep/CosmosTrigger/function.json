@@ -4,11 +4,11 @@
       "type": "cosmosDBTrigger",
       "name": "input",
       "direction": "in",
-      "connectionStringSetting": "COSMOS_DB",
+      "connectionStringSetting": "COSMOSDB_CONNECTION_STRING",
       "databaseName": "test-cosmosdb-account-database",
       "collectionName": "test-cosmosdb-account-container",
       "leaseCollectionName": "leases",
-      "createLeaseCollectionIfNotExists": true
+      "createLeaseCollectionIfNotExists": false
     }
   ]
 }

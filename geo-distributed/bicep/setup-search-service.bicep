@@ -33,8 +33,8 @@ resource indexContributorRoleAssignment 'Microsoft.Authorization/roleAssignments
   }
 }
 
-resource setupIndexer 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${searchServiceName}-setupIndexer'
+resource setupSearchService 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: '${searchServiceName}-setup'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -52,3 +52,5 @@ resource setupIndexer 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     retentionInterval: 'P1D'
   }
 }
+
+output indexName string = setupSearchService.properties.outputs.indexName

@@ -59,17 +59,10 @@ param storageAccountType string = 'Standard_LRS'
 
 param funcPrefix string = '${uniqueString(resourceGroup().id)}func'
 
-
-@description('This is the built-in Cosmos DB Account Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cosmos-db-account-reader-role')
-resource cosmosDbAccountReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  scope: subscription()
-  name: 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8'
-}
-
 @description('This is the built-in Search Service Contributor role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#search-service-contributor')
-resource searchServiceContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource searchServiceDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
-  name: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
+  name: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
 }
 
 var locations = [
@@ -148,6 +141,9 @@ var secondaryHostingPlanName = '${funcPrefix}secondaryplan'
 var primaryFunctionAppName = '${funcPrefix}primaryfunc'
 var secondaryFunctionAppName = '${funcPrefix}secondaryfunc'
 
+var primaryApplicationInsightsName = primaryFunctionAppName
+var secondaryApplicationInsightsName = secondaryFunctionAppName
+
 resource primaryStorageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   name: primaryStorageAccountName
   location: primaryLocation
@@ -186,91 +182,23 @@ resource secondaryHostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   properties: {}
 }
 
-resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
-  name: primaryFunctionAppName
+resource primaryApplicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: primaryApplicationInsightsName
   location: primaryLocation
-  kind: 'functionapp'
-  identity: {
-    type: 'SystemAssigned'
-  }
+  kind: 'web'
   properties: {
-    serverFarmId: primaryHostingPlan.id
-    siteConfig: {
-      appSettings: [
-        {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${primaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${primaryStorageAccount.listKeys().keys[0].value}'
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'dotnet'
-        }
-        {
-          name: 'COSMOSDB_CONNECTION_STRING'
-          value: listConnectionStrings(cosmosDbAccount.id, '2019-12-12').connectionStrings[0].connectionString
-        }
-      ]
-    }
-    httpsOnly: true
+    Application_Type: 'web'
+    Request_Source: 'rest'
   }
 }
 
-resource secondaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
-  name: secondaryFunctionAppName
-  location: secondaryLocation
-  kind: 'functionapp'
-  identity: {
-    type: 'SystemAssigned'
-  }
+resource secondaryApplicationInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: secondaryApplicationInsightsName
+  location: primaryLocation
+  kind: 'web'
   properties: {
-    serverFarmId: secondaryHostingPlan.id
-    siteConfig: {
-      appSettings: [
-        {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${secondaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${secondaryStorageAccount.listKeys().keys[0].value}'
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'dotnet'
-        }
-      ]
-    }
-    httpsOnly: true
-  }
-}
-
-resource primaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
-  parent: primaryFunctionApp
-  name: 'Documents'
-  kind: 'function'
-  properties: {
-    config: {
-      bindings: [
-        {
-          type: 'cosmosDBTrigger'
-          name: 'input'
-          direction: 'in'
-          connectionStringSetting: 'COSMOSDB_CONNECTION_STRING'
-          databaseName: database.name
-          collectionName: container.name
-          leaseCollectionName: 'leases'
-          createLeaseCollectionIfNotExists: false
-        }
-      ]
-    }
-    files: {
-      'run.csx': loadTextContent('CosmosTrigger/run.csx')
-      'function.proj': loadTextContent('CosmosTrigger/function.proj')
-    }
+    Application_Type: 'web'
+    Request_Source: 'rest'
   }
 }
 
@@ -325,5 +253,185 @@ module setupSecondaryService 'setup-search-service.bicep' = {
     dataSourceType: 'cosmosdb'
     location: location
     searchServiceName: secondarySearchService.name
+  }
+}
+
+resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
+  name: primaryFunctionAppName
+  location: primaryLocation
+  kind: 'functionapp'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    serverFarmId: primaryHostingPlan.id
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${primaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${primaryStorageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${primaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${primaryStorageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTSHARE'
+          value: toLower(primaryFunctionAppName)
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet'
+        }
+        {
+          name: 'COSMOSDB_CONNECTION_STRING'
+          value: listConnectionStrings(cosmosDbAccount.id, '2019-12-12').connectionStrings[0].connectionString
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: primaryApplicationInsights.properties.ConnectionString
+        }
+        {
+          name: 'SEARCH_INDEX_NAME'
+          value: setupPrimaryService.outputs.indexName
+        }
+        {
+          name: 'SEARCH_ENDPOINT'
+          value: 'https://${primarySearchService.name}.search.windows.net'
+        }
+      ]
+    }
+    httpsOnly: true
+  }
+}
+
+resource primaryIndexDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: primarySearchService
+  name: guid(primarySearchService.id, primaryFunctionApp.id, searchServiceDataContributorRoleDefinition.id)
+  properties: {
+    roleDefinitionId: searchServiceDataContributorRoleDefinition.id
+    principalId: primaryFunctionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource secondaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
+  name: secondaryFunctionAppName
+  location: secondaryLocation
+  kind: 'functionapp'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    serverFarmId: secondaryHostingPlan.id
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${secondaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${secondaryStorageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${secondaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${secondaryStorageAccount.listKeys().keys[0].value}'
+        }
+        {
+          name: 'WEBSITE_CONTENTSHARE'
+          value: toLower(secondaryFunctionAppName)
+        }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet'
+        }
+        {
+          name: 'COSMOSDB_CONNECTION_STRING'
+          value: listConnectionStrings(cosmosDbAccount.id, '2019-12-12').connectionStrings[0].connectionString
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: secondaryApplicationInsights.properties.ConnectionString
+        }
+        {
+          name: 'SEARCH_INDEX_NAME'
+          value: setupSecondaryService.outputs.indexName
+        }
+        {
+          name: 'SEARCH_ENDPOINT'
+          value: 'https://${secondarySearchService.name}.search.windows.net'
+        }
+      ]
+    }
+    httpsOnly: true
+  }
+}
+
+resource secondaryIndexDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: secondarySearchService
+  name: guid(secondarySearchService.id, secondaryFunctionApp.id, searchServiceDataContributorRoleDefinition.id)
+  properties: {
+    roleDefinitionId: searchServiceDataContributorRoleDefinition.id
+    principalId: secondaryFunctionApp.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource primaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
+  parent: primaryFunctionApp
+  name: 'Documents'
+  kind: 'function'
+  properties: {
+    config: {
+      bindings: [
+        {
+          type: 'cosmosDBTrigger'
+          name: 'input'
+          direction: 'in'
+          connectionStringSetting: 'COSMOSDB_CONNECTION_STRING'
+          databaseName: database.name
+          collectionName: container.name
+          leaseCollectionName: 'leases'
+          leaseCollectionPrefix: 'primary'
+          createLeaseCollectionIfNotExists: false
+        }
+      ]
+    }
+    files: {
+      'run.csx': loadTextContent('CosmosTrigger/run.csx')
+      'function.proj': loadTextContent('CosmosTrigger/function.proj')
+    }
+  }
+}
+
+resource secondaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
+  parent: secondaryFunctionApp
+  name: 'Documents'
+  kind: 'function'
+  properties: {
+    config: {
+      bindings: [
+        {
+          type: 'cosmosDBTrigger'
+          name: 'input'
+          direction: 'in'
+          connectionStringSetting: 'COSMOSDB_CONNECTION_STRING'
+          databaseName: database.name
+          collectionName: container.name
+          leaseCollectionName: 'leases'
+          leaseCollectionPrefix: 'secondary'
+          createLeaseCollectionIfNotExists: false
+        }
+      ]
+    }
+    files: {
+      'run.csx': loadTextContent('CosmosTrigger/run.csx')
+      'function.proj': loadTextContent('CosmosTrigger/function.proj')
+    }
   }
 }
