@@ -125,7 +125,7 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
 
 resource leaseContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
   parent: database
-  name: cosmosDbContainerName
+  name: 'leases'
   properties: {
     resource: {
       id: 'leases'
@@ -139,8 +139,8 @@ resource leaseContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/cont
   }
 }
 
-var primaryStorageAccountName = '${funcPrefix}primary'
-var secondaryStorageAccountName = '${funcPrefix}secondary'
+var primaryStorageAccountName = '${funcPrefix}1'
+var secondaryStorageAccountName = '${funcPrefix}2'
 
 var primaryHostingPlanName = '${funcPrefix}primaryplan'
 var secondaryHostingPlanName = '${funcPrefix}secondaryplan'
@@ -202,8 +202,37 @@ resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
           value: 'DefaultEndpointsProtocol=https;AccountName=${primaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${primaryStorageAccount.listKeys().keys[0].value}'
         }
         {
-          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${primaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${secondaryStorageAccount.listKeys().keys[0].value}'
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet'
+        }
+        {
+          name: 'COSMOSDB_CONNECTION_STRING'
+          value: listConnectionStrings(cosmosDbAccount.id, '2019-12-12').connectionStrings[0].connectionString
+        }
+      ]
+    }
+    httpsOnly: true
+  }
+}
+
+resource secondaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
+  name: secondaryFunctionAppName
+  location: secondaryLocation
+  kind: 'functionapp'
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    serverFarmId: secondaryHostingPlan.id
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${secondaryStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${secondaryStorageAccount.listKeys().keys[0].value}'
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
@@ -214,13 +243,36 @@ resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
           value: 'dotnet'
         }
       ]
-      ftpsState: 'FtpsOnly'
-      minTlsVersion: '1.2'
     }
     httpsOnly: true
   }
 }
 
+resource primaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
+  parent: primaryFunctionApp
+  name: 'Documents'
+  kind: 'function'
+  properties: {
+    config: {
+      bindings: [
+        {
+          type: 'cosmosDBTrigger'
+          name: 'input'
+          direction: 'in'
+          connectionStringSetting: 'COSMOSDB_CONNECTION_STRING'
+          databaseName: database.name
+          collectionName: container.name
+          leaseCollectionName: 'leases'
+          createLeaseCollectionIfNotExists: false
+        }
+      ]
+    }
+    files: {
+      'run.csx': loadTextContent('CosmosTrigger/run.csx')
+      'function.proj': loadTextContent('CosmosTrigger/function.proj')
+    }
+  }
+}
 
 resource primarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
   name: '${searchServiceNamePrefix}-${primaryLocation}'
@@ -255,24 +307,6 @@ resource secondarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
           aadAuthFailureMode: 'http403'
       }
     }
-  }
-}
-
-resource primaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: cosmosDbAccount
-  name: guid(cosmosDbAccount.id, primarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
-  properties: {
-    roleDefinitionId: cosmosDbAccountReaderRoleDefinition.id
-    principalId: primarySearchService.identity.principalId
-  }
-}
-
-resource secondaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: cosmosDbAccount
-  name: guid(cosmosDbAccount.id, secondarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
-  properties: {
-    roleDefinitionId: cosmosDbAccountReaderRoleDefinition.id
-    principalId: secondarySearchService.identity.principalId
   }
 }
 

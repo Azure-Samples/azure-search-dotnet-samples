@@ -1,7 +1,7 @@
 param(
     [string] [Parameter(Mandatory=$true)] $searchServiceName,
-    [string] [Parameter(Mandatory=$true)] $dataSourceContainerName,
-    [string] [Parameter(Mandatory=$true)] $dataSourceConnectionString,
+    [string] [Parameter(Mandatory=$true)] [AllowEmptyString()] $dataSourceContainerName,
+    [string] [Parameter(Mandatory=$true)] [AllowEmptyString()] $dataSourceConnectionString,
     [string] [Parameter(Mandatory=$true)] $dataSourceType
 )
 
