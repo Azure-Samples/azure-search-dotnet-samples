@@ -50,12 +50,6 @@ param searchServicePartitionCount int = 1
 ])
 param searchServiceHostingMode string = 'default'
 
-@description('This is the built-in Cosmos DB Account Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cosmos-db-account-reader-role')
-resource cosmosDbAccountReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  scope: subscription()
-  name: 'fbdf93bf-df7d-467e-a4d2-9458aa1360c8'
-}
-
 var locations = [
   {
     locationName: primaryLocation
@@ -149,27 +143,9 @@ resource secondarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
   }
 }
 
-resource primaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: cosmosDbAccount
-  name: guid(cosmosDbAccount.id, primarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
-  properties: {
-    roleDefinitionId: cosmosDbAccountReaderRoleDefinition.id
-    principalId: primarySearchService.identity.principalId
-  }
-}
+var dataSourceConnectionString = cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString
 
-resource secondaryCosmosDbAccountReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: cosmosDbAccount
-  name: guid(cosmosDbAccount.id, secondarySearchService.id, cosmosDbAccountReaderRoleDefinition.id)
-  properties: {
-    roleDefinitionId: cosmosDbAccountReaderRoleDefinition.id
-    principalId: secondarySearchService.identity.principalId
-  }
-}
-
-var dataSourceConnectionString = 'ResourceId=${cosmosDbAccount.id};Database=${cosmosDbDatabaseName}'
-
-module setupPrimaryCosmosDbIndexer 'setup-search-service.bicep' = {
+module setupPrimarySearchService 'setup-search-service.bicep' = {
   name: 'setup-primary-search-service'
   params: {
     dataSourceContainerName: cosmosDbContainerName
@@ -180,7 +156,7 @@ module setupPrimaryCosmosDbIndexer 'setup-search-service.bicep' = {
   }
 }
 
-module setupSecondaryCosmosDbIndexer 'setup-search-service.bicep' = {
+module setupSecondarySearchService 'setup-search-service.bicep' = {
   name: 'setup-secondary-search-service'
   params: {
     dataSourceContainerName: cosmosDbContainerName
