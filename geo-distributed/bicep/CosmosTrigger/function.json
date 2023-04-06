@@ -5,8 +5,8 @@
       "name": "documents",
       "direction": "in",
       "connection": "COSMOSDB_CONNECTION_STRING",
-      "databaseName": "test-cosmosdb-account-database",
-      "containerName": "test-cosmosdb-account-container",
+      "databaseName": "Sample",
+      "containerName": "ToDo",
       "leaseContainerName": "leases",
       "createLeaseContainerIfNotExists": false
     }
