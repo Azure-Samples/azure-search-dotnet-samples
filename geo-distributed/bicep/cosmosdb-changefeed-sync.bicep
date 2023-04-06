@@ -1,4 +1,4 @@
-param cosmosDbAccountName string = 'test-cosmosdb-account-provisioning'
+param cosmosDbAccountName string = 'test-cosmosdb-account-provisioning-2'
 
 param cosmosDbDatabaseName string = 'test-cosmosdb-account-database'
 
@@ -7,7 +7,7 @@ param cosmosDbContainerName string = 'test-cosmosdb-account-container'
 @description('Service name must only contain lowercase letters, digits or dashes, cannot use dash as the first two or last one characters, cannot contain consecutive dashes, and is limited between 2 and 60 characters in length.')
 @minLength(2)
 @maxLength(50)
-param searchServiceNamePrefix string = 'test-provisioning-prefix-2'
+param searchServiceNamePrefix string = 'test-provisioning-prefix-3'
 
 param primaryLocation string = 'eastus'
 
@@ -284,16 +284,24 @@ resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
           value: '~4'
         }
         {
+          name: 'AzureFunctionsJobHost__extensionBundle__version'
+          value: '[4.0.0, 5.0.0)'
+        }
+        {
+          name: 'AzureFunctionsJobHost__logging__logLevel__Hosts.Triggers.CosmosDB'
+          value: 'Warning'
+        }
+        {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: 'dotnet'
         }
         {
-          name: 'COSMOSDB_CONNECTION_STRING'
-          value: listConnectionStrings(cosmosDbAccount.id, '2019-12-12').connectionStrings[0].connectionString
-        }
-        {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: primaryApplicationInsights.properties.ConnectionString
+        }
+        {
+          name: 'COSMOSDB_CONNECTION_STRING'
+          value: cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString
         }
         {
           name: 'SEARCH_INDEX_NAME'
@@ -347,16 +355,24 @@ resource secondaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
           value: '~4'
         }
         {
+          name: 'AzureFunctionsJobHost__extensionBundle__version'
+          value: '[4.0.0, 5.0.0)'
+        }
+        {
+          name: 'AzureFunctionsJobHost__logging__logLevel__Hosts.Triggers.CosmosDB'
+          value: 'Warning'
+        }
+        {
           name: 'FUNCTIONS_WORKER_RUNTIME'
           value: 'dotnet'
         }
         {
-          name: 'COSMOSDB_CONNECTION_STRING'
-          value: listConnectionStrings(cosmosDbAccount.id, '2019-12-12').connectionStrings[0].connectionString
-        }
-        {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: secondaryApplicationInsights.properties.ConnectionString
+        }
+        {
+          name: 'COSMOSDB_CONNECTION_STRING'
+          value: cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString
         }
         {
           name: 'SEARCH_INDEX_NAME'
@@ -391,14 +407,14 @@ resource primaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
       bindings: [
         {
           type: 'cosmosDBTrigger'
-          name: 'input'
+          name: 'documents'
           direction: 'in'
-          connectionStringSetting: 'COSMOSDB_CONNECTION_STRING'
+          connection: 'COSMOSDB_CONNECTION_STRING'
           databaseName: database.name
-          collectionName: container.name
-          leaseCollectionName: 'leases'
-          leaseCollectionPrefix: 'primary'
-          createLeaseCollectionIfNotExists: false
+          containerName: container.name
+          leaseContainerName: 'leases'
+          leaseContainerPrefix: 'primary'
+          createLeaseContainerIfNotExists: false
         }
       ]
     }
@@ -418,14 +434,14 @@ resource secondaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
       bindings: [
         {
           type: 'cosmosDBTrigger'
-          name: 'input'
+          name: 'documents'
           direction: 'in'
-          connectionStringSetting: 'COSMOSDB_CONNECTION_STRING'
+          connection: 'COSMOSDB_CONNECTION_STRING'
           databaseName: database.name
-          collectionName: container.name
-          leaseCollectionName: 'leases'
-          leaseCollectionPrefix: 'secondary'
-          createLeaseCollectionIfNotExists: false
+          containerName: container.name
+          leaseContainerName: 'leases'
+          leaseContainerPrefix: 'secondary'
+          createLeaseContainerIfNotExists: false
         }
       ]
     }

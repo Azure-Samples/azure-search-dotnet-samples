@@ -2,13 +2,13 @@
   "bindings": [
     {
       "type": "cosmosDBTrigger",
-      "name": "input",
+      "name": "documents",
       "direction": "in",
-      "connectionStringSetting": "COSMOSDB_CONNECTION_STRING",
+      "connection": "COSMOSDB_CONNECTION_STRING",
       "databaseName": "test-cosmosdb-account-database",
-      "collectionName": "test-cosmosdb-account-container",
-      "leaseCollectionName": "leases",
-      "createLeaseCollectionIfNotExists": false
+      "containerName": "test-cosmosdb-account-container",
+      "leaseContainerName": "leases",
+      "createLeaseContainerIfNotExists": false
     }
   ]
 }
