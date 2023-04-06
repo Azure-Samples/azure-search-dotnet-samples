@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "cosmosDbDatabaseName": {
+      "value": "Sample"
+    },
+    "cosmosDbContainerName": {
+        "value": "ToDo"
+    },
+    "primaryLocation": {
+        "value": "eastus"
+    },
+    "secondaryLocation": {
+        "value": "westus"
+    },
+    "searchServiceSku": {
+        "value": "basic"
+    },
+    "searchServiceReplicaCount": {
+        "value": 1
+    },
+    "searchServicePartitionCount": {
+        "value": 1
+    },
+    "searchServiceHostingMode": {
+        "value": "default"
+    }
+  }
+}

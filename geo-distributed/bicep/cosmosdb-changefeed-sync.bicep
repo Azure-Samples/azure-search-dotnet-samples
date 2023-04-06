@@ -1,17 +1,17 @@
-param cosmosDbAccountName string = 'test-cosmosdb-account-provisioning-2'
+param cosmosDbAccountName string = '${uniqueString(resourceGroup().id)}account'
 
-param cosmosDbDatabaseName string = 'test-cosmosdb-account-database'
+param cosmosDbDatabaseName string
 
-param cosmosDbContainerName string = 'test-cosmosdb-account-container'
+param cosmosDbContainerName string
 
 @description('Service name must only contain lowercase letters, digits or dashes, cannot use dash as the first two or last one characters, cannot contain consecutive dashes, and is limited between 2 and 60 characters in length.')
 @minLength(2)
 @maxLength(50)
-param searchServiceNamePrefix string = 'test-provisioning-prefix-3'
+param searchServiceNamePrefix string = '${uniqueString(resourceGroup().id)}service'
 
-param primaryLocation string = 'eastus'
+param primaryLocation string
 
-param secondaryLocation string = 'westus'
+param secondaryLocation string
 
 param location string = resourceGroup().location
 
@@ -24,12 +24,12 @@ param location string = resourceGroup().location
   'storage_optimized_l2'
 ])
 @description('The pricing tier of the search service you want to create (for example, basic or standard).')
-param searchServiceSku string = 'basic'
+param searchServiceSku string
 
 @description('Replicas distribute search workloads across the service. You need at least two replicas to support high availability of query workloads (not applicable to the free tier).')
 @minValue(1)
 @maxValue(12)
-param searchServiceReplicaCount int = 1
+param searchServiceReplicaCount int
 
 @description('Partitions allow for scaling of document count as well as faster indexing by sharding your index over multiple search units.')
 @allowed([
@@ -40,14 +40,14 @@ param searchServiceReplicaCount int = 1
   6
   12
 ])
-param searchServicePartitionCount int = 1
+param searchServicePartitionCount int
 
 @description('Applicable only for SKUs set to standard3. You can set this property to enable a single, high density partition that allows up to 1000 indexes, which is much higher than the maximum indexes allowed for any other SKU.')
 @allowed([
   'default'
   'highDensity'
 ])
-param searchServiceHostingMode string = 'default'
+param searchServiceHostingMode string
 
 @description('Storage Account type')
 @allowed([
@@ -55,12 +55,15 @@ param searchServiceHostingMode string = 'default'
   'Standard_GRS'
   'Standard_RAGRS'
 ])
-param storageAccountType string = 'Standard_LRS'
+param storageAccountType string
 
 param funcPrefix string = '${uniqueString(resourceGroup().id)}func'
 
+@description('Relative DNS name for the traffic manager profile, must be globally unique.')
+param trafficManagerDnsName string = '${uniqueString(resourceGroup().id)}tm'
+
 @description('This is the built-in Search Service Contributor role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#search-service-contributor')
-resource searchServiceDataContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource searchServiceContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
   name: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
 }
@@ -319,9 +322,9 @@ resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
 
 resource primaryIndexDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: primarySearchService
-  name: guid(primarySearchService.id, primaryFunctionApp.id, searchServiceDataContributorRoleDefinition.id)
+  name: guid(primarySearchService.id, primaryFunctionApp.id, searchServiceContributorRoleDefinition.id)
   properties: {
-    roleDefinitionId: searchServiceDataContributorRoleDefinition.id
+    roleDefinitionId: searchServiceContributorRoleDefinition.id
     principalId: primaryFunctionApp.identity.principalId
     principalType: 'ServicePrincipal'
   }
@@ -390,9 +393,9 @@ resource secondaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
 
 resource secondaryIndexDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: secondarySearchService
-  name: guid(secondarySearchService.id, secondaryFunctionApp.id, searchServiceDataContributorRoleDefinition.id)
+  name: guid(secondarySearchService.id, secondaryFunctionApp.id, searchServiceContributorRoleDefinition.id)
   properties: {
-    roleDefinitionId: searchServiceDataContributorRoleDefinition.id
+    roleDefinitionId: searchServiceContributorRoleDefinition.id
     principalId: secondaryFunctionApp.identity.principalId
     principalType: 'ServicePrincipal'
   }

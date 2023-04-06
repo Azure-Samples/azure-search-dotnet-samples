@@ -1,13 +1,13 @@
-param cosmosDbAccountName string = 'test-cosmosdb-account-provisioning'
+param cosmosDbAccountName string = '${uniqueString(resourceGroup().id)}account'
 
-param cosmosDbDatabaseName string = 'test-cosmosdb-account-database'
+param cosmosDbDatabaseName string
 
-param cosmosDbContainerName string = 'test-cosmosdb-account-container'
+param cosmosDbContainerName string
 
 @description('Service name must only contain lowercase letters, digits or dashes, cannot use dash as the first two or last one characters, cannot contain consecutive dashes, and is limited between 2 and 60 characters in length.')
 @minLength(2)
 @maxLength(50)
-param searchServiceNamePrefix string = 'test-provisioning-prefix-2'
+param searchServiceNamePrefix string = '${uniqueString(resourceGroup().id)}service'
 
 param primaryLocation string = 'eastus'
 
@@ -143,7 +143,7 @@ resource secondarySearchService 'Microsoft.Search/searchServices@2022-09-01' = {
   }
 }
 
-var dataSourceConnectionString = cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString
+var dataSourceConnectionString = '${cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString};Database=${cosmosDbDatabaseName}'
 
 module setupPrimarySearchService 'setup-search-service.bicep' = {
   name: 'setup-primary-search-service'
