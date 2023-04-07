@@ -1,9 +1,3 @@
-param cosmosDbAccountName string = '${uniqueString(resourceGroup().id)}account'
-
-param cosmosDbDatabaseName string
-
-param cosmosDbContainerName string
-
 @description('Service name must only contain lowercase letters, digits or dashes, cannot use dash as the first two or last one characters, cannot contain consecutive dashes, and is limited between 2 and 60 characters in length.')
 @minLength(2)
 @maxLength(50)
@@ -59,87 +53,25 @@ param storageAccountType string
 
 param funcPrefix string = '${uniqueString(resourceGroup().id)}func'
 
-@description('This is the built-in Search Service Contributor role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#search-service-contributor')
-resource searchServiceContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+param trafficManagerName string = '${uniqueString(resourceGroup().id)}trafficManager'
+
+@description('Relative DNS name for the traffic manager profile, must be globally unique.')
+param trafficManagerDnsName string = '${uniqueString(resourceGroup().id)}tm'
+
+@description('This is the built-in Search Service Index Data Reader role. See https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#search-index-data-reader')
+resource searchServiceIndexDataReaderRoleDefinition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
-  name: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
-}
-
-var locations = [
-  {
-    locationName: primaryLocation
-    failoverPriority: 0
-  }
-  {
-    locationName: secondaryLocation
-    failoverPriority: 1
-  }
-]
-
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
-  name: toLower(cosmosDbAccountName)
-  kind: 'GlobalDocumentDB'
-  location: location
-  properties: {
-    consistencyPolicy: {
-      defaultConsistencyLevel: 'Session'
-    }
-    locations: locations
-    databaseAccountOfferType: 'Standard'
-    enableAutomaticFailover: true
-  }
-}
-
-resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
-  parent: cosmosDbAccount
-  name: cosmosDbDatabaseName
-  properties: {
-    resource: {
-      id: cosmosDbDatabaseName
-    }
-  }
-}
-
-resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
-  parent: database
-  name: cosmosDbContainerName
-  properties: {
-    resource: {
-      id: cosmosDbContainerName
-      partitionKey: {
-        paths: [
-          '/id'
-        ]
-        kind: 'Hash'
-      }
-    }
-  }
-}
-
-resource leaseContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
-  parent: database
-  name: 'leases'
-  properties: {
-    resource: {
-      id: 'leases'
-      partitionKey: {
-        paths: [
-          '/id'
-        ]
-        kind: 'Hash'
-      }
-    }
-  }
+  name: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
 }
 
 var primaryStorageAccountName = '${funcPrefix}1'
 var secondaryStorageAccountName = '${funcPrefix}2'
 
-var primaryHostingPlanName = '${funcPrefix}primaryplan'
-var secondaryHostingPlanName = '${funcPrefix}secondaryplan'
+var primaryHostingPlanName = '${funcPrefix}primarytodoplan'
+var secondaryHostingPlanName = '${funcPrefix}secondarytodoplan'
 
-var primaryFunctionAppName = '${funcPrefix}primaryfunc'
-var secondaryFunctionAppName = '${funcPrefix}secondaryfunc'
+var primaryFunctionAppName = '${funcPrefix}primarytodofunc'
+var secondaryFunctionAppName = '${funcPrefix}secondarytodofunc'
 
 var primaryApplicationInsightsName = primaryFunctionAppName
 var secondaryApplicationInsightsName = secondaryFunctionAppName
@@ -166,8 +98,8 @@ resource primaryHostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   name: primaryHostingPlanName
   location: primaryLocation
   sku: {
-    name: 'Y1'
-    tier: 'Dynamic'
+    name: 'B1'
+    tier: 'Standard'
   }
   properties: {}
 }
@@ -176,8 +108,8 @@ resource secondaryHostingPlan 'Microsoft.Web/serverfarms@2021-03-01' = {
   name: secondaryHostingPlanName
   location: secondaryLocation
   sku: {
-    name: 'Y1'
-    tier: 'Dynamic'
+    name: 'B1'
+    tier: 'Standard'
   }
   properties: {}
 }
@@ -300,10 +232,6 @@ resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
           value: primaryApplicationInsights.properties.ConnectionString
         }
         {
-          name: 'COSMOSDB_CONNECTION_STRING'
-          value: cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString
-        }
-        {
           name: 'SEARCH_INDEX_NAME'
           value: setupPrimaryService.outputs.indexName
         }
@@ -319,9 +247,9 @@ resource primaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
 
 resource primaryIndexDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: primarySearchService
-  name: guid(primarySearchService.id, primaryFunctionApp.id, searchServiceContributorRoleDefinition.id)
+  name: guid(primarySearchService.id, primaryFunctionApp.id, searchServiceIndexDataReaderRoleDefinition.id)
   properties: {
-    roleDefinitionId: searchServiceContributorRoleDefinition.id
+    roleDefinitionId: searchServiceIndexDataReaderRoleDefinition.id
     principalId: primaryFunctionApp.identity.principalId
     principalType: 'ServicePrincipal'
   }
@@ -371,10 +299,6 @@ resource secondaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
           value: secondaryApplicationInsights.properties.ConnectionString
         }
         {
-          name: 'COSMOSDB_CONNECTION_STRING'
-          value: cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString
-        }
-        {
           name: 'SEARCH_INDEX_NAME'
           value: setupSecondaryService.outputs.indexName
         }
@@ -390,64 +314,111 @@ resource secondaryFunctionApp 'Microsoft.Web/sites@2021-03-01' = {
 
 resource secondaryIndexDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: secondarySearchService
-  name: guid(secondarySearchService.id, secondaryFunctionApp.id, searchServiceContributorRoleDefinition.id)
+  name: guid(secondarySearchService.id, secondaryFunctionApp.id, searchServiceIndexDataReaderRoleDefinition.id)
   properties: {
-    roleDefinitionId: searchServiceContributorRoleDefinition.id
+    roleDefinitionId: searchServiceIndexDataReaderRoleDefinition.id
     principalId: secondaryFunctionApp.identity.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
-resource primaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
+var functionName = 'SearchToDo'
+
+resource primaryToDo 'Microsoft.Web/sites/functions@2021-02-01' = {
   parent: primaryFunctionApp
-  name: 'Documents'
+  name: functionName
   kind: 'function'
   properties: {
     config: {
       bindings: [
         {
-          type: 'cosmosDBTrigger'
-          name: 'documents'
+          authLevel: 'anonymous'
+          name: 'req'
+          type: 'httpTrigger'
           direction: 'in'
-          connection: 'COSMOSDB_CONNECTION_STRING'
-          databaseName: database.name
-          containerName: container.name
-          leaseContainerName: 'leases'
-          leaseContainerPrefix: 'primary'
-          createLeaseContainerIfNotExists: false
+          methods: [ 'get' ]
+        }
+        {
+          name: '$return'
+          type: 'http'
+          direction: 'out'
         }
       ]
     }
     files: {
-      'run.csx': loadTextContent('CosmosTrigger/run.csx')
-      'function.proj': loadTextContent('CosmosTrigger/function.proj')
+      'run.csx': loadTextContent('SearchToDo/run.csx')
+      'function.proj': loadTextContent('SearchToDo/function.proj')
     }
   }
 }
 
-resource secondaryDocuments 'Microsoft.Web/sites/functions@2021-02-01' = {
+resource secondaryToDo 'Microsoft.Web/sites/functions@2021-02-01' = {
   parent: secondaryFunctionApp
-  name: 'Documents'
+  name: functionName
   kind: 'function'
   properties: {
     config: {
       bindings: [
         {
-          type: 'cosmosDBTrigger'
-          name: 'documents'
+          authLevel: 'anonymous'
+          name: 'req'
+          type: 'httpTrigger'
           direction: 'in'
-          connection: 'COSMOSDB_CONNECTION_STRING'
-          databaseName: database.name
-          containerName: container.name
-          leaseContainerName: 'leases'
-          leaseContainerPrefix: 'secondary'
-          createLeaseContainerIfNotExists: false
+          methods: [ 'get' ]
+        }
+        {
+          name: '$return'
+          type: 'http'
+          direction: 'out'
         }
       ]
     }
     files: {
-      'run.csx': loadTextContent('CosmosTrigger/run.csx')
-      'function.proj': loadTextContent('CosmosTrigger/function.proj')
+      'run.csx': loadTextContent('SearchToDo/run.csx')
+      'function.proj': loadTextContent('SearchToDo/function.proj')
     }
   }
 }
+
+resource trafficManager 'Microsoft.Network/trafficManagerProfiles@2018-08-01' = {
+    name: trafficManagerName
+    location: 'global'
+    properties: {
+      profileStatus: 'Enabled'
+      trafficRoutingMethod: 'Performance'
+      dnsConfig: {
+        relativeName: trafficManagerDnsName
+        ttl: 30
+      }
+      monitorConfig: {
+        protocol: 'HTTPS'
+        port: 443
+        path: '/api/${functionName}'
+        expectedStatusCodeRanges: [
+          {
+            min: 200
+            max: 202
+          }
+        ]
+      }
+    }
+  }
+
+  resource primaryTrafficManagerEndpoint 'Microsoft.Network/trafficManagerProfiles/externalEndpoints@2018-08-01' = {
+    parent: trafficManager
+    name: 'primaryEndpoint'
+    properties: {
+      target: primaryFunctionApp.properties.defaultHostName
+      endpointLocation: primaryLocation
+    }
+  }
+
+  resource secondaryTrafficManagerEndpoint 'Microsoft.Network/trafficManagerProfiles/externalEndpoints@2018-08-01' = {
+    parent: trafficManager
+    name: 'secondaryEndpoint'
+    properties: {
+      target: secondaryFunctionApp.properties.defaultHostName
+      endpointLocation: secondaryLocation
+    }
+  }
+

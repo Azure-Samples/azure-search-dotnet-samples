@@ -66,6 +66,12 @@ public static async Task<HttpResponseMessage> Run(HttpRequest req, ILogger log)
 
         return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(results), Encoding.UTF8, "application/json") };
     }
+    catch (RequestFailedException e)
+    {
+        // Return failed status code
+        log.LogError(e.ToString());
+        return new HttpResponseMessage((HttpStatusCode)e.Status);
+    }
     catch (Exception e)
     {
         log.LogError(e.ToString());
