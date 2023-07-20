@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,7 +9,7 @@
     <PackageReference Include="Azure.Search.Documents" Version="11.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.0.0" />
-    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.20" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.24" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
     <PackageReference Include="Microsoft.Spatial" Version="7.6.0" />
   </ItemGroup>
