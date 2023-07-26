@@ -1,1 +1,0 @@
-Bob has a few documents he wants made public. Use recursive acls to quickly set this up
