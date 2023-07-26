@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
-import Rating from '@material-ui/lab/Rating';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Rating from '@mui/material/Rating';
+import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
-import apiBaseUrl from "../../config";
 
 import "./Details.css";
 
@@ -17,7 +16,7 @@ export default function Details() {
   useEffect(() => {
     setIsLoading(true);
     // console.log(id);
-    axios.get(`${apiBaseUrl || ""}/api/lookup?id=${id}`)
+    axios.get('/api/lookup?id=' + id)
       .then(response => {
         console.log(JSON.stringify(response.data))
         const doc = response.data.document;

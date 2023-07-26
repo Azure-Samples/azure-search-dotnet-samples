@@ -18,7 +18,7 @@ This README is an shortened version of the [full tutorial](https://docs.microsof
 
 ## Prerequisites
 
-+ [.NET 3](https://dotnet.microsoft.com/download/dotnet/5.0)
++ [.NET 5](https://dotnet.microsoft.com/download/dotnet/5.0)
 + [Git](https://git-scm.com/downloads)
 + [Visual Studio Code](https://visualstudio.microsoft.com/downloads/) with the following extensions:
 
@@ -68,11 +68,11 @@ Create a new search resource using PowerShell and the **Az.Search** module.
 1. Connect to Azure:
 
    ```powershell
-   Connect-AzAccount -TenantID <your-tenant-ID>
+   Connect-AzAccount
    ```
 
    > [!NOTE]
-   > You might need to provide a tenant ID, which you can find in the Azure portal in [Portal settings > Directories + subscriptions](https://learn.microsoft.com/azure/azure-portal/set-preferences).
+   > If you have multiple tenants and subscriptions, set parameters on Connect-AzAccount to select the ones you want to use..
 
 1. Before creating a new search service, you can list existing search services for your subscription to see if there's one you want to use:
 
@@ -89,7 +89,7 @@ Create a new search resource using PowerShell and the **Az.Search** module.
 1. Create a new search service. Use the following cmdlet as a template, substituting valid values for the resource group, service name, tier, region, partitions, and replicas:
 
    ```powershell
-   New-AzSearchService -ResourceGroupName "my resource group"  -Name "myDemoSearchSvc" -Sku "Free" -Location "West US" -PartitionCount 1 -ReplicaCount 1 -HostingMode Default
+   New-AzSearchService -ResourceGroupName "cognitive-search-website-tutorial"  -Name "my-demo-search-service" -Sku "Basic" -Location "West US2" -PartitionCount 1 -ReplicaCount 1 -HostingMode Default
    ```
 
     |Prompt|Enter|
@@ -102,13 +102,13 @@ Create a new search resource using PowerShell and the **Az.Search** module.
 1. Create a query key that grants read access to a search service. Query keys have to be explicitly created. Copy the query key to Notepad so that you can paste it into the client code in a later step:
 
    ```powershell
-   New-AzSearchQueryKey -ResourceGroupName "my resource group"  -ServiceName "myDemoSearchSvc" -Name "mySrchQueryKey"
+   New-AzSearchQueryKey -ResourceGroupName "cognitive-search-website-tutorial"  -ServiceName "my-demo-search-service" -Name "my-query-key"
    ```
 
 1. Get the search service admin API key that was automatically created for your search service. An admin API key provides write access to the search service. Copy either one of the admin keys to Notepad so that you can use it in the bulk import step that creates and loads an index:
 
    ```powershell
-   Get-AzSearchAdminKeyPair  -ResourceGroupName "my resource group" -ServiceName "myDemoSearchSvc" 
+   Get-AzSearchAdminKeyPair  -ResourceGroupName "cognitive-search-website-tutorial" -ServiceName "my-demo-search-service" 
    ```
 
 ## Prepare the bulk import script for Search
@@ -166,12 +166,11 @@ Note your **Search resource name**. You will need this to connect the Azure Func
     |How do you want to create a Static Web App?|Use existing GitHub repository|
     |Choose organization|Select your _own_ GitHub alias as the organization.|
     |Choose repository|Select **azure-search-dotnet-samples** from the list. |
-    |Choose branch of repository|Select **master** from the list. |
+    |Choose branch of repository|Select **main** from the list. |
     |Enter the name for the new Static Web App.|Create a unique name for your resource. For example, you can prepend your name to the repository name such as, `joansmith-azure-search-dotnet-samples`. |
     |Select a resource group for new resources.|Use the resource group you created for this tutorial.|
     |Choose build preset to configure default project structure.|Select **Custom**|
-    |Select the location of your application code|`search-website`|
-    |Select the location of your Azure Function code|`search-website/api`|
+    |Select the location of your application code|`search-website/client`|
     |Enter the path of your build output...|build|
     |Select a location for new resources.|Select a region close to you.|
 
@@ -180,14 +179,6 @@ Note your **Search resource name**. You will need this to connect the Azure Func
   The list of actions indicates your web app, both client and functions, were successfully pushed to your Azure Static Web App. 
 
   Wait until the build and deployment complete before continuing. This may take a minute or two to finish.
-
-## Get Cognitive Search query key in Visual Studio Code
-
-1. In Visual Studio Code, open the [Activity bar](https://code.visualstudio.com/docs/getstarted/userinterface), and select the Azure icon. 
-
-1. In the Side bar, select your Azure subscription under the **Azure: Cognitive Search** area, then right-click on your Search resource and select **Copy Query Key**. 
-
-1. Keep this query key, you will need to use it in the next section. The query key is able to query your Index. 
 
 ## Add configuration settings in Azure portal
 
@@ -212,7 +203,7 @@ The Azure Function app won't return Search data until the Search secrets are in 
 
 1. Select **Save** to save the settings. 
 
-1. Return to VS Code. 
+1. Return to Visual Studio Code. 
 
 1. Refresh your Static web app to see the Static web app's application settings. 
 

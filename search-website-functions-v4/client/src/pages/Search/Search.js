@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import CircularProgress  from '@material-ui/core/CircularProgress';
+import CircularProgress  from '@mui/material/CircularProgress';
 import { useLocation, useNavigate } from "react-router-dom";
 
 import Results from '../../components/Results/Results';
@@ -8,7 +8,6 @@ import Pager from '../../components/Pager/Pager';
 import Facets from '../../components/Facets/Facets';
 import SearchBar from '../../components/SearchBar/SearchBar';
 
-import apiBaseUrl from "../../config";
 import "./Search.css";
 
 export default function Search() {
@@ -38,7 +37,7 @@ export default function Search() {
       filters: filters
     };
 
-    axios.post( `${apiBaseUrl || ""}/api/search`, body)
+    axios.post( '/api/search', body)
       .then(response => {
             console.log(JSON.stringify(response.data))
             setResults(response.data.results);
