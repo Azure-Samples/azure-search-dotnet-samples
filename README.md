@@ -18,11 +18,14 @@ The following samples are relocated to new repositories that align content to sp
 
 | Sample | New location |
 |--------|--------------|
-| check-storage-usage | [azure-search-dotnet-utilities/check-storage-usage](https://github.com/Azure-Samples/azure-search-dotnet-utilities/check-storage-usage) |
-| data-lake-gen2-acl-indexing | [azure-search-dotnet-utilities/data-lake-gen2-acl-indexing](https://github.com/Azure-Samples/azure-search-dotnet-utilities/data-lake-gen2-acl-indexing) |
-| export-data | [azure-search-dotnet-utilities/export-data](https://github.com/Azure-Samples/azure-search-dotnet-utilities/export-data) |
-| index-backup-restore | [azure-search-dotnet-utilities/index-backup-restore](https://github.com/Azure-Samples/azure-search-dotnet-utilities/index-backup-restore)|
-| search-aggregations |  [azure-search-dotnet-utilities/search-aggregations](https://github.com/Azure-Samples/azure-search-dotnet-utilities/search-aggregations)|
+| check-storage-usage | [azure-search-dotnet-utilities/check-storage-usage](https://github.com/Azure-Samples/azure-search-dotnet-utilities/tree/main/check-storage-usage) |
+| data-lake-gen2-acl-indexing | [azure-search-dotnet-utilities/data-lake-gen2-acl-indexing](https://github.com/Azure-Samples/azure-search-dotnet-utilities/tree/main/data-lake-gen2-acl-indexing) |
+| export-data | [azure-search-dotnet-utilities/export-data](https://github.com/Azure-Samples/azure-search-dotnet-utilities/tree/main/export-data) |
+| index-backup-restore | [azure-search-dotnet-utilities/index-backup-restore](https://github.com/Azure-Samples/azure-search-dotnet-utilities/tree/main/index-backup-restore)|
+| search-aggregations | [azure-search-dotnet-utilities/search-aggregations](https://github.com/Azure-Samples/azure-search-dotnet-utilities/tree/main/search-aggregations)|
+| multiple-data-sources | [azure-search-dotnet-scale/multiple-data-sources](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/multiple-data-sources) | 
+| multiple-search-services | [azure-search-dotnet-scale/](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/multiple-search-services) |
+| optimize-data-indexing | [azure-search-dotnet-scale/](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/optimize-data-indexing) |
 
 ## More resources
 
