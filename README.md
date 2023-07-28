@@ -24,8 +24,8 @@ The following samples are relocated to new repositories that align content to sp
 | index-backup-restore | [azure-search-dotnet-utilities/index-backup-restore](https://github.com/Azure-Samples/azure-search-dotnet-utilities/tree/main/index-backup-restore)|
 | search-aggregations | [azure-search-dotnet-utilities/search-aggregations](https://github.com/Azure-Samples/azure-search-dotnet-utilities/tree/main/search-aggregations)|
 | multiple-data-sources | [azure-search-dotnet-scale/multiple-data-sources](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/multiple-data-sources) | 
-| multiple-search-services | [azure-search-dotnet-scale/](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/multiple-search-services) |
-| optimize-data-indexing | [azure-search-dotnet-scale/](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/optimize-data-indexing) |
+| multiple-search-services | [azure-search-dotnet-scale/multiple-search-services](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/multiple-search-services) |
+| optimize-data-indexing | [azure-search-dotnet-scale/optimize-data-indexing](https://github.com/Azure-Samples/azure-search-dotnet-scale/tree/main/optimize-data-indexing) |
 
 ## More resources
 
