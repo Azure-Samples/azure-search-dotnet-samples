@@ -47,17 +47,17 @@ Forking the sample repository is critical to be able to deploy the Static Web Ap
 
 ## Create a resource group for Azure resources
 
+Creating a resource group gives you a logical unit to manage the resources, including deleting them when you are finished using them.
+
 1. In Visual Studio Code, open the [Activity bar](https://code.visualstudio.com/docs/getstarted/userinterface), and select the Azure icon.
 
 1. In the Side bar, **right-click on your Azure subscription** under the `Resource Groups` area and select **Create resource group**.
 
 1. Enter a resource group name, such as `cognitive-search-website-tutorial`. 
 
-1. Select a location close to you.
+1. Select a location that's supported by Azure Static Web Apps: `West US 2, East US 2, West Europe, Central US, East Asia`.
 
-1. When you create the Cognitive Search and Static Web App resources, later in the tutorial, use this resource group. 
-
-  Creating a resource group gives you a logical unit to manage the resources, including deleting them when you are finished using them.
+When you create the Cognitive Search and Static Web App resources, later in the tutorial, use this resource group. 
 
 ## Create an Azure Cognitive Search resource
 
@@ -96,8 +96,8 @@ Create a new search resource using PowerShell and the **Az.Search** module.
     |--|--|
     |Enter a globally unique name for the new search service.|**Remember this name**. This resource name becomes part of your resource endpoint.|
     |Select a resource group for new resources|Use the resource group you created for this tutorial.|
-    |Select the SKU for your search service.|Use **Free** for this tutorial. You can't change a SKU pricing tier after the service is created.|
-    |Select a location for new resources.|Select a region close to you.|
+    |Select the SKU for your search service.| You can use **Free** for this tutorial if you don't already have a free search service, otherwise choose **Basic**.|
+    |Select a location for new resources.| You can select a region close to you. A search service location and a resource group that contains it can be in different regions.|
 
 1. Create a query key that grants read access to a search service. Query keys have to be explicitly created. Copy the query key to Notepad so that you can paste it into the client code in a later step:
 
@@ -155,6 +155,8 @@ Note your **Search resource name**. You will need this to connect the Azure Func
 
 ## Create a Static Web App in Visual Studio Code
 
+1. Open Visual Studio Code at the root folder of the **azure-search-dotnet-samples** repository.
+
 1. Select **Azure** from the Activity Bar, then select **Static Web Apps** from the Side bar. 
 
 1. Right-click on the subscription name then select **Create Static Web App (Advanced)**.    
@@ -167,12 +169,12 @@ Note your **Search resource name**. You will need this to connect the Azure Func
     |Choose organization|Select your _own_ GitHub alias as the organization.|
     |Choose repository|Select **azure-search-dotnet-samples** from the list. |
     |Choose branch of repository|Select **main** from the list. |
-    |Enter the name for the new Static Web App.|Create a unique name for your resource. For example, you can prepend your name to the repository name such as, `joansmith-azure-search-dotnet-samples`. |
+    |Enter the name for the new Static Web App.|Create a unique name for your resource. For example, `good-books-demo-swa`. |
     |Select a resource group for new resources.|Use the resource group you created for this tutorial.|
     |Choose build preset to configure default project structure.|Select **Custom**|
-    |Select the location of your application code|`search-website/client`|
+    |Select the location of your application code|`search-website-functions-v4/client`|
     |Enter the path of your build output...|build|
-    |Select a location for new resources.|Select a region close to you.|
+    |Select a location for new resources.|Select a supported region: `West US 2, East US 2, West Europe, Central US, East Asia`|
 
 1. The resource is created, select **Open Actions in GitHub** from the Notifications. This opens a browser window pointed to your forked repo.
 
