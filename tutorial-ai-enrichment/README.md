@@ -33,11 +33,7 @@ This sample is a C# console application that uses .NET Core. The code is describ
 1. For the Blob container, get the connection string.
 1. For Azure Cognitive Search, get the service name, admin API key, and a query API key.
 
-This sample is available in two versions.
-
-+ **v10** uses the previous [Microsoft.Azure.Search](https://docs.microsoft.com/dotnet/api/overview/azure/search/client10) client libraries
-
-+ **v11** uses the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library, highly recommended for all new projects
+This sample is available in two versions. **V10** uses the deprecated [Microsoft.Azure.Search](https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.search) client libraries. We recommend **v11** and the new [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) client library for all new projects.
 
 ## Run the sample
 
