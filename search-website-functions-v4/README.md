@@ -165,32 +165,26 @@ Note your **Search resource name**. You will need this to connect the Azure Func
 
     |Prompt|Enter|
     |--|--|
-    |How do you want to create a Static Web App?|Use existing GitHub repository|
-    |Choose organization|Select your _own_ GitHub alias as the organization.|
-    |Choose repository|Select **azure-search-dotnet-samples** from the list. |
-    |Choose branch of repository|Select **main** from the list. |
-    |Enter the name for the new Static Web App.|Create a unique name for your resource. For example, `good-books-demo-swa`. |
-    |Select a resource group for new resources.|Use the resource group you created for this tutorial.|
-    |Choose build preset to configure default project structure.|Select **Custom**|
-    |Select the location of your application code|`search-website-functions-v4/client`|
+    |Select a resource group for new resources. | Use the resource group you created for this tutorial.|
+    |Enter the name for the new Static Web App. | Create a unique name for your resource. For example, `good-books-demo-swa`. |
+    |Select a pricing option. | Choose **Free**. |
+    |Choose build preset to configure default project structure. | Select **Custom**. | 
+    |Enter the location of your application code. | **search-website-functions-v4/client** |
     |Enter the path of your build output...|build|
-    |Select a location for new resources.|Select a supported region: `West US 2, East US 2, West Europe, Central US, East Asia`|
 
-1. The resource is created, select **Open Actions in GitHub** from the Notifications. This opens a browser window pointed to your forked repo.
+1. The resource is created, select **Open Actions in GitHub** from the Notifications. This opens a browser window pointed to your forked repo, the **Actions** page, in the **Workflows** tab. A workflow should be in execution. It's building and deploying your static web app.
 
-  The list of actions indicates your web app, both client and functions, were successfully pushed to your Azure Static Web App. 
-
-  Wait until the build and deployment complete before continuing. This may take a minute or two to finish.
+1. Wait until the workflow is complete before continuing. This may take a minute or two to finish.
 
 ## Add configuration settings in Azure portal
 
 The Azure Function app won't return Search data until the Search secrets are in settings. 
 
-1. Select **Azure** from the Activity Bar. 
+1. Select **Azure** from the Activity Bar. Open the **Static Web Apps** folder.
 
 1. Right-click on your Static web app resource then select **Open in Portal**.
 
-1. Select **Configuration** then select **+ Add**.
+1. Under **Settings**, select **Configuration** then select **+ Add**.
 
 1. Add each of the following settings:
 
