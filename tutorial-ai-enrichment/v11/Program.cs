@@ -18,7 +18,7 @@ namespace EnrichwithAI
 
             string searchServiceUri = configuration["SearchServiceUri"];
             string adminApiKey = configuration["SearchServiceAdminApiKey"];
-            string cognitiveServicesKey = configuration["CognitiveServicesKey"];
+            string azureAiServicesKey = configuration["AzureAiServicesKey"];
 
             SearchIndexClient indexClient = new SearchIndexClient(new Uri(searchServiceUri), new AzureKeyCredential(adminApiKey));
             SearchIndexerClient indexerClient = new SearchIndexerClient(new Uri(searchServiceUri), new AzureKeyCredential(adminApiKey));
@@ -46,7 +46,7 @@ namespace EnrichwithAI
             skills.Add(entityRecognitionSkill);
             skills.Add(keyPhraseExtractionSkill);
 
-            SearchIndexerSkillset skillset = CreateOrUpdateDemoSkillSet(indexerClient, skills, cognitiveServicesKey);
+            SearchIndexerSkillset skillset = CreateOrUpdateDemoSkillSet(indexerClient, skills, azureAiServicesKey);
 
             // Create the index
             Console.WriteLine("Creating the index...");
@@ -251,12 +251,14 @@ namespace EnrichwithAI
             return keyPhraseExtractionSkill;
         }
 
-        private static SearchIndexerSkillset CreateOrUpdateDemoSkillSet(SearchIndexerClient indexerClient, IList<SearchIndexerSkill> skills,string cognitiveServicesKey)
+        private static SearchIndexerSkillset CreateOrUpdateDemoSkillSet(SearchIndexerClient indexerClient, IList<SearchIndexerSkill> skills,string azureAiServicesKey)
         {
+            // Azure AI services was formerly know as Cognitive Services.
+            // The APIs still use the old name, so we need to create a CognitiveServicesAccountKey object
             SearchIndexerSkillset skillset = new SearchIndexerSkillset("demoskillset", skills)
             {
                 Description = "Demo skillset",
-                CognitiveServicesAccount = new CognitiveServicesAccountKey(cognitiveServicesKey)
+                CognitiveServicesAccount = new CognitiveServicesAccountKey(azureAiServicesKey)
             };
 
             // Create the skillset in your search service.
