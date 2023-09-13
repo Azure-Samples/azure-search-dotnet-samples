@@ -253,7 +253,7 @@ namespace EnrichwithAI
 
         private static SearchIndexerSkillset CreateOrUpdateDemoSkillSet(SearchIndexerClient indexerClient, IList<SearchIndexerSkill> skills,string azureAiServicesKey)
         {
-            // Azure AI services was formerly know as Cognitive Services.
+            // Azure AI services was formerly known as Cognitive Services.
             // The APIs still use the old name, so we need to create a CognitiveServicesAccountKey object
             SearchIndexerSkillset skillset = new SearchIndexerSkillset("demoskillset", skills)
             {
