@@ -35,7 +35,7 @@ namespace WebSearch.Function
             var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
             string documentId = query["id"].ToString();
 
-            // Cognitive Search 
+            // Azure AI Search 
             Uri serviceEndpoint = new($"https://{searchServiceName}.search.windows.net/");
 
             SearchClient searchClient = new(

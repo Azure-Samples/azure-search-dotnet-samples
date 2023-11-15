@@ -1,4 +1,4 @@
-# Semantic search quickstart in C# for Azure Cognitive Search
+# Semantic search quickstart in C# for Azure AI Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
@@ -9,7 +9,7 @@ Semantic search is in public preview. Use the latest beta version of the client 
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
-- [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
+- [Azure AI Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
 - [Azure.Search.Documents (beta version)](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) and the Azure SDK for .NET
 
 ## Set up the sample
@@ -27,4 +27,4 @@ Semantic search is in public preview. Use the latest beta version of the client 
 
 ## Next steps
 
-You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure AI Search on the [official documentation site](https://docs.microsoft.com/azure/search).

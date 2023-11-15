@@ -68,7 +68,7 @@ namespace EnrichwithAI
                 name: "demodata",
                 storageConnectionString: configuration["AzureBlobConnectionString"],
                 containerName: "cog-search-demo",
-                description: "Demo files to demonstrate cognitive search capabilities.");
+                description: "Demo files to demonstrate AI search capabilities.");
 
             // The data source does not need to be deleted if it was already created
             // since we are using the CreateOrUpdate method

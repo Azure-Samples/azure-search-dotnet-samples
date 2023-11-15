@@ -4,14 +4,14 @@ languages:
   - csharp
 name: Quickstart in C#
 description: |
-  Learn how to create, load, and query an Azure Cognitive Search index using the Azure SDK for .NET
+  Learn how to create, load, and query an Azure AI Search index using the Azure SDK for .NET
 products:
   - azure
-  - azure-cognitive-search
+  - azure-AI-search
 urlFragment: csharp-quickstart
 ---
 
-# C# quickstart for Azure Cognitive Search
+# C# quickstart for Azure AI Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
@@ -22,7 +22,7 @@ New and legacy versions are provided so that you can learn these operations with
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
-- [Azure Cognitive Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
+- [Azure AI Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
 - [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) and the Azure SDK for .NEt
 
 ## Set up the sample
@@ -40,4 +40,4 @@ New and legacy versions are provided so that you can learn these operations with
 
 ## Next steps
 
-You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure AI Search on the [official documentation site](https://docs.microsoft.com/azure/search).

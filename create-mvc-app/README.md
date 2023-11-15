@@ -3,22 +3,22 @@ page_type: sample
 languages:
   - csharp
 name: Create a search app using MVC
-description: "Explore server-side search features like filters, sorting, and relevance tuning in this ASP.NET Core (MVC) app for Azure Cognitive Search."
+description: "Explore server-side search features like filters, sorting, and relevance tuning in this ASP.NET Core (MVC) app for Azure AI Search."
 products:
   - azure
-  - azure-cognitive-search
+  - azure-AI-search
 urlFragment: create-mvc-app
 ---
 
 # Create a search app in ASP.NET Core
 
-In this sample, start with a basic ASP.NET Core (Model-View-Controller) app that connects to the hotels-sample-index on your search service for server-side operations. In Azure Cognitive Search, you can return sorted, filtered, and boosted results. The sample includes methods for sorting and filtering. For boosting, you can add a scoring profile to the hotels-sample-index to boost results based on criteria.
+In this sample, start with a basic ASP.NET Core (Model-View-Controller) app that connects to the hotels-sample-index on your search service for server-side operations. In Azure AI Search, you can return sorted, filtered, and boosted results. The sample includes methods for sorting and filtering. For boosting, you can add a scoring profile to the hotels-sample-index to boost results based on criteria.
 
-This sample code is featured in [C# tutorial: Add search to ASP.NET Core - Azure Cognitive Search](https://docs.microsoft.com/azure/search/tutorial-csharp-create-mvc-app). 
+This sample code is featured in [C# tutorial: Add search to ASP.NET Core - Azure AI Search](https://docs.microsoft.com/azure/search/tutorial-csharp-create-mvc-app). 
 
 ## Prerequisites
 
-+ [Azure Cognitive Search](search-create-app-portal.md)
++ [Azure AI Search](search-create-app-portal.md)
 + [Hotel samples index](search-get-started-portal.md)
 + [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 + [Azure.Search.Documents NuGet package](https://www.nuget.org/packages/Azure.Search.Documents/)
@@ -72,4 +72,4 @@ If you want to explore client-side operations that respond to user actions, cons
 
 ## Next steps
 
-You can learn more about Azure Cognitive Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure AI Search on the [official documentation site](https://docs.microsoft.com/azure/search).

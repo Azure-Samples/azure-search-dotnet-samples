@@ -34,7 +34,7 @@ namespace WebSearch.Function
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var data = JsonSerializer.Deserialize<RequestBodySearch>(requestBody);
 
-            // Cognitive Search 
+            // Azure AI Search 
             Uri serviceEndpoint = new($"https://{searchServiceName}.search.windows.net/");
 
             SearchClient searchClient = new(
