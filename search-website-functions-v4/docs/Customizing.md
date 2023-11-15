@@ -2,7 +2,7 @@
 
 After deploying this sample, I'd encourage you to try it out with your own search index.
 
-Up until now, you've been working with an existing index, but creating and loading an index with your own data is straightforward. You can create an index in the [Azure portal](https://docs.microsoft.com/azure/search/search-import-data-portal), use the [REST APIs](https://docs.microsoft.com/rest/api/searchservice/create-index), or use any of the Azure SDKs such as the new [Azure SDK for Javascript/TypeScript](https://github.com/Azure/azure-sdk-for-js/tree/master/sdk/search/search-documents/) that we used in this sample. Please see the Azure Cognitive Search [documentation](https://docs.microsoft.com/azure/search/search-get-started-portal) for more information on how to get started.
+Up until now, you've been working with an existing index, but creating and loading an index with your own data is straightforward. You can create an index in the [Azure portal](https://docs.microsoft.com/azure/search/search-import-data-portal), use the [REST APIs](https://docs.microsoft.com/rest/api/searchservice/create-index), or use any of the Azure SDKs such as the new [Azure SDK for Javascript/TypeScript](https://github.com/Azure/azure-sdk-for-js/tree/master/sdk/search/search-documents/) that we used in this sample. Please see the Azure AI Search [documentation](https://docs.microsoft.com/azure/search/search-get-started-portal) for more information on how to get started.
 
 There are two main changes you'd need to make to use your own index:
 

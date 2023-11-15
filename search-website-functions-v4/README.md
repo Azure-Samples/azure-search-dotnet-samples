@@ -57,9 +57,9 @@ Creating a resource group gives you a logical unit to manage the resources, incl
 
 1. Select a location that's supported by Azure Static Web Apps: `West US 2, East US 2, West Europe, Central US, East Asia`.
 
-When you create the Cognitive Search and Static Web App resources, later in the tutorial, use this resource group. 
+When you create the AI Search and Static Web App resources, later in the tutorial, use this resource group. 
 
-## Create an Azure Cognitive Search resource
+## Create an Azure AI Search resource
 
 Create a new search resource using PowerShell and the **Az.Search** module.
 
@@ -113,7 +113,7 @@ Create a new search resource using PowerShell and the **Az.Search** module.
 
 ## Prepare the bulk import script for Search
 
-The script uses the Azure SDK for Cognitive Search:
+The script uses the Azure SDK for AI Search:
 
 + [NuGet package Azure.Search.Documents](https://www.nuget.org/packages/Azure.Search.Documents/)
 + [Reference Documentation](/dotnet/api/overview/azure/search)
@@ -145,7 +145,7 @@ The script uses the Azure SDK for Cognitive Search:
 
 Once the upload completes, the Search Index is ready to use. Review your new Index.
 
-1. In Visual Studio Code, open the Azure Cognitive Search extension and select your Search resource.  
+1. In Visual Studio Code, open the Azure AI Search extension and select your Search resource.  
 
 1. Expand Indexes, then Documents, then `good-books`, then select a doc to see all the document-specific data.
 
@@ -195,7 +195,7 @@ The Azure Function app won't return Search data until the Search secrets are in 
     |SearchIndexName|`good-books`|
     |SearchFacets|`authors*,language_code`|
 
-    Azure Cognitive Search requires different syntax for filtering collections than it does for strings. Add a `*` after a field name to denote that the field is of type `Collection(Edm.String)`. This allows the Azure Function to add filters correctly to queries.
+    Azure AI Search requires different syntax for filtering collections than it does for strings. Add a `*` after a field name to denote that the field is of type `Collection(Edm.String)`. This allows the Azure Function to add filters correctly to queries.
 
 1. Select **Save** to save the settings. 
 
