@@ -6,7 +6,7 @@ name: Create a search app using MVC
 description: "Explore server-side search features like filters, sorting, and relevance tuning in this ASP.NET Core (MVC) app for Azure AI Search."
 products:
   - azure
-  - azure-AI-search
+  - azure-cognitive-search
 urlFragment: create-mvc-app
 ---
 

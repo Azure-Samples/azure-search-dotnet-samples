@@ -7,7 +7,7 @@ description: |
   Learn how to create, load, and query an Azure AI Search index using the Azure SDK for .NET
 products:
   - azure
-  - azure-AI-search
+  - azure-cognitive-search
 urlFragment: csharp-quickstart
 ---
 
