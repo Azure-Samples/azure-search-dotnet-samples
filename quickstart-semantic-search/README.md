@@ -8,7 +8,7 @@ description: |
 products:
   - azure
   - azure-cognitive-search
-urlFragment: csharp-quickstart
+urlFragment: csharp-quickstart-semantic
 ---
 # Semantic search quickstart in C# for Azure AI Search
 
