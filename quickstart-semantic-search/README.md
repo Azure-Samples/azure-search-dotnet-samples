@@ -2,9 +2,9 @@
 page_type: sample
 languages:
   - csharp
-name: C# semantic search with Azure AI Search
+name: C# semantic ranking with Azure AI Search
 description: |
-  This code sample provides the syntax for semantic search. It demonstrates an approach for adding a semantic configuration to a search index and query parameters to a query.
+  This code sample provides the syntax for semantic ranking. It demonstrates an approach for adding a semantic configuration to a search index and query parameters to a query.
 products:
   - azure
   - azure-cognitive-search
