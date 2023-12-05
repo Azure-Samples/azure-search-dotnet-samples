@@ -2,7 +2,7 @@
 page_type: sample
 languages:
   - csharp
-name: Add search to C# app
+name: Add Azure AI Search to a fullstack app (JS frontend + .NET backend)
 description: |
   Add document search to a web app. This C# sample uses the Azure.Search.Documents library to create, load, and query the index.
 products:
