@@ -2,7 +2,7 @@
 page_type: sample
 languages:
   - csharp
-name: Create a search app using MVC
+name: Create an Azure AI Search app using MVC with .NET
 description: "Explore server-side search features like filters, sorting, and relevance tuning in this ASP.NET Core (MVC) app for Azure AI Search."
 products:
   - azure

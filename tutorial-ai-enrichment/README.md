@@ -2,7 +2,7 @@
 page_type: sample
 languages:
   - csharp
-name: AI enrichment tutorial in C#
+name: Azure AI Search enrichment tutorial in C#
 description: "Create an AI enrichment pipeline in Azure AI Search to extract text, structure, and information from raw content, including images and unstructured text."
 products:
   - azure

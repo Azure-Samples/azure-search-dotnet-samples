@@ -2,7 +2,7 @@
 page_type: sample
 languages:
   - csharp
-name: Quickstart in C#
+name: C# quickstart for Azure AI Search
 description: |
   Learn how to create, load, and query an Azure AI Search index using the Azure SDK for .NET
 products:
