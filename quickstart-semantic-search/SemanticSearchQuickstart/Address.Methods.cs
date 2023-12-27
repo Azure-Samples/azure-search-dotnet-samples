@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace SemanticSearch.Quickstart
+namespace SemanticSearchQuickstart
 {
     public partial class Address
     {

@@ -5,7 +5,7 @@ using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 
-namespace SemanticSearch.Quickstart
+namespace SemanticSearchQuickstart
 
 {
     class Program
@@ -69,29 +69,28 @@ namespace SemanticSearch.Quickstart
             var searchFields = fieldBuilder.Build(typeof(Hotel));
 
             var definition = new SearchIndex(indexName, searchFields);
-
             var suggester = new SearchSuggester("sg", new[] { "HotelName", "Category", "Address/City", "Address/StateProvince" });
             definition.Suggesters.Add(suggester);
-
-            SemanticSettings semanticSettings = new SemanticSettings();
-            semanticSettings.Configurations.Add(new SemanticConfiguration
-                (
-                    "my-semantic-config",
-                    new PrioritizedFields()
+            definition.SemanticSearch = new SemanticSearch
+            {
+                Configurations =
+                {
+                    new SemanticConfiguration("my-semantic-config", new()
                     {
-                        TitleField = new SemanticField { FieldName = "HotelName" },
-                        ContentFields = {
-                        new SemanticField { FieldName = "Description" },
-                        new SemanticField { FieldName = "Description_fr" }
+                        TitleField = new SemanticField("HotelName"),
+                        ContentFields =
+                        {
+                            new SemanticField("Description"),
+                            new SemanticField("Description_fr")
                         },
-                        KeywordFields = {
-                        new SemanticField { FieldName = "Tags" },
-                        new SemanticField { FieldName = "Category" }
+                        KeywordsFields =
+                        {
+                            new SemanticField("Tags"),
+                            new SemanticField("Category")
                         }
                     })
-                );
-
-            definition.SemanticSettings = semanticSettings;
+                }
+            };
 
             adminClient.CreateOrUpdateIndex(definition);
         }
@@ -235,10 +234,11 @@ namespace SemanticSearch.Quickstart
             options = new SearchOptions()
             {
                 QueryType = Azure.Search.Documents.Models.SearchQueryType.Semantic,
-                QueryLanguage = QueryLanguage.EnUs,
-                SemanticConfigurationName = "my-semantic-config",
-                QueryCaption = QueryCaptionType.Extractive,
-                QueryCaptionHighlightEnabled = true
+                SemanticSearch = new()
+                {
+                    SemanticConfigurationName = "my-semantic-config",
+                    QueryCaption = new(QueryCaptionType.Extractive)
+                }
             };
             options.Select.Add("HotelName");
             options.Select.Add("Category");

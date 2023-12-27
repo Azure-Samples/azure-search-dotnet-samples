@@ -4,11 +4,11 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Search.Documents" Version="11.5.0-beta.2" />
+    <PackageReference Include="Azure.Search.Documents" Version="11.5.1" />
   </ItemGroup>
 
 </Project>
