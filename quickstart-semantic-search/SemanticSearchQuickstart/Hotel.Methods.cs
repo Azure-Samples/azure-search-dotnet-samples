@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace SemanticSearch.Quickstart
+namespace SemanticSearchQuickstart
 {
     public partial class Hotel
     {
