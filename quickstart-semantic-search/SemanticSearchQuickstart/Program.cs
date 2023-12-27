@@ -219,13 +219,15 @@ namespace SemanticSearchQuickstart
             response = srchclient.Search<Hotel>("*", options);
             WriteDocuments(response);
 
+            string query = "what hotel has a good restaurant";
+
             // Query 2
-            Console.WriteLine("Query #2: Full text search on 'what hotel has a good restaurant on site' with BM25 ranking. Sublime Cliff is ranked first because it includes 'site' in its description...\n");
+            Console.WriteLine($"Query #2: Full text search on '{query}' with BM25 ranking...\n");
 
             options.Select.Add("HotelName");
             options.Select.Add("Description");
 
-            response = srchclient.Search<Hotel>("what hotel has a good restaurant on site", options);
+            response = srchclient.Search<Hotel>(query, options);
             WriteDocuments(response);
 
             // Query 4
@@ -245,7 +247,7 @@ namespace SemanticSearchQuickstart
             options.Select.Add("Description");
 
             // response = srchclient.Search<Hotel>("*", options);
-            response = srchclient.Search<Hotel>("what hotel has a good restaurant on site", options);
+            response = srchclient.Search<Hotel>(query, options);
             WriteDocuments(response);
 
         }
