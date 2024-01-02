@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 
-namespace SemanticSearch.Quickstart
+namespace SemanticSearchQuickstart
 {
     public partial class Hotel
     {

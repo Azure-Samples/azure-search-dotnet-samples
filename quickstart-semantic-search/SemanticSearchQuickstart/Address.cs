@@ -1,6 +1,6 @@
 ﻿using Azure.Search.Documents.Indexes;
 
-namespace SemanticSearch.Quickstart
+namespace SemanticSearchQuickstart
 {
     public partial class Address
     {
