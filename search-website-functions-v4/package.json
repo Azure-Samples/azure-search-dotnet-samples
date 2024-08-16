@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "dependencies": {
-    "concurrently": "^7.5.0"
+    "concurrently": "^7.5.0",
+    "search-website-functions-v4": "file:"
   },
   "devDependencies": {
     "@azure/static-web-apps-cli": "^1.0.3",
