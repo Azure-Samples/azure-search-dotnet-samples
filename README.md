@@ -7,13 +7,14 @@ This repository contains C# code samples used in Azure AI Search "Day One" quick
 | Sample | Description |
 |--------|-------------|
 | create-mvc-app | This ASP.NET Core MVC sample demonstrates server-side search behaviors, such as filters and sorting. |
-| quickstart | Learn the fundamental tasks of working with a search index: create, load, and query for full text search scenarios. This quickstart is a console application. The index is modeled on a subset of the Hotels dataset, widely used in Azure AI Search samples, but reduced to just four hotels for readability and comprehension. |
-| quickstart-semantic-search | Adds semantic search to the previous quickstart.|
+| quickstart | Learn the fundamental tasks of working with a search index: create, load, and query for full-text search scenarios. This quickstart is a console application. The index is modeled on a subset of the Hotels dataset, widely used in Azure AI Search samples, but reduced to just four hotels for readability and comprehension. |
+| quickstart-semantic-search | Adds semantic search to the previous quickstart. |
+| quickstart-agentic-retrieval | Sets up a knowledge agent in Azure AI Search to integrate LLM reasoning into query planning. We recommend the Basic tier or higher for this quickstart. |
 | tutorial-ai-enrichment | This console app creates an AI enrichment pipeline consisting of an index, indexer, data source, and skillset. The skillset calls Azure AI Services image analysis and OCR, and natural language processing, extract information and structure from heterogeneous blob content, making it searchable in Azure AI Search. |
 
 ## Previously in this repository
 
-The following samples are relocated to new repositories that align content to specific categories. 
+The following samples are relocated to new repositories that align content to specific categories.
 
 | Sample | New location |
 |--------|--------------|
