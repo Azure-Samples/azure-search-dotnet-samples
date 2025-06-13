@@ -27,11 +27,6 @@ namespace SemanticSearchQuickstart
                 builder.AppendFormat("Description: {0}\n", Description);
             }
 
-            if (!String.IsNullOrEmpty(DescriptionFr))
-            {
-                builder.AppendFormat("Description (French): {0}\n", DescriptionFr);
-            }
-
             if (!String.IsNullOrEmpty(Category))
             {
                 builder.AppendFormat("Category: {0}\n", Category);

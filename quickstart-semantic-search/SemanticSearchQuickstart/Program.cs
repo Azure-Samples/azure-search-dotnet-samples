@@ -14,7 +14,7 @@ namespace SemanticSearchQuickstart
         {
             string serviceName = "<YOUR-SEARCH-SERVICE-NAME>";
             string apiKey = "<YOUR-SEARCH-ADMIN-API-KEY>";
-            string indexName = "hotels-quickstart";
+            string indexName = "hotels-quickstart-csharp";
             
 
             // Create a SearchIndexClient to send create/delete index commands
@@ -52,7 +52,7 @@ namespace SemanticSearchQuickstart
             Console.ReadKey();
         }
 
-        // Delete the hotels-quickstart index to reuse its name
+        // Delete the hotels-quickstart-csharp index to reuse its name
         private static void DeleteIndexIfExists(string indexName, SearchIndexClient adminClient)
         {
             adminClient.GetIndexNames();
@@ -61,7 +61,7 @@ namespace SemanticSearchQuickstart
             }
         }
 
-        // Create hotels-quickstart index
+        // Create hotels-quickstart-csharp index
         private static void CreateIndex(string indexName, SearchIndexClient adminClient)
         {
 
@@ -75,7 +75,7 @@ namespace SemanticSearchQuickstart
             {
                 Configurations =
                 {
-                    new SemanticConfiguration("my-semantic-config", new()
+                    new SemanticConfiguration("semantic-config", new()
                     {
                         TitleField = new SemanticField("HotelName"),
                         ContentFields =
@@ -238,7 +238,7 @@ namespace SemanticSearchQuickstart
                 QueryType = Azure.Search.Documents.Models.SearchQueryType.Semantic,
                 SemanticSearch = new()
                 {
-                    SemanticConfigurationName = "my-semantic-config",
+                    SemanticConfigurationName = "msemantic-config",
                     QueryCaption = new(QueryCaptionType.Extractive)
                 }
             };

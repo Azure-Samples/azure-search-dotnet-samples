@@ -16,10 +16,6 @@ namespace SemanticSearchQuickstart
         [SearchableField(AnalyzerName = LexicalAnalyzerName.Values.EnLucene)]
         public string Description { get; set; }
 
-        [SearchableField(AnalyzerName = LexicalAnalyzerName.Values.FrLucene)]
-        [JsonPropertyName("Description_fr")]
-        public string DescriptionFr { get; set; }
-
         [SearchableField(IsFilterable = true, IsSortable = true, IsFacetable = true)]
         public string Category { get; set; }
 
