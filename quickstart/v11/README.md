@@ -17,13 +17,13 @@ urlFragment: csharp-quickstart
 
 This quickstart is focused on the fundamentals: creating, loading, and querying a search index. 
 
-New and legacy versions are provided so that you can learn these operations with the client libraries used in your solution. Both versions create a search index that is modeled on a subset of the built-in Hotels dataset, reduced in this quickstart for readability and comprehension. Index definition and documents are included in the code. When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart index, loading documents, running queries.
+New and legacy versions are provided so that you can learn these operations with the client libraries used in your solution. Both versions create a search index that is modeled on a subset of the built-in Hotels dataset, reduced in this quickstart for readability and comprehension. Index definition and documents are included in the code. When you run the program, a console window emits output messages for each step: deleting and then re-creating a hotels-quickstart-csharp index, loading documents, running queries.
 
 ## Prerequisites
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Azure AI Search service](https://docs.microsoft.com/azure/search/search-create-service-portal)
-- [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) and the Azure SDK for .NEt
+- [Azure.Search.Documents](https://docs.microsoft.com/dotnet/api/overview/azure/search.documents-readme) and the Azure SDK for .NET
 
 ## Set up the sample
 
