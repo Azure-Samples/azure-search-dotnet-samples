@@ -72,4 +72,4 @@ If you want to explore client-side operations that respond to user actions, cons
 
 ## Next steps
 
-You can learn more about Azure AI Search on the [official documentation site](https://docs.microsoft.com/azure/search).
+You can learn more about Azure AI Search on the [official documentation site](https://learn.microsoft.com/azure/search).
