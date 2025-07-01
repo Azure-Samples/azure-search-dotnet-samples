@@ -96,7 +96,7 @@ class BuildIndex
             {
                 TitleField = new SemanticField("HotelName"),
                 ContentFields = { new SemanticField("Description") },
-                KeywordsFields = { new SemanticField("Tags"), new SemanticField("Category") }
+                KeywordsFields = { new SemanticField("Tags") }
             };
 
             configs.Add(

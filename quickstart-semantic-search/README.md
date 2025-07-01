@@ -26,15 +26,18 @@ This code sample provides the syntax for setting up semantic ranking. It adds a 
 
 1. Clone or download this sample repository.
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
-1. Get the service name of your service. You can find the URL in search service Overview page in the Azure portal.
-1. Make sure you have permission to update and query the search index. You should **Search Service Contributor** and **Search Index Data Reader** permissions.
+1. Get the service name of your service. You can find the URL in search service **Overview** page in the Azure portal.
+1. Make sure you have permission to update and query the search index. You should have **Search Service Contributor** permissions to update the index, and **Search Index Data Contributor** or **Search Index Data Reader** permissions to query the index.
 
 ## Run the sample
 
-1. Open the SemeanticSearchQuicksart.sln project in Visual Studio
-1. Open **Program.cs**.
-1. Replace the placeholder value for the service endpoint.
-1. Compile and run the project.
+The solution is organized into two projects. The first project updates an existing instance of the hotels-sample-index. The second project runs a series of queries.
+
+1. Open the **quickstart-semantic-search.sln** solution in Visual Studio
+1. Open the **BuildIndex**.
+1. In **Program.cs**, replace the placeholder value for the service endpoint with the name of your search service.
+1. Repeat this step for **QueryIndex**.
+1. Compile and run each project.
 
 ## Next steps
 
