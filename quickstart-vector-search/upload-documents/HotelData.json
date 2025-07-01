@@ -11,7 +11,7 @@
       "air conditioning",
       "concierge"
     ],
-    "ParkingIncluded": "false",
+    "ParkingIncluded": false,
     "LastRenovationDate": "2022-01-18T00:00:00Z",
     "Rating": 3.60,
     "Address": {
@@ -42,7 +42,7 @@
       "air conditioning",
       "concierge"
     ],
-    "ParkingIncluded": "false",
+    "ParkingIncluded": false,
     "LastRenovationDate": "2019-02-18T00:00:00Z",
     "Rating": 3.60,
     "Address": {
@@ -72,7 +72,7 @@
       "bar",
       "continental breakfast"
     ],
-    "ParkingIncluded": "true",
+    "ParkingIncluded": true,
     "LastRenovationDate": "2015-09-20T00:00:00Z",
     "Rating": 4.80,
     "Address": {
@@ -102,7 +102,7 @@
       "view",
       "air conditioning"
     ],
-    "ParkingIncluded": "true",
+    "ParkingIncluded": true,
     "LastRenovationDate": "2020-02-06T00:00:00Z",
     "Rating": 4.60,
     "Address": {
@@ -132,7 +132,7 @@
       "air conditioning",
       "free wifi"
     ],
-    "ParkingIncluded": "false",
+    "ParkingIncluded": false,
     "LastRenovationDate": "2018-02-19T00:00:00Z",
     "Rating": 4.5,
     "Address": {
@@ -168,7 +168,7 @@
       "laundry service",
       "24-hour front desk service"
     ],
-    "ParkingIncluded": "true",
+    "ParkingIncluded": true,
     "LastRenovationDate": "2018-01-27T00:00:00Z",
     "Rating": 2.7,
     "Address": {
@@ -204,7 +204,7 @@
       "concierge",
       "restaurant"
     ],
-    "ParkingIncluded": "false",
+    "ParkingIncluded": false,
     "LastRenovationDate": "2020-03-18T00:00:00Z",
     "Rating": 4.1,
     "Address": {
