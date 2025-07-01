@@ -4,15 +4,15 @@ using VectorSearchShared;
 
 public static class SearchExamples
 {
-    // Search methods
-    public static async Task SearchSingleVector(SearchClient searchClient, System.ClientModel.ClientResult<OpenAI.Embeddings.OpenAIEmbedding> vectorizedResult)
+    // <SnippetSearchSingleVector>
+    public static async Task SearchSingleVector(SearchClient searchClient, ReadOnlyMemory<float> precalculatedVector)
     {
         SearchResults<Hotel> response = await searchClient.SearchAsync<Hotel>(
             new SearchOptions
             {
                 VectorSearch = new()
                 {
-                    Queries = { new VectorizedQuery(vectorizedResult.Value.ToFloats()) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
+                    Queries = { new VectorizedQuery(precalculatedVector) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
                 },
                 Select = { "HotelId", "HotelName", "Description", "Category", "Tags" },
             });
@@ -25,15 +25,17 @@ public static class SearchExamples
         }
         Console.WriteLine();
     }
+    // </SnippetSearchSingleVector>
 
-    public static async Task SearchSingleVectorWithFilter(SearchClient searchClient, System.ClientModel.ClientResult<OpenAI.Embeddings.OpenAIEmbedding> vectorizedResult)
+    // <SnippetSearchSingleVectorWithFilter>
+    public static async Task SearchSingleVectorWithFilter(SearchClient searchClient, ReadOnlyMemory<float> precalculatedVector)
     {
         SearchResults<Hotel> responseWithFilter = await searchClient.SearchAsync<Hotel>(
             new SearchOptions
             {
                 VectorSearch = new()
                 {
-                    Queries = { new VectorizedQuery(vectorizedResult.Value.ToFloats()) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
+                    Queries = { new VectorizedQuery(precalculatedVector) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
                 },
                 Filter = "Tags/any(tag: tag eq 'free wifi')",
                 Select = { "HotelId", "HotelName", "Description", "Category", "Tags" }
@@ -47,15 +49,17 @@ public static class SearchExamples
         }
         Console.WriteLine();
     }
+    // </SnippetSearchSingleVectorWithFilter>
 
-    public static async Task SingleSearchWithGeoFilter(SearchClient searchClient, System.ClientModel.ClientResult<OpenAI.Embeddings.OpenAIEmbedding> vectorizedResult)
+    // <SnippetSingleSearchWithGeoFilter>
+    public static async Task SingleSearchWithGeoFilter(SearchClient searchClient, ReadOnlyMemory<float> precalculatedVector)
     {
         SearchResults<Hotel> responseWithGeoFilter = await searchClient.SearchAsync<Hotel>(
             new SearchOptions
             {
                 VectorSearch = new()
                 {
-                    Queries = { new VectorizedQuery(vectorizedResult.Value.ToFloats()) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
+                    Queries = { new VectorizedQuery(precalculatedVector) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
                 },
                 Filter = "geo.distance(Location, geography'POINT(-77.03241 38.90166)') le 300",
                 Select = { "HotelId", "HotelName", "Description", "Category", "Tags" },
@@ -71,8 +75,10 @@ public static class SearchExamples
         }
         Console.WriteLine();
     }
+    // </SnippetSingleSearchWithGeoFilter>
 
-    public static async Task<SearchResults<Hotel>> SearchHybridVectorAndText(SearchClient searchClient, System.ClientModel.ClientResult<OpenAI.Embeddings.OpenAIEmbedding> vectorizedResult)
+    // <SnippetSearchHybridVectorAndText>
+    public static async Task<SearchResults<Hotel>> SearchHybridVectorAndText(SearchClient searchClient, ReadOnlyMemory<float> precalculatedVector)
     {
         SearchResults<Hotel> responseWithFilter = await searchClient.SearchAsync<Hotel>(
             "historic hotel walk to restaurants and shopping",
@@ -80,7 +86,7 @@ public static class SearchExamples
             {
                 VectorSearch = new()
                 {
-                    Queries = { new VectorizedQuery(vectorizedResult.Value.ToFloats()) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
+                    Queries = { new VectorizedQuery(precalculatedVector) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
                 },
                 Select = { "HotelId", "HotelName", "Description", "Category", "Tags" },
                 Size = 5,
@@ -95,8 +101,10 @@ public static class SearchExamples
         Console.WriteLine();
         return responseWithFilter;
     }
+    // </SnippetSearchHybridVectorAndText>
 
-    public static async Task SearchHybridVectoryAndSemantic(SearchClient searchClient, System.ClientModel.ClientResult<OpenAI.Embeddings.OpenAIEmbedding> vectorizedResult)
+    // <SnippetSearchHybridVectoryAndSemantic>
+    public static async Task SearchHybridVectoryAndSemantic(SearchClient searchClient, ReadOnlyMemory<float> precalculatedVector)
     {
         SearchResults<Hotel> responseWithFilter = await searchClient.SearchAsync<Hotel>(
             "historic hotel walk to restaurants and shopping",
@@ -105,7 +113,7 @@ public static class SearchExamples
                 IncludeTotalCount = true,
                 VectorSearch = new()
                 {
-                    Queries = { new VectorizedQuery(vectorizedResult.Value.ToFloats()) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
+                    Queries = { new VectorizedQuery(precalculatedVector) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
                 },
                 Select = { "HotelId", "HotelName", "Description", "Category", "Tags" },
                 SemanticSearch = new SemanticSearchOptions
@@ -124,4 +132,5 @@ public static class SearchExamples
         }
         Console.WriteLine();
     }
+    // </SnippetSearchHybridVectoryAndSeman
 }
