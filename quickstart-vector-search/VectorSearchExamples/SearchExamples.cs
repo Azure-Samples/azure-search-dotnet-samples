@@ -62,16 +62,20 @@ public static class SearchExamples
                     Queries = { new VectorizedQuery(precalculatedVector) { KNearestNeighborsCount = 5, Fields = { "DescriptionVector" } } }
                 },
                 Filter = "geo.distance(Location, geography'POINT(-77.03241 38.90166)') le 300",
-                Select = { "HotelId", "HotelName", "Description", "Category", "Tags" },
+                Select = { "HotelId", "HotelName", "Description", "Address", "Category", "Tags" },
                 Facets = { "Address/StateProvince" },
-
             });
 
         Console.WriteLine($"Vector query with a geo filter:");
         await foreach (SearchResult<Hotel> result in responseWithGeoFilter.GetResultsAsync())
         {
             Hotel doc = result.Document;
-            Console.WriteLine($"Score: {result.Score}, HotelId: {doc.HotelId}, HotelName: {doc.HotelName}, Tags: {string.Join(String.Empty, doc.Tags)}");
+            Console.WriteLine($"HotelId: {doc.HotelId}");
+            Console.WriteLine($"HotelName: {doc.HotelName}");
+            Console.WriteLine($"Score: {result.Score}");
+            Console.WriteLine($"City/State: {doc.Address.City}/{doc.Address.StateProvince}");
+            Console.WriteLine($"Description: {doc.Description}");
+            Console.WriteLine();
         }
         Console.WriteLine();
     }
@@ -96,7 +100,13 @@ public static class SearchExamples
         await foreach (SearchResult<Hotel> result in responseWithFilter.GetResultsAsync())
         {
             Hotel doc = result.Document;
-            Console.WriteLine($"Score: {result.Score}, HotelId: {doc.HotelId}, HotelName: {doc.HotelName}, Tags: {string.Join(String.Empty, doc.Tags)}");
+            Console.WriteLine($"Score: {result.Score}");
+            Console.WriteLine($"HotelId: {doc.HotelId}");
+            Console.WriteLine($"HotelName: {doc.HotelName}");
+            Console.WriteLine($"Description: {doc.Description}");
+            Console.WriteLine($"Category: {doc.Category}");
+            Console.WriteLine($"Tags: {string.Join(String.Empty, doc.Tags)}");
+            Console.WriteLine();
         }
         Console.WriteLine();
         return responseWithFilter;
@@ -128,7 +138,12 @@ public static class SearchExamples
         await foreach (SearchResult<Hotel> result in responseWithFilter.GetResultsAsync())
         {
             Hotel doc = result.Document;
-            Console.WriteLine($"Score: {result.Score}, HotelId: {doc.HotelId}, HotelName: {doc.HotelName}, Tags: {string.Join(String.Empty, doc.Tags)}");
+            Console.WriteLine($"Score: {result.Score}");
+            Console.WriteLine($"HotelId: {doc.HotelId}");
+            Console.WriteLine($"HotelName: {doc.HotelName}");
+            Console.WriteLine($"Description: {doc.Description}");
+            Console.WriteLine($"Category: {doc.Category}");
+            Console.WriteLine();
         }
         Console.WriteLine();
     }
