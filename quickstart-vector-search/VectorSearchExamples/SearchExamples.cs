@@ -113,8 +113,8 @@ public static class SearchExamples
     }
     // </SnippetSearchHybridVectorAndText>
 
-    // <SnippetSearchHybridVectoryAndSemantic>
-    public static async Task SearchHybridVectoryAndSemantic(SearchClient searchClient, ReadOnlyMemory<float> precalculatedVector)
+    // <SnippetSearchHybridVectorAndSemantic>
+    public static async Task SearchHybridVectorAndSemantic(SearchClient searchClient, ReadOnlyMemory<float> precalculatedVector)
     {
         SearchResults<Hotel> responseWithFilter = await searchClient.SearchAsync<Hotel>(
             "historic hotel walk to restaurants and shopping",
