@@ -35,4 +35,4 @@ await SearchExamples.SearchSingleVector(searchClient, precalculatedVector);
 //await SearchExamples.SearchHybridVectorAndText(searchClient, precalculatedVector);
 
 //// Hybrid search with vector and semantic query
-//await SearchExamples.SearchHybridVectoryAndSemantic(searchClient, precalculatedVector);
+//await SearchExamples.SearchHybridVectorAndSemantic(searchClient, precalculatedVector);
