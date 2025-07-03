@@ -16,7 +16,7 @@ var config = new ConfigurationBuilder()
 string searchEndpoint = config["AzureSearch:Endpoint"] ?? throw new Exception("AzureSearch:Endpoint missing");
 string indexName = config["AzureSearch:IndexName"] ?? throw new Exception("AzureSearch:IndexName missing");
 
-var credential = new DefaultAzureCredential();
+var credential = new AzureDeveloperCliCredential();
 var indexClient = new SearchIndexClient(new Uri(searchEndpoint), credential);
 var searchClient = new SearchClient(new Uri(searchEndpoint), indexName, credential);
 
