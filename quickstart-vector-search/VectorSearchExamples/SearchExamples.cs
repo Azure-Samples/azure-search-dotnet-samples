@@ -147,5 +147,5 @@ public static class SearchExamples
         }
         Console.WriteLine();
     }
-    // </SnippetSearchHybridVectoryAndSeman
+    // </SnippetSearchHybridVectorAndSemantic>
 }
