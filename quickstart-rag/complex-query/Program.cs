@@ -9,10 +9,6 @@ using OpenAI.Chat;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
-// Set up logging to console
-using ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-ILogger logger = loggerFactory.CreateLogger("Main");
-
 // Azure resource endpoints and deployment info
 string azureSearchServiceEndpoint = "azure-ai-search-endpoint";
 string azureOpenAIEndpoint = "azure-ai-openai-endpoint";
@@ -46,7 +42,6 @@ foreach (var field in selectedFields)
 }
 
 // Run Azure Cognitive Search
-logger.LogInformation("Starting Azure Cognitive Search query...");
 var searchResults = await searchClient.SearchAsync<SearchDocument>(query, options);
 
 // Filter and format search results
@@ -68,7 +63,6 @@ string formattedPrompt = string.Format(groundedPrompt, query, sourcesFormatted);
 ChatClient chatClient = openAIClient.GetChatClient(azureDeploymentModel);
 
 // Send the prompt to Azure OpenAI and stream the response
-logger.LogInformation("Sending prompt to Azure OpenAI...");
 var chatUpdates = chatClient.CompleteChatStreamingAsync(
     new[] { new UserChatMessage(formattedPrompt) }
 );

@@ -9,18 +9,16 @@ using OpenAI.Chat;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
-// Set up logging to console
-using ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-ILogger logger = loggerFactory.CreateLogger("Main");
+// Azure resource endpoints and deployment info
+string azureSearchServiceEndpoint = "azure-ai-search-endpoint";
+string azureOpenAIEndpoint = "azure-ai-openai-endpoint";
+string azureDeploymentModel = "azure-ai-deployment-name";
+string indexName = "hotels-sample-index";
 
-// Authenticate using DefaultAzureCredential
+// Set up Azure credentials and clients
 var credential = new DefaultAzureCredential();
-
-// Create the Azure Search client
-var searchClient = new SearchClient(new Uri(azureSearchService), indexName, credential);
-
-// Create the Azure OpenAI client
-var openAIClient = new AzureOpenAIClient(new Uri(azureOpenAIAccount), credential);
+var searchClient = new SearchClient(new Uri(azureSearchServiceEndpoint), indexName, credential);
+var openAIClient = new AzureOpenAIClient(new Uri(azureOpenAIEndpoint), credential);
 
 // Prompt template for grounding the LLM response in search results
 string GROUNDED_PROMPT = @"You are a friendly assistant that recommends hotels based on activities and amenities.
