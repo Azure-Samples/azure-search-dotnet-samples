@@ -198,6 +198,20 @@ namespace EnrichwithAI
             return splitSkill;
         }
 
+
+        var skill = new EntityRecognitionSkill
+        {
+            SkillVersion = EntityRecognitionSkill.SkillVersion.V3,
+            Inputs = new List<InputFieldMappingEntry>
+ {
+ new InputFieldMappingEntry("text") { Source = "/document/content" }
+ },
+            Outputs = new List<OutputFieldMappingEntry>
+ {
+ new OutputFieldMappingEntry("entities") { TargetName = "recognizedEntities" }
+ }
+        };
+
         private static EntityRecognitionSkill CreateEntityRecognitionSkill()
         {
             List<InputFieldMappingEntry> inputMappings = new List<InputFieldMappingEntry>();
@@ -212,15 +226,14 @@ namespace EnrichwithAI
                 TargetName = "organizations"
             });
 
-            EntityRecognitionSkill entityRecognitionSkill = new EntityRecognitionSkill(inputMappings, outputMappings)
+            var entityRecognitionSkill = new EntityRecognitionSkill(inputMappings, outputMappings)
             {
                 Description = "Recognize organizations",
                 Context = "/document/pages/*",
                 DefaultLanguageCode = EntityRecognitionSkillLanguage.En
             };
             entityRecognitionSkill.Categories.Add(EntityCategory.Organization);
-
-            return entityRecognitionSkill;
+            return entityRecognitionSkill;
         }
 
         private static KeyPhraseExtractionSkill CreateKeyPhraseExtractionSkill()
