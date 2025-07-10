@@ -24,7 +24,7 @@ This sample code is featured in [C# tutorial: Add search to ASP.NET Core - Azure
 + [Azure.Search.Documents NuGet package](https://www.nuget.org/packages/Azure.Search.Documents/)
 + [Microsoft.Spatial NuGet package](https://www.nuget.org/packages/Microsoft.Spatial/)
 
-To complete this tutorial, you'll need to create the hotels-sample-index on your search service. Make sure the search index name is`hotels-sample-index`, or change the index name in the `HomeController.cs` file.
+To complete this tutorial, have a pre-existing hotels-sample-index on your search service. Make sure the search index name is `hotels-sample-index`, or change the index name in the `HomeController.cs` file.
 
 Your search service must have public network access. For the connection, the app presents a query API key to your fully-qualified search URL. Both the URL and the query API key are specified in an `appsettings.json` file.
 
@@ -65,10 +65,9 @@ Your search service must have public network access. For the connection, the app
 
 1. Relevance tuning is a server-side operation. If you want to boost the relevance of a document based on whether the match was found in a certain field, such as "Tags", or by location, [add a scoring profile](https://learn.microsoft.com/azure/search/index-add-scoring-profiles) to the hotel-search-index, and then rerun your queries.
 
-If you want to explore client-side operations that respond to user actions, consider adding a React template to your solution. Client-side operations include faceting, autocomplete, and suggestions. The following demo app and tutorial demonstrate client-side behaviors:
+If you want to explore client-side operations that respond to user actions, consider adding a React template to your solution. Client-side operations include faceting, autocomplete, and suggestions. The following tutorial demonstrates client-side behaviors:
 
 + [C# Tutorial: Add search to a website with .NET](https://learn.microsoft.com/azure/search/tutorial-csharp-overview)
-+ [Demo app](https://victorious-beach-0ab88b51e.azurestaticapps.net/)
 
 ## Next steps
 
