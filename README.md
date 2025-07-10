@@ -4,13 +4,15 @@ This repository contains C# code samples used in Azure AI Search "Day One" quick
 
 ## In this repository
 
-| Sample | Description |
-|--------|-------------|
-| create-mvc-app | This ASP.NET Core MVC sample demonstrates server-side search behaviors, such as filters and sorting. |
-| quickstart | Learn the fundamental tasks of working with a search index: create, load, and query for full-text search scenarios. This quickstart is a console application. The index is modeled on a subset of the Hotels dataset, widely used in Azure AI Search samples, but reduced to just four hotels for readability and comprehension. |
-| quickstart-semantic-search | Adds semantic search to the previous quickstart. |
-| quickstart-agentic-retrieval | Sets up a knowledge agent in Azure AI Search to integrate LLM reasoning into query planning. We recommend the Basic tier or higher for this quickstart. |
-| tutorial-ai-enrichment | This console app creates an AI enrichment pipeline consisting of an index, indexer, data source, and skillset. The skillset calls Azure AI Services image analysis and OCR, and natural language processing, extract information and structure from heterogeneous blob content, making it searchable in Azure AI Search. |
+| Sample | Quickstart or tutorial | Description |
+|--------|------------------------|-------------|
+| create-mvc-app | [C# Tutorial: Create a search app in ASP.NET Core](https://learn.microsoft.com/azure/search/tutorial-csharp-create-mvc-app) | This ASP.NET Core MVC sample demonstrates server-side search behaviors, such as filters and sorting. |
+| quickstart | [Quickstart: Full-text search](https://learn.microsoft.com/azure/search/search-get-started-text?tabs=keyless%2Cwindows&pivots=csharp) | Learn the fundamental tasks of working with a search index: create, load, and query for full-text search scenarios. This quickstart is a console application. The index is modeled on a subset of the Hotels dataset, widely used in Azure AI Search samples, but reduced to just four hotels for readability and comprehension. |
+| quickstart-agentic-retrieval | [Quickstart: Agentic retrieval](https://learn.microsoft.com/azure/search/search-get-started-agentic-retrieval?pivots=programming-language-rest) | Sets up a knowledge agent in Azure AI Search to integrate LLM reasoning into query planning. We recommend the Basic tier or higher for this quickstart. |
+| quickstart-rag| [Quickstart: Generative search (RAG)](https://learn.microsoft.com/azure/search/search-get-started-rag?pivots=python) | Demonstrates how to send search results to a chat completion model in Azure OpenAI. |
+| quickstart-semantic-search | [Quickstart: Semantic ranking](https://learn.microsoft.com/azure/search/search-get-started-semantic?pivots=csharp) | Adds semantic ranking to an existing hotels-sample-index and formulates semantic queries. |
+| quickstart-vector-search | [Quickstart: Vector search](https://learn.microsoft.com/azure/search/search-get-started-vector?tabs=keyless&pivots=javascript) | Creates a small hotels index that includes vectorized descriptions, and formulates vector queries. |
+| tutorial-ai-enrichment | [C# Tutorial: Use skillsets to generate searchable content](https://learn.microsoft.com/azure/search/cognitive-search-tutorial-blob-dotnet) | Creates an AI enrichment pipeline consisting of an index, indexer, data source, and skillset. The skillset calls Azure AI Services image analysis and OCR, and natural language processing, extract information and structure from heterogeneous blob content, making it searchable in Azure AI Search. |
 
 ## More resources
 
