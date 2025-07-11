@@ -253,7 +253,7 @@ namespace EnrichwithAI
             return keyPhraseExtractionSkill;
         }
 
-        private static SearchIndexerSkillset CreateOrUpdateDemoSkillSet(SearchIndexerClient indexerClient, IList<SearchIndexerSkill> skills,string azureAiServicesKey)
+        private static SearchIndexerSkillset CreateOrUpdateDemoSkillSet(SearchIndexerClient indexerClient, IList<SearchIndexerSkill> skills, string azureAiServicesKey)
         {
             // Azure AI services was formerly known as Cognitive Services.
             // The APIs still use the old name, so we need to create a CognitiveServicesAccountKey object
