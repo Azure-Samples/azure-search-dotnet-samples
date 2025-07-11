@@ -67,7 +67,7 @@ namespace EnrichwithAI
                 name: "demodata",
                 type: SearchIndexerDataSourceType.AzureBlob,
                 connectionString: configuration["AzureBlobConnectionString"],
-                container: new SearchIndexerDataContainer("cog-search-demo"))
+                container: new SearchIndexerDataContainer("mixed-content-types"))
             {
                 Description = "Demo files to demonstrate cognitive search capabilities."
             };
@@ -198,20 +198,6 @@ namespace EnrichwithAI
             return splitSkill;
         }
 
-
-        var skill = new EntityRecognitionSkill
-        {
-            SkillVersion = EntityRecognitionSkill.SkillVersion.V3,
-            Inputs = new List<InputFieldMappingEntry>
- {
- new InputFieldMappingEntry("text") { Source = "/document/content" }
- },
-            Outputs = new List<OutputFieldMappingEntry>
- {
- new OutputFieldMappingEntry("entities") { TargetName = "recognizedEntities" }
- }
-        };
-
         private static EntityRecognitionSkill CreateEntityRecognitionSkill()
         {
             List<InputFieldMappingEntry> inputMappings = new List<InputFieldMappingEntry>();
@@ -226,14 +212,17 @@ namespace EnrichwithAI
                 TargetName = "organizations"
             });
 
-            var entityRecognitionSkill = new EntityRecognitionSkill(inputMappings, outputMappings)
+            // Specify the V3 version of the EntityRecognitionSkill
+            var skillVersion = EntityRecognitionSkill.SkillVersion.V3;
+
+            var entityRecognitionSkill = new EntityRecognitionSkill(inputMappings, outputMappings, skillVersion)
             {
                 Description = "Recognize organizations",
                 Context = "/document/pages/*",
                 DefaultLanguageCode = EntityRecognitionSkillLanguage.En
             };
             entityRecognitionSkill.Categories.Add(EntityCategory.Organization);
-            return entityRecognitionSkill;
+            return entityRecognitionSkill;
         }
 
         private static KeyPhraseExtractionSkill CreateKeyPhraseExtractionSkill()
@@ -264,7 +253,7 @@ namespace EnrichwithAI
             return keyPhraseExtractionSkill;
         }
 
-        private static SearchIndexerSkillset CreateOrUpdateDemoSkillSet(SearchIndexerClient indexerClient, IList<SearchIndexerSkill> skills,string azureAiServicesKey)
+        private static SearchIndexerSkillset CreateOrUpdateDemoSkillSet(SearchIndexerClient indexerClient, IList<SearchIndexerSkill> skills, string azureAiServicesKey)
         {
             // Azure AI services was formerly known as Cognitive Services.
             // The APIs still use the old name, so we need to create a CognitiveServicesAccountKey object
