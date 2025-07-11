@@ -67,7 +67,7 @@ namespace EnrichwithAI
                 name: "demodata",
                 type: SearchIndexerDataSourceType.AzureBlob,
                 connectionString: configuration["AzureBlobConnectionString"],
-                container: new SearchIndexerDataContainer("cog-search-demo"))
+                container: new SearchIndexerDataContainer("mixed-content-types"))
             {
                 Description = "Demo files to demonstrate cognitive search capabilities."
             };
@@ -212,14 +212,17 @@ namespace EnrichwithAI
                 TargetName = "organizations"
             });
 
-            var entityRecognitionSkill = new EntityRecognitionSkill(inputMappings, outputMappings)
+            // Specify the V3 version of the EntityRecognitionSkill
+            var skillVersion = EntityRecognitionSkill.SkillVersion.V3;
+
+            var entityRecognitionSkill = new EntityRecognitionSkill(inputMappings, outputMappings, skillVersion)
             {
                 Description = "Recognize organizations",
                 Context = "/document/pages/*",
                 DefaultLanguageCode = EntityRecognitionSkillLanguage.En
             };
             entityRecognitionSkill.Categories.Add(EntityCategory.Organization);
-            return entityRecognitionSkill;
+            return entityRecognitionSkill;
         }
 
         private static KeyPhraseExtractionSkill CreateKeyPhraseExtractionSkill()
