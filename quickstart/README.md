@@ -21,7 +21,7 @@ This quickstart is focused on the fundamentals: creating, loading, and querying 
 
 - [Visual Studio](https://visualstudio.microsoft.com/downloads/)
 - [Azure AI Search service](https://learn.microsoft.com/azure/search/search-create-service-portal)
-- [Azure.Search.Documents](https://learn.microsoft.com/dotnet/api/overview/azure/search.documents-readme) =
+- [Azure.Search.Documents](https://learn.microsoft.com/dotnet/api/overview/azure/search.documents-readme)
 
 ## Set up the sample
 
