@@ -10,10 +10,10 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
 // Azure resource endpoints and deployment info
-string azureSearchServiceEndpoint = "azure-ai-search-endpoint";
-string azureOpenAIEndpoint = "azure-ai-openai-endpoint";
-string azureDeploymentModel = "azure-ai-deployment-name";
-string indexName = "hotels-sample-index";
+string azureSearchServiceEndpoint = "PUT-YOUR-SEARCH-SERVICE-ENDPOINT-HERE";
+string azureOpenAIEndpoint = "PUT-YOUR-AZURE-OPENAI-ENDPOINT-HERE";
+string azureDeploymentModel = "PUT-YOUR-CHAT-MODEL-DEPLOYMENT-NAME-HERE";
+string indexName = "hotels-sample-index-dotnet";
 
 // Set up Azure credentials and clients
 var credential = new DefaultAzureCredential();
