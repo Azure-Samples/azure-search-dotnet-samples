@@ -10,7 +10,7 @@ products:
   - azure-cognitive-search
 urlFragment: csharp-quickstart-semantic
 ---
-# Semantic ranking quickstart in C# for Azure AI Search
+# Quickstart: Semantic ranking in Azure AI Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
@@ -33,8 +33,8 @@ This code sample provides the syntax for setting up semantic ranking. It adds a 
 
 The solution is organized into two projects. The first project updates an existing instance of the hotels-sample-index. The second project runs a series of queries.
 
-1. Open the **quickstart-semantic-search.sln** solution in Visual Studio
-1. Open the **BuildIndex**.
+1. Open the **quickstart-semantic-ranking.sln** solution in Visual Studio
+1. Open **BuildIndex**.
 1. In **Program.cs**, replace the placeholder value for the service endpoint with the name of your search service.
 1. Repeat this step for **QueryIndex**.
 1. Compile and run each project.

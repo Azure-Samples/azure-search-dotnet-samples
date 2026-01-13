@@ -11,7 +11,7 @@ products:
 urlFragment: csharp-quickstart-agentic-retrieval
 ---
 
-# C# quickstart for agentic retrieval
+# Quickstart: Agentic retrieval in Azure AI Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 

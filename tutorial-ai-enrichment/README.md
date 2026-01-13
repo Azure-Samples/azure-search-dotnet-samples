@@ -10,7 +10,7 @@ products:
 urlFragment: csharp-enrichment-tutorial
 ---
 
-# AI enrichment tutorial in C#
+# Tutorial: AI enrichment in Azure AI Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 

@@ -11,7 +11,7 @@ products:
 urlFragment: csharp-quickstart-keyword
 ---
 
-# C# quickstart for Azure AI Search
+# Quickstart: Keyword search in Azure AI Search
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
