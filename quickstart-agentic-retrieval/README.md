@@ -2,7 +2,7 @@
 page_type: sample
 languages:
   - csharp
-name: C# quickstart for agentic retrieval
+name: "Quickstart: Agentic retrieval in Azure AI Search using C#"
 description: |
   Learn how to set up an agentic retrieval pipeline in C#.
 products:
@@ -11,7 +11,7 @@ products:
 urlFragment: csharp-quickstart-agentic-retrieval
 ---
 
-# Quickstart: Agentic retrieval in Azure AI Search
+# Quickstart: Agentic retrieval in Azure AI Search using C#
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 

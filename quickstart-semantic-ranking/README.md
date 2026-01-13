@@ -2,7 +2,7 @@
 page_type: sample
 languages:
   - csharp
-name: C# semantic ranking with Azure AI Search
+name: "Quickstart: Semantic ranking in Azure AI Search using C#"
 description: |
   This code sample provides the syntax for semantic ranking. It demonstrates an approach for adding a semantic configuration to a search index and query parameters to a query.
 products:
@@ -10,7 +10,8 @@ products:
   - azure-cognitive-search
 urlFragment: csharp-quickstart-semantic
 ---
-# Quickstart: Semantic ranking in Azure AI Search
+
+# Quickstart: Semantic ranking in Azure AI Search using C#
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 

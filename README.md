@@ -1,6 +1,6 @@
-# C# samples for Azure AI Search fundamentals
+# C# samples for Azure AI Search
 
-This repository contains C# code samples used in Azure AI Search "Day One" quickstarts and tutorials. Unless noted otherwise, all samples run on the shared (free) pricing tier of an [Azure AI Search service](https://learn.microsoft.com/azure/search/search-create-service-portal).
+This repository contains C# code samples used in Azure AI Search quickstarts and tutorials. Unless noted otherwise, all samples run on the shared (free) pricing tier of an [Azure AI Search service](https://learn.microsoft.com/azure/search/search-create-service-portal).
 
 ## In this repository
 
