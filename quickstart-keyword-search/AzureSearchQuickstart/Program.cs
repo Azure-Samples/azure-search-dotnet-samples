@@ -1,5 +1,6 @@
 ﻿using System;
 using Azure;
+using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
@@ -12,27 +13,26 @@ namespace AzureSearch.Quickstart
     {
         static void Main(string[] args)
         {
-            string serviceName = "<Put your search service NAME here>";
-            string apiKey = "<Put your search service ADMIN API KEY here>";
+            string serviceEndpoint = "<Put your search service URL here>";
             string indexName = "hotels-quickstart-csharp";
 
             // Create a SearchIndexClient to send create/delete index commands
-            Uri serviceEndpoint = new Uri($"https://{serviceName}.search.windows.net/");
-            AzureKeyCredential credential = new AzureKeyCredential(apiKey);
-            SearchIndexClient adminClient = new SearchIndexClient(serviceEndpoint, credential);
+            DefaultAzureCredential credential = new();
+            Uri serviceUri = new Uri(serviceEndpoint);
+            SearchIndexClient searchIndexClient = new SearchIndexClient(serviceUri, credential);
 
             // Create a SearchClient to load and query documents
-            SearchClient srchclient = new SearchClient(serviceEndpoint, indexName, credential);
+            SearchClient srchclient = new SearchClient(serviceUri, indexName, credential);
 
             // Delete index if it exists
             Console.WriteLine("{0}", "Deleting index...\n");
-            DeleteIndexIfExists(indexName, adminClient);
+            DeleteIndexIfExists(indexName, searchIndexClient);
 
             // Create index
             Console.WriteLine("{0}", "Creating index...\n");
-            CreateIndex(indexName, adminClient);
+            CreateIndex(indexName, searchIndexClient);
 
-            SearchClient ingesterClient = adminClient.GetSearchClient(indexName);
+            SearchClient ingesterClient = searchIndexClient.GetSearchClient(indexName);
 
             // Load documents
             Console.WriteLine("{0}", "Uploading documents...\n");

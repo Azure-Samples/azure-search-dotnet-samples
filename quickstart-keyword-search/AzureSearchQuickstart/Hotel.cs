@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 
+#nullable disable
+
 namespace AzureSearch.Quickstart
 {
     public partial class Hotel
