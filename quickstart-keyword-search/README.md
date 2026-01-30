@@ -27,13 +27,14 @@ This quickstart is focused on the fundamentals: creating, loading, and querying 
 
 1. Clone or download this sample repository.
 1. Extract contents if the download is a zip file. Make sure the files are read-write.
-1. Get the service name and admin API key of your service. You can find this information in the Azure portal.
+1. Get the name of your search service. You can find the URL on the search service **Overview** page in the Azure portal.
+1. Make sure you have permissions to create, load, and query an index: **Search Service Contributor**, **Search Index Data Contributor**, and **Search Index Data Reader**.
 
 ## Run the sample
 
-1. Open the AzureSearchQuickstart.sln project in Visual Studio
+1. Open the **AzureSearchQuickstart.sln** project in Visual Studio.
 1. Open **Program.cs**.
-1. Replace the placeholder values for service name and admin API key with valid values for your search service.
+1. Replace the placeholder value for the service name with a valid value for your search service.
 1. Compile and run the project.
 
 ## Next steps

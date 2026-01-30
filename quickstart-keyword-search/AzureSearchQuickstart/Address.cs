@@ -1,5 +1,7 @@
 ﻿using Azure.Search.Documents.Indexes;
 
+#nullable disable
+
 namespace AzureSearch.Quickstart
 {
     public partial class Address
