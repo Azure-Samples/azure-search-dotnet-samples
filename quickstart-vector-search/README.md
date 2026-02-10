@@ -22,7 +22,7 @@ This sample demonstrates the fundamentals of vector search, including creating a
 | Folder | Description |
 |--------|-------------|
 | `VectorSearchCreatePopulateIndex` | Creates and populates a vector index with hotel data |
-| `VectorSearchExamples` | Runs vector and hybrid search queries |
+| `VectorSearchExamples` | Runs vector, hybrid, and semantic hybrid queries |
 | `VectorSearchShared` | Shared model classes (`Hotel.cs`, `Address.cs`, `Location.cs`) |
 
 ## Documentation
