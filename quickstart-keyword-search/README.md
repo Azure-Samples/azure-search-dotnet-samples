@@ -15,7 +15,7 @@ urlFragment: csharp-quickstart-keyword
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample demonstrates the fundamentals of vector search, including creating a vector index, loading documents with embeddings, and running vector and hybrid queries.
+This sample demonstrates the fundamentals of creating, loading, and querying a search index for full-text search, also known as keyword search. The index is modeled on a subset of the hotels dataset, which has been reduced for readability and comprehension.
 
 ## What's in this sample
 

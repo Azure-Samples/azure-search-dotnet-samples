@@ -15,7 +15,7 @@ urlFragment: csharp-quickstart-vector
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample demonstrates the fundamentals of vector search, including creating a vector index, loading documents with embeddings, and running vector queries.
+This sample demonstrates the fundamentals of vector search, including creating a vector index, loading documents with embeddings, and running vector and hybrid queries.
 
 ## What's in this sample
 
