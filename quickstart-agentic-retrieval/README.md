@@ -15,7 +15,7 @@ urlFragment: csharp-quickstart-agentic-retrieval
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This quickstart demonstrates the fundamentals of agentic retrieval using Azure AI Search. You create a search index, a knowledge source that targets the index, and a knowledge base that integrates an LLM for query planning and answer synthesis.
+This sample demonstrates the fundamentals of agentic retrieval using Azure AI Search. You create a search index, a knowledge source that targets the index, and a knowledge base that integrates an LLM for query planning and answer synthesis.
 
 ## What's in this sample
 
