@@ -21,9 +21,10 @@ This sample demonstrates the fundamentals of agentic retrieval using Azure AI Se
 
 | File | Description |
 |------|-------------|
+| `sample.env` | Environment variable template for configuration |
+| `AgenticRetrievalQuickstart.csproj` | Project file that defines dependencies and build settings |
 | `program.cs` | Console application that runs all tasks sequentially |
 | `quickstart.ipynb` | Jupyter notebook for running steps individually |
-| `sample.env` | Environment variable template for configuration |
 
 ## Documentation
 
