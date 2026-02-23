@@ -152,6 +152,7 @@ namespace AzureSearch.Quickstart
             )
             {
                 RetrievalReasoningEffort = new KnowledgeRetrievalLowReasoningEffort(),
+                OutputMode = KnowledgeRetrievalOutputMode.AnswerSynthesis,
                 AnswerInstructions = "Provide a two sentence concise and informative answer based on the retrieved documents.",
                 Models = { model }
             };
