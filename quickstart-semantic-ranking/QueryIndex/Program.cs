@@ -9,9 +9,8 @@ class SemanticQuery
 {
     static async Task Main(string[] args)
     {
-        string searchServiceName = "PUT-YOUR-SEARCH-SERVICE-NAME-HERE";
-        string indexName = "hotels-sample-index";
-        string endpoint = $"https://{searchServiceName}.search.windows.net";
+        string endpoint = "https://hailey-search-eastus.search.windows.net";
+        string indexName = "hotels-sample";
         var credential = new Azure.Identity.DefaultAzureCredential();
 
         var client = new SearchClient(new Uri(endpoint), indexName, credential);
