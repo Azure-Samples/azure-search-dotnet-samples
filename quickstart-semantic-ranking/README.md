@@ -21,7 +21,7 @@ This sample demonstrates how to set up semantic ranking. You add a semantic conf
 
 | Folder | Description |
 |--------|-------------|
-| `BuildIndex` | Project that updates an existing hotels-sample-index with semantic configuration |
+| `BuildIndex` | Project that updates an existing hotels-sample index with semantic configuration |
 | `QueryIndex` | Project that runs semantic queries against the index |
 
 ## Documentation

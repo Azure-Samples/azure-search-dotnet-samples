@@ -9,9 +9,8 @@ class BuildIndex
 {
     static async Task Main(string[] args)
     {
-        string searchServiceName = "PUT-YOUR-SEARCH-SERVICE-NAME-HERE";
-        string indexName = "hotels-sample-index";
-        string endpoint = $"https://{searchServiceName}.search.windows.net";
+        string endpoint = "https://hailey-search-eastus.search.windows.net";
+        string indexName = "hotels-sample";
         var credential = new Azure.Identity.DefaultAzureCredential();
 
         var client = new SearchClient(new Uri(endpoint), indexName, credential);
@@ -32,7 +31,7 @@ class BuildIndex
 
             var indexes = indexClient.GetIndexesAsync();
 
-            Console.WriteLine("Here's a list of all indexes on the search service. You should see hotels-sample-index:");
+            Console.WriteLine("Here's a list of all indexes on the search service. You should see the hotels-sample index:");
             await foreach (var index in indexes)
             {
                 Console.WriteLine(index.Name);
@@ -54,7 +53,7 @@ class BuildIndex
                 credential
             );
 
-            // Get the existing definition of hotels-sample-index
+            // Get the existing definition of the hotels-sample index
             var indexResponse = await indexClient.GetIndexAsync(indexName);
             var index = indexResponse.Value;
 
