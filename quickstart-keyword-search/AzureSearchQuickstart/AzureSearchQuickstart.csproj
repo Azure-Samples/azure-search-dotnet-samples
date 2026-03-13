@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.19.0" />
     <PackageReference Include="Azure.Search.Documents" Version="11.7.0" />
   </ItemGroup>
 
