@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
-    <PackageReference Include="Azure.Search.Documents" Version="11.7.0" />
+    <PackageReference Include="Azure.Search.Documents" Version="12.0.0" />
   </ItemGroup>
 
 </Project>
