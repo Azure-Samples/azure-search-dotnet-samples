@@ -177,7 +177,7 @@ namespace AzureSearch.Quickstart
             var baseClient = new KnowledgeBaseRetrievalClient(
                 endpoint: new Uri(searchEndpoint),
                 knowledgeBaseName: knowledgeBaseName,
-                tokenCredential: new DefaultAzureCredential()
+                credential: new DefaultAzureCredential()
             );
 
             string query = @"Why do suburban belts display larger December brightening than urban cores even though absolute light levels are higher downtown? Why is the Phoenix nighttime street grid is so sharply visible from space, whereas large stretches of the interstate between midwestern cities remain comparatively dim?";
@@ -291,7 +291,7 @@ namespace AzureSearch.Quickstart
             await indexClient.DeleteKnowledgeSourceAsync(knowledgeSourceName);
             Console.WriteLine($"Knowledge source '{knowledgeSourceName}' deleted successfully.");
 
-            await indexClient.DeleteIndexAsync(indexName);
+            await indexClient.DeleteIndexAsync(indexName, CancellationToken.None);
             Console.WriteLine($"Index '{indexName}' deleted successfully.");
         }
     }
