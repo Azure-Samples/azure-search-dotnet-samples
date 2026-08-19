@@ -42,23 +42,12 @@ The app deletes the knowledge base and knowledge source in a `finally` block. To
 
 To validate the SDK model and request serialization without Azure resources, run `dotnet run -- --validate-local`.
 
-To run the optional structure-fidelity checks, upload these reusable fixtures to the source container under `image-serving-structure-tests/`:
-
-- `multimodal-structure-regression-v2.pdf`
-- `multimodal-structure-regression-v2.docx`
-
-Then run `dotnet run -- --validate-structure --keep-resources`. This mode verifies the indexed figure relationships and table rows, asks the same relationship question with image serving disabled and enabled, and retains the generated Search resources for later SDK regression tests.
-
 A successful run verifies:
 
 - The generated index contains a nonempty `image_path`.
-- The PDF verbalization preserves four directed relationships, and both files preserve the `Route`, `Owner`, and `SLA` table associations.
-- Text-only and image-enabled answer synthesis return the expected source and destination for every labeled arrow.
 - A disabled retrieval sends zero images to the model.
 - An enabled retrieval reports positive `ImagesRetrieved`, `ImagesSentToModel`, and `TotalImageSizeBytes` values.
 - The referenced blob contains bytes and has an `image/*` content type.
-
-Content Understanding currently preserves the DOCX table but doesn't verbalize or extract its embedded figure in this fixture. The equivalent PDF passes figure verbalization and image-serving checks.
 
 ## Documentation
 

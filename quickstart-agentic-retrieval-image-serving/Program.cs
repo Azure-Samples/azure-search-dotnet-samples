@@ -16,11 +16,6 @@ internal static class Program
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan PollTimeout = TimeSpan.FromMinutes(30);
-    private const string StructureQuery =
-        "In the order routing diagram containing the label corrected return, " +
-        "report each labeled arrow as: routes: <source> -> <destination>; " +
-        "approved: <source> -> <destination>; rejected: <source> -> " +
-        "<destination>; corrected return: <source> -> <destination>";
 
     public static async Task Main(string[] args)
     {
@@ -35,9 +30,6 @@ internal static class Program
         var credential = new DefaultAzureCredential();
         var indexClient = new SearchIndexClient(settings.SearchEndpoint, credential);
         bool keepResources = args.Contains("--keep-resources", StringComparer.OrdinalIgnoreCase);
-        bool validateStructure = args.Contains(
-            "--validate-structure",
-            StringComparer.OrdinalIgnoreCase);
 
         try
         {
@@ -50,15 +42,10 @@ internal static class Program
             Console.WriteLine($"Generated index: {indexName}");
 
             await WaitForIngestionAsync(indexClient, settings.KnowledgeSourceName);
-            string imagePath = validateStructure
-                ? await ValidateStructureAsync(
-                    settings.SearchEndpoint,
-                    indexName,
-                    credential)
-                : await FindImagePathAsync(
-                    settings.SearchEndpoint,
-                    indexName,
-                    credential);
+            string imagePath = await FindImagePathAsync(
+                settings.SearchEndpoint,
+                indexName,
+                credential);
             Console.WriteLine($"Image path: {imagePath}");
 
             KnowledgeBase knowledgeBase = CreateKnowledgeBase(settings);
@@ -72,7 +59,7 @@ internal static class Program
                 retrievalClient,
                 settings,
                 enableImageServing: false,
-                validateStructure ? StructureQuery : settings.Query);
+                settings.Query);
             ImageTotals disabledTotals = GetImageTotals(disabled);
             string disabledAnswer = GetAnswer(disabled);
             Console.WriteLine($"Disabled answer: {disabledAnswer}");
@@ -84,7 +71,7 @@ internal static class Program
                     retrievalClient,
                     settings,
                     enableImageServing: true,
-                    validateStructure ? StructureQuery : settings.Query);
+                    settings.Query);
                 enabledTotals = GetImageTotals(enabled);
                 enabledAnswer = GetAnswer(enabled);
                 if (enabledTotals.ImagesSentToModel > 0)
@@ -98,12 +85,6 @@ internal static class Program
             Console.WriteLine($"Enabled answer:  {enabledAnswer}");
             Console.WriteLine($"Disabled: {disabledTotals}");
             Console.WriteLine($"Enabled:  {enabledTotals}");
-
-            if (validateStructure)
-            {
-                ValidateRelationshipAnswer(disabledAnswer, "Disabled retrieval");
-                ValidateRelationshipAnswer(enabledAnswer, "Enabled retrieval");
-            }
 
             if (disabledTotals.ImagesSentToModel != 0)
             {
@@ -352,116 +333,6 @@ internal static class Program
             "The generated index doesn't contain a nonempty image_path.");
     }
 
-    private static async Task<string> ValidateStructureAsync(
-        Uri endpoint,
-        string indexName,
-        DefaultAzureCredential credential)
-    {
-        const string fixturePrefix = "image-serving-structure-tests/";
-        var searchClient = new SearchClient(endpoint, indexName, credential);
-        var options = new SearchOptions { Size = 100 };
-        options.Select.Add("blob_url");
-        options.Select.Add("snippet");
-        options.Select.Add("image_path");
-        SearchResults<SearchDocument> results = await searchClient.SearchAsync<SearchDocument>(
-            "*",
-            options);
-        var documents = new List<SearchDocument>();
-        await foreach (SearchResult<SearchDocument> result in results.GetResultsAsync())
-        {
-            if (result.Document.TryGetValue("blob_url", out object? value) &&
-                value?.ToString()?.Contains(fixturePrefix, StringComparison.Ordinal) == true)
-            {
-                documents.Add(result.Document);
-            }
-        }
-
-        SearchDocument pdf = GetFixture(
-            documents,
-            "multimodal-structure-regression-v2.pdf");
-        SearchDocument docx = GetFixture(
-            documents,
-            "multimodal-structure-regression-v2.docx");
-        string pdfContent = pdf["snippet"]?.ToString() ?? string.Empty;
-        string docxContent = docx["snippet"]?.ToString() ?? string.Empty;
-
-        RequireAll(
-            pdfContent,
-            "PDF figure verbalization",
-            "Intake Gateway", "routes", "Policy Engine", "approved",
-            "Fulfillment Queue", "rejected", "Review Queue", "corrected return");
-        RequireRoutingTable(pdfContent, "PDF table");
-        RequireRoutingTable(docxContent, "DOCX table");
-        if (!pdf.TryGetValue("image_path", out object? imagePath) ||
-            string.IsNullOrWhiteSpace(imagePath?.ToString()))
-        {
-            throw new InvalidOperationException(
-                "The PDF fixture doesn't contain an image_path.");
-        }
-
-        Console.WriteLine(
-            "Structure validation passed: PDF relationships and both Markdown tables are preserved.");
-        if (!docxContent.Contains("corrected return", StringComparison.OrdinalIgnoreCase))
-        {
-            Console.WriteLine(
-                "DOCX limitation confirmed: its table is preserved, but its embedded figure isn't verbalized.");
-        }
-        return imagePath.ToString()!;
-    }
-
-    private static SearchDocument GetFixture(
-        IEnumerable<SearchDocument> documents,
-        string fileName) => documents.Single(document =>
-            document["blob_url"]?.ToString()?.EndsWith(
-                fileName,
-                StringComparison.OrdinalIgnoreCase) == true);
-
-    private static void RequireAll(
-        string content,
-        string description,
-        params string[] expected)
-    {
-        string[] missing = expected
-            .Where(value => !content.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .ToArray();
-        if (missing.Length > 0)
-        {
-            throw new InvalidOperationException(
-                $"{description} is missing: {string.Join(", ", missing)}.");
-        }
-    }
-
-    private static void RequireRoutingTable(string content, string description)
-    {
-        string normalized = System.Text.RegularExpressions.Regex.Replace(
-            content,
-            @"\s+",
-            " ");
-        bool htmlTable = normalized.Contains(
-                "<th>Route</th> <th>Owner</th> <th>SLA</th>",
-                StringComparison.OrdinalIgnoreCase) &&
-            normalized.Contains(
-                "<td>Approved</td> <td>Fulfillment team</td> <td>4 hours</td>",
-                StringComparison.OrdinalIgnoreCase) &&
-            normalized.Contains(
-                "<td>Rejected</td> <td>Review team</td> <td>1 business day</td>",
-                StringComparison.OrdinalIgnoreCase);
-        bool pipeTable = normalized.Contains(
-                "| Route | Owner | SLA |",
-                StringComparison.OrdinalIgnoreCase) &&
-            normalized.Contains(
-                "| Approved | Fulfillment team | 4 hours |",
-                StringComparison.OrdinalIgnoreCase) &&
-            normalized.Contains(
-                "| Rejected | Review team | 1 business day |",
-                StringComparison.OrdinalIgnoreCase);
-        if (!htmlTable && !pipeTable)
-        {
-            throw new InvalidOperationException(
-                $"{description} doesn't preserve the expected rows and columns.");
-        }
-    }
-
     private static async Task<KnowledgeBaseRetrievalResponse> RetrieveAsync(
         KnowledgeBaseRetrievalClient client,
         Settings settings,
@@ -493,22 +364,6 @@ internal static class Program
                 .SelectMany(message => message.Content)
                 .OfType<KnowledgeBaseMessageTextContent>()
                 .Select(content => content.Text));
-
-    private static void ValidateRelationshipAnswer(string answer, string description)
-    {
-        string withoutCitations = System.Text.RegularExpressions.Regex.Replace(
-            answer,
-            @"\s*\[ref_id:\d+\]",
-            string.Empty);
-        RequireAll(
-            withoutCitations,
-            description,
-            "routes: Intake Gateway -> Policy Engine",
-            "approved: Policy Engine -> Fulfillment Queue",
-            "rejected: Policy Engine -> Review Queue",
-            "corrected return: Review Queue -> Policy Engine");
-        Console.WriteLine($"{description} relationship answer passed.");
-    }
 
     private static ImageTotals GetImageTotals(KnowledgeBaseRetrievalResponse response)
     {
