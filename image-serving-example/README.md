@@ -23,7 +23,7 @@ This sample doesn't use an explicit `OcrSkill` or `normalized_images`. For the c
 
 ## Prerequisites
 
-- .NET 8 SDK.
+- [.NET 8](https://dotnet.microsoft.com/download/dotnet/8.0) or later.
 
 - An Azure AI Search service that supports the `2026-05-01-preview` API.
 
