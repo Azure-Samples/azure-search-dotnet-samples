@@ -31,7 +31,7 @@ This sample doesn't use an explicit `OcrSkill` or `normalized_images`. For the c
 
 - A Microsoft Foundry resource in a [region supported by Content Understanding](https://learn.microsoft.com/azure/ai-services/content-understanding/language-region-support), with Azure OpenAI embedding and multimodal chat model deployments. Use the resource endpoint in the `https://<resource-name>.services.ai.azure.com` format.
 
-- The search service managed identity with **Storage Blob Data Contributor** at the shared storage-account scope and **Cognitive Services User** on the Foundry resource. At account scope, **Storage Blob Data Contributor** includes source-container read access and asset-container read/write access.
+- The search service managed identity with **Storage Blob Data Contributor** at the shared storage-account scope and **Cognitive Services User** on the Foundry resource. At the account scope, **Storage Blob Data Contributor** includes source-container read access and asset-container read/write access.
 
 - The app identity with **Search Service Contributor**, **Search Index Data Reader**, and **Storage Blob Data Reader** on the asset container.
 
