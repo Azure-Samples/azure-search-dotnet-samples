@@ -10,7 +10,7 @@ using Azure.Storage.Blobs;
 using dotenv.net;
 using System.ClientModel.Primitives;
 
-namespace AzureSearch.ImageServingQuickstart;
+namespace AzureSearch.ImageServingExample;
 
 internal static class Program
 {
@@ -42,7 +42,7 @@ internal static class Program
             Console.WriteLine($"Generated index: {indexName}");
 
             await WaitForIngestionAsync(indexClient, settings.KnowledgeSourceName);
-            string imagePath = await FindImagePathAsync(
+            string imagePath = await FindIndexedImagePathAsync(
                 settings.SearchEndpoint,
                 indexName,
                 credential);
@@ -301,7 +301,7 @@ internal static class Program
         throw new TimeoutException("Timed out waiting for managed ingestion.");
     }
 
-    private static async Task<string> FindImagePathAsync(
+    private static async Task<string> FindIndexedImagePathAsync(
         Uri endpoint,
         string indexName,
         DefaultAzureCredential credential)

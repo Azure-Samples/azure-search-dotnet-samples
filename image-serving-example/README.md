@@ -2,20 +2,22 @@
 page_type: sample
 languages:
   - csharp
-name: "Quickstart: Agentic retrieval with image serving using C#"
+name: "Image serving for agentic retrieval using C#"
 description: |
-  Use managed image extraction and image serving in an Azure AI Search agentic retrieval pipeline using C#.
+  Run an end-to-end Azure AI Search agentic retrieval image-serving workflow using C#.
 products:
   - azure
   - azure-cognitive-search
-urlFragment: csharp-quickstart-agentic-retrieval-image-serving
+urlFragment: csharp-image-serving-example
 ---
 
-# Quickstart: Agentic retrieval with image serving using C#
+# Image serving for agentic retrieval using C#
 
 ![MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This console app creates an Azure Blob knowledge source that uses Content Understanding managed ingestion to create semantic chunks, preserve tables, describe document-embedded figures, and extract images. Azure AI Search embeds the enriched Markdown, stores extracted images in an asset store, generates an index with `image_path`, and serves matching images to a multimodal model during answer synthesis. The app then downloads a referenced blob separately because retrieval doesn't return image bytes.
+This end-to-end console app creates an Azure Blob knowledge source that uses Content Understanding managed ingestion to create semantic chunks, preserve tables, describe document-embedded figures, and extract images. Azure AI Search stores extracted images in an asset store, stores `image_path` references in the generated index, and supplies image content associated with matching results to the multimodal model during answer synthesis.
+
+The retrieve response reports aggregate image-serving statistics, but it doesn't guarantee an extracted-image `image_path` or image bytes. Separately from retrieval, the app runs an ordinary wildcard search against the generated index to select an indexed `image_path`, and then downloads that asset to validate application access. The selected path isn't demonstrably associated with a chunk that contributed to the retrieve response.
 
 This sample doesn't use an explicit `OcrSkill` or `normalized_images`. For the classic OCR enrichment pattern, see the repository's `tutorial-ai-enrichment` sample.
 
@@ -23,9 +25,9 @@ This sample doesn't use an explicit `OcrSkill` or `normalized_images`. For the c
 
 - .NET 8 SDK.
 - An Azure AI Search service that supports the `2026-05-01-preview` API.
-- Azure Blob Storage with a source container and an asset container. Upload a PDF with embedded images or supported image files to the source container.
+- One Azure Blob Storage account with a source container and an asset container. Upload a PDF with embedded images or supported image files to the source container.
 - A Microsoft Foundry resource in a [region supported by Content Understanding](https://learn.microsoft.com/azure/ai-services/content-understanding/language-region-support), with Azure OpenAI embedding and multimodal chat model deployments. Use the resource endpoint in the `https://<resource-name>.services.ai.azure.com` format.
-- The search service managed identity with **Storage Blob Data Contributor** on both containers and **Cognitive Services User** on the Foundry resource.
+- The search service managed identity with **Storage Blob Data Contributor** at the shared storage-account scope and **Cognitive Services User** on the Foundry resource. At account scope, **Storage Blob Data Contributor** includes source-container read access and asset-container read/write access.
 - The app identity with **Search Service Contributor**, **Search Index Data Reader**, and **Storage Blob Data Reader** on the asset container.
 
 ## Run the sample
@@ -42,12 +44,12 @@ The app deletes the knowledge base and knowledge source in a `finally` block. To
 
 To validate the SDK model and request serialization without Azure resources, run `dotnet run -- --validate-local`.
 
-A successful run verifies:
+A successful run verifies these independent paths:
 
-- The generated index contains a nonempty `image_path`.
+- An ordinary wildcard query against the generated index finds a nonempty `image_path`, and the app downloads that asset by using its own identity.
 - A disabled retrieval sends zero images to the model.
 - An enabled retrieval reports positive `ImagesRetrieved`, `ImagesSentToModel`, and `TotalImageSizeBytes` values.
-- The referenced blob contains bytes and has an `image/*` content type.
+- The separately selected blob contains bytes and has an `image/*` content type.
 
 ## Documentation
 
