@@ -283,7 +283,7 @@ internal static class Program
                         $"Managed ingestion has failed items.{Environment.NewLine}{errors}");
                 }
             }
-            if (status.LastSynchronizationState is not null)
+            if (current is null && status.LastSynchronizationState is not null)
             {
                 if (status.LastSynchronizationState.ItemsUpdatesFailed > 0)
                 {

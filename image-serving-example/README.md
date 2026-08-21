@@ -2,20 +2,20 @@
 page_type: sample
 languages:
   - csharp
-name: "Image serving for agentic retrieval using C#"
+name: "Image serving for agentic retrieval (preview) using C#"
 description: |
-  Run an end-to-end Azure AI Search agentic retrieval image-serving workflow using C#.
+  Run an end-to-end Azure AI Search agentic retrieval image-serving workflow (preview) using C#.
 products:
   - azure
   - azure-cognitive-search
 urlFragment: csharp-image-serving-example
 ---
 
-# Example: Image serving for agentic retrieval using C#
+# Example: Image serving for agentic retrieval (preview) using C#
 
 ![MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This end-to-end console app creates a blob knowledge source that uses Azure Content Understanding–managed ingestion to create semantic chunks, preserve tables, describe document-embedded figures, and extract images. Azure AI Search stores extracted images in an asset store, stores `image_path` references in the generated index, and supplies image content associated with matching results to the multimodal model during answer synthesis.
+This end-to-end console app creates a blob knowledge source that uses managed ingestion with Azure Content Understanding in Foundry Tools to create semantic chunks, preserve tables, describe document-embedded figures, and extract images. Azure AI Search stores extracted images in an asset store, stores `image_path` references in the generated index, and supplies image content associated with matching results to the multimodal model during answer synthesis.
 
 The retrieve response reports aggregate image-serving statistics, but it doesn't guarantee an extracted-image `image_path` or image bytes. Separately from retrieval, the app runs an ordinary wildcard search against the generated index to select an indexed `image_path`, and then downloads that asset to validate application access. The selected path isn't demonstrably associated with a chunk that contributed to the retrieve response.
 
@@ -25,15 +25,7 @@ This sample doesn't use an explicit `OcrSkill` or `normalized_images`. For the c
 
 - [.NET 8](https://dotnet.microsoft.com/download/dotnet/8.0) or later.
 
-- An Azure AI Search service that supports the `2026-05-01-preview` API.
-
-- An Azure Blob Storage account with a source container and an asset container. Upload a PDF with embedded images or supported image files to the source container.
-
-- A Microsoft Foundry resource in a [region supported by Content Understanding](https://learn.microsoft.com/azure/ai-services/content-understanding/language-region-support), with Azure OpenAI embedding and multimodal chat model deployments. Use the resource endpoint in the `https://<resource-name>.services.ai.azure.com` format.
-
-- The search service managed identity with **Storage Blob Data Contributor** at the shared storage-account scope and **Cognitive Services User** on the Foundry resource. At the account scope, **Storage Blob Data Contributor** includes source-container read access and asset-container read/write access.
-
-- The app identity with **Search Service Contributor**, **Search Index Data Reader**, and **Storage Blob Data Reader** on the asset container.
+- For required resources and permissions, see [Surface document-embedded images in agentic retrieval (preview)](https://learn.microsoft.com/azure/search/agentic-retrieval-how-to-image-serving#prerequisites).
 
 ## Run the sample
 
