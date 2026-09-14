@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.21.0" />
-    <PackageReference Include="Azure.Search.Documents" Version="12.1.0-beta.1" />
+    <PackageReference Include="Azure.Search.Documents" Version="12.1.0-beta.2" />
     <PackageReference Include="dotenv.net" Version="4.0.0" />
   </ItemGroup>
 
