@@ -2,6 +2,7 @@ using Azure.Core;
 using Azure.Identity;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DotnetEmbeddingMigration")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DotnetInPlaceMigration")]
 
 namespace AzureSearchBackupRestoreIndex;
 
