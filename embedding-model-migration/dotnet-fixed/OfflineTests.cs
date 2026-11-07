@@ -40,15 +40,20 @@ internal static class OfflineTests
             await Throws(() => BackupRestore.Restore(target, backup), "tampered file rejected before create");
 
             var key = JsonNode.Parse("""{"name":"id","type":"Edm.String","key":true,"retrievable":true,"filterable":false,"sortable":false}""")!;
-            Throws(() => BackupRestore.CheckPaging(key, 100_001), "skip limit enforced");
-            BackupRestore.CheckPaging(key, 100_000);
-            Assert(true, "exact skip limit accepted");
+            Throws(() => BackupRestore.CheckPaging(key, 100_000), "non-sortable paging rejected");
             key["sortable"] = true;
+            BackupRestore.CheckPaging(key, 100_000);
+            Assert(true, "sortable key allows deterministic skip paging up to 100k");
             key["filterable"] = true;
             BackupRestore.CheckPaging(key, 100_001);
             Assert(BackupRestore.CanKeyset(key), "keyset supports more than 100k");
             key["normalizer"] = "lowercase";
             Throws(() => BackupRestore.CheckPaging(key, 100_001), "normalized key rejected for large exports");
+
+            Assert(Program.IsValidIndexName("ab"), "two-character index name accepted");
+            Assert(Program.IsValidIndexName("products_v1"), "underscore index name accepted");
+            Assert(!Program.IsValidIndexName("_products"), "index name cannot start with underscore");
+            Assert(!Program.IsValidIndexName("products_"), "index name cannot end with underscore");
 
             var submitted = JsonNode.Parse("""[{"id":"one","@search.action":"upload"}]""")!.AsArray();
             Throws(() => BackupRestore.CheckIndexResults(JsonNode.Parse("""{"value":[{"key":"one","status":false,"statusCode":400}]}""")!, submitted, "id"), "HTTP success with per-document failure rejected");

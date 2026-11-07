@@ -28,8 +28,8 @@ internal static class Program
             var settings = Settings.FromEnvironment();
             var targetEndpoint = args[0] == "reembed" ? Settings.Https(Required("TARGET_SEARCH_ENDPOINT"), rootOnly: true) : null;
             var targetIndex = args[0] == "reembed" ? Required("TARGET_INDEX_NAME") : null;
-            if (targetIndex != null && !System.Text.RegularExpressions.Regex.IsMatch(targetIndex, "^[a-z0-9][a-z0-9-]{1,126}[a-z0-9]$"))
-                throw new InvalidOperationException("Use a valid new target index name.");
+            if (targetIndex != null && !IsValidIndexName(targetIndex))
+                throw new InvalidOperationException("Use a valid new target index name (2-128 lowercase letters, digits, underscores or hyphens; must start/end with a letter or digit).");
             var credential = IdentityConfiguration.Create();
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(settings.HttpTimeoutSeconds) };
             var function = new FunctionClient(http, credential, settings.FunctionBase, settings.FunctionAudience, settings.Model, settings.Dimensions);
@@ -51,6 +51,10 @@ internal static class Program
     internal static string Required(string name) =>
         Environment.GetEnvironmentVariable(name) is { Length: > 0 } value ? value :
             throw new InvalidOperationException($"Set environment variable {name}.");
+
+    private static bool IsValidIndexName(string name) =>
+        !string.IsNullOrWhiteSpace(name) &&
+        System.Text.RegularExpressions.Regex.IsMatch(name, "^(?=.{2,128}$)[a-z0-9](?:[a-z0-9_-]*[a-z0-9])$");
 }
 
 internal sealed record Settings(string InputDirectory, string OutputDirectory, string ApiVersion,

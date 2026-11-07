@@ -36,8 +36,8 @@ internal static class Program
                 !string.IsNullOrEmpty(endpoint.Query) || !string.IsNullOrEmpty(endpoint.Fragment) || endpoint.AbsolutePath != "/")
                 throw new InvalidOperationException("Use an HTTPS search service root URL, without credentials or a query.");
             var index = Required($"{prefix}_INDEX_NAME");
-            if (!System.Text.RegularExpressions.Regex.IsMatch(index, "^[a-z0-9][a-z0-9-]{1,126}[a-z0-9]$"))
-                throw new InvalidOperationException("Index name must be 3-128 lowercase letters, digits or hyphens.");
+            if (!IsValidIndexName(index))
+                throw new InvalidOperationException("Index name must be 2-128 lowercase letters, digits, underscores or hyphens, and start/end with a letter or digit.");
             var directory = Path.GetFullPath(Required("BACKUP_DIRECTORY"));
             var apiVersion = Required("SEARCH_API_VERSION");
             using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(3) };
@@ -60,6 +60,10 @@ internal static class Program
         Environment.GetEnvironmentVariable(name) is { Length: > 0 } value
             ? value
             : throw new InvalidOperationException($"Set environment variable {name}.");
+
+    internal static bool IsValidIndexName(string name) =>
+        !string.IsNullOrWhiteSpace(name) &&
+        System.Text.RegularExpressions.Regex.IsMatch(name, "^(?=.{2,128}$)[a-z0-9](?:[a-z0-9_-]*[a-z0-9])$");
 }
 
 internal sealed class SearchApi : IDisposable
@@ -301,10 +305,14 @@ internal static class BackupRestore
 
     internal static void CheckPaging(JsonNode key, long count)
     {
-        if (count < 0 || (!CanKeyset(key) && count > 100_000))
-            throw new InvalidDataException("Over 100,000 documents requires a filterable, sortable string key without a normalizer. Otherwise only <=100,000 are supported.");
+        if (count < 0) throw new InvalidDataException("Document count cannot be negative.");
         if (key["retrievable"]?.GetValue<bool>() == false)
             throw new InvalidDataException("Document key must be retrievable.");
+        var sortable = key["sortable"]?.GetValue<bool>() == true;
+        if (!CanKeyset(key) && !sortable)
+            throw new InvalidDataException("Document key must be sortable to guarantee stable paging order. Non-sortable keys are not supported.");
+        if (!CanKeyset(key) && count > 100_000)
+            throw new InvalidDataException("Over 100,000 documents requires a filterable, sortable string key without a normalizer.");
     }
 
     private static async IAsyncEnumerable<JsonArray> ReadPages(SearchApi api, JsonNode key, long expected)
@@ -324,7 +332,7 @@ internal static class BackupRestore
             else
             {
                 query["skip"] = read;
-                if (key["sortable"]?.GetValue<bool>() == true) query["orderby"] = $"{keyName} asc";
+                query["orderby"] = $"{keyName} asc";
             }
             var response = await api.Send(HttpMethod.Post, "/docs/search", query);
             var page = response["value"]?.DeepClone().AsArray() ?? throw new InvalidDataException("Search response has no value array.");
