@@ -4,6 +4,8 @@
 
 Use this tool when your goal is **intentional embedding change** (new model/dimensions), not identical copy.
 
+Prerequisite: run `dotnet-fixed` first and use its completed backup (`manifest.json` present and valid) as `BACKUP_DIRECTORY`.
+
 ## What this sample does
 
 1. Reads a complete baseline backup (`manifest.json`, schema, document pages).

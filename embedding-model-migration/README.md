@@ -21,6 +21,8 @@ This sample provides a keyless .NET migration workflow with two focused tools:
 2. **Embedding migration (`dotnet-migration`)**: regenerate vectors against a new embedding model and produce a migration-ready backup.
 3. **Optional publish step**: restore migrated output into a new target index.
 
+**Important naming note:** `dotnet-fixed` in this folder is a migration companion baseline tool. It does **not** replace the existing backup/restore sample elsewhere in this repository.
+
 > [!IMPORTANT]
 > This is a reference sample, not a production-ready drop-in. Validate E2E behavior in a representative test environment that mirrors your tenant auth, network, model deployments, quotas, and index schema before rollout.
 
@@ -86,6 +88,8 @@ Typical sequence:
 1. Run `dotnet-fixed` first to create a trustworthy baseline backup.
 2. Run `dotnet-migration prepare` to generate migrated artifacts.
 3. Run `dotnet-migration reembed` (or restore later) into a new target index.
+
+`dotnet-fixed` output is a prerequisite input for `dotnet-migration`. In other words: for this sample workflow, baseline backup/validation comes before model migration.
 
 ## Prerequisites
 
