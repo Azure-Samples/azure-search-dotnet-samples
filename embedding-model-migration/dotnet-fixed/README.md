@@ -1,3 +1,7 @@
+---
+ai-usage: ai-assisted
+---
+
 # dotnet-fixed (baseline backup/restore)
 
 `dotnet-fixed` creates a strict backup of an Azure AI Search index and restores it to a **new** target index with full verification.
@@ -50,5 +54,6 @@ Use `settings.example.ps1` as the source of truth.
 - Never point restore to an existing index name.
 - Treat missing `manifest.json` as incomplete backup.
 - Keep source writes frozen during backup and target writes frozen during restore verification.
+- Use a retrievable, sortable document key without a normalizer for deterministic paging, even for small indexes. Indexes with more than 100,000 documents also require a filterable string key for keyset paging.
 - Stop on nonzero exit codes; do not continue with partial outputs.
 - If you plan to migrate embeddings, run this first and keep its output as the source for `dotnet-migration`.

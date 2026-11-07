@@ -50,6 +50,9 @@ internal static class OfflineTests
             Assert(BackupRestore.CanKeyset(key), "keyset supports more than 100k");
             key["normalizer"] = "lowercase";
             Throws(() => BackupRestore.CheckPaging(key, 100_000), "normalized key rejected for skip paging too");
+            Throws(() => BackupRestore.CheckPaging(key, 100_001), "normalized key rejected for keyset paging");
+            key["filterable"] = false;
+            Throws(() => BackupRestore.CheckPaging(key, 2), "normalized non-filterable key rejected for small skip-paged indexes");
 
             Assert(Program.IsValidIndexName("ab"), "two-character index name accepted");
             Assert(Program.IsValidIndexName("products_v1"), "underscore index name accepted");
@@ -89,6 +92,16 @@ internal static class OfflineTests
                 CultureInfo.CurrentCulture = custom;
                 Assert(Hash("""{"v":0.1}""") == Hash("""{"v":1e-1}"""),
                     "number normalization remains valid JSON under non-ASCII negative-sign cultures");
+                var cultureHandler = new FakeSearch(2);
+                using var cultureHttp = new HttpClient(cultureHandler);
+                using var cultureSource = new SearchApi(cultureHttp, new Uri("https://offline.invalid"), "source", "test-version", new OfflineCredential());
+                using var cultureTarget = new SearchApi(cultureHttp, new Uri("https://offline.invalid"), "target", "test-version", new OfflineCredential());
+                var cultureDirectory = Path.Combine(root, "culture");
+                await BackupRestore.Backup(cultureSource, cultureDirectory);
+                await BackupRestore.Restore(cultureTarget, cultureDirectory);
+                Assert(cultureHandler.Target.Count == 2 &&
+                    JsonNode.DeepEquals(cultureHandler.Source[0], cultureHandler.Target["000000"]),
+                    "backup and verified restore preserve documents under a non-ASCII negative-sign culture");
             }
             finally
             {
