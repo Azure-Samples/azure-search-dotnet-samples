@@ -2,6 +2,8 @@
 
 `dotnet-migration` takes a completed `dotnet-fixed` backup, regenerates vectors with your embedding Function, and writes a new migration backup. It can also restore the migrated output into a new target index.
 
+Use this tool when your goal is **intentional embedding change** (new model/dimensions), not identical copy.
+
 ## What this sample does
 
 1. Reads a complete baseline backup (`manifest.json`, schema, document pages).
@@ -54,3 +56,9 @@ Optional:
 - Use `reembed` only after `prepare` behavior is validated.
 - Never reuse target index names between retries.
 - Treat nonzero exit codes as hard failures and inspect artifacts before retry.
+
+## After migration: expected runtime behavior
+
+- Query vectorization is expected to run through the migrated index's `customWebApi` vectorizer route (`/api/embed/{model}/query`).
+- Ingestion going forward must generate vectors compatible with the migrated index (`VECTOR_FIELD`, `VECTOR_DIMENSIONS`, model variant).
+- If you keep indexers/skills outside this sample, update them to use the same model and dimensions used here.

@@ -2,6 +2,8 @@
 
 `dotnet-fixed` creates a strict backup of an Azure AI Search index and restores it to a **new** target index with full verification.
 
+Use this tool when your goal is **baseline integrity** (copy + verify), not model change.
+
 ## What this sample does
 
 1. Exports source schema + documents into a versioned backup folder.
@@ -49,3 +51,4 @@ Use `settings.example.ps1` as the source of truth.
 - Treat missing `manifest.json` as incomplete backup.
 - Keep source writes frozen during backup and target writes frozen during restore verification.
 - Stop on nonzero exit codes; do not continue with partial outputs.
+- If you plan to migrate embeddings, run this first and keep its output as the source for `dotnet-migration`.

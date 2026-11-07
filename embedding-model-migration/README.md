@@ -32,6 +32,19 @@ This sample provides a keyless .NET migration workflow with two focused tools:
 | Regenerate vectors for Fast/Pro and create a migration artifact | [`dotnet-migration`](dotnet-migration/README.md) |
 | Set all common env vars in one place | [`sample.env`](sample.env) |
 
+## What "`fixed`" vs "`migration`" means
+
+- **`dotnet-fixed`** means "fixed baseline backup/restore behavior."  
+  Use it when you want an identical copy path (same schema/data, no model change) and strong verification.
+- **`dotnet-migration`** means "model-migration behavior."  
+  Use it when you intentionally change vector generation (model/dimensions/vectorizer route) and need a new migrated target index.
+
+Typical sequence:
+
+1. Run `dotnet-fixed` first to create a trustworthy baseline backup.
+2. Run `dotnet-migration prepare` to generate migrated artifacts.
+3. Run `dotnet-migration reembed` (or restore later) into a new target index.
+
 ## Prerequisites
 
 - .NET 8 SDK
@@ -92,3 +105,4 @@ Execution contract:
 - Migration requires a complete baseline backup (`manifest.json` present and valid).
 - This sample does not back up skillsets, data sources, indexers, aliases, or external model resources.
 - Review and adjust settings, retry policies, naming, and operational controls to your environment and requirements.
+- After migration, ensure your ingestion/query pipeline is aligned with the migrated index configuration (same vector field, dimensions, and Function query vectorizer route).
