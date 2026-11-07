@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Globalization;
 using Azure.Core;
 
 namespace AzureSearchBackupRestoreIndex;
@@ -48,7 +49,7 @@ internal static class OfflineTests
             BackupRestore.CheckPaging(key, 100_001);
             Assert(BackupRestore.CanKeyset(key), "keyset supports more than 100k");
             key["normalizer"] = "lowercase";
-            Throws(() => BackupRestore.CheckPaging(key, 100_001), "normalized key rejected for large exports");
+            Throws(() => BackupRestore.CheckPaging(key, 100_000), "normalized key rejected for skip paging too");
 
             Assert(Program.IsValidIndexName("ab"), "two-character index name accepted");
             Assert(Program.IsValidIndexName("products_v1"), "underscore index name accepted");
@@ -80,6 +81,19 @@ internal static class OfflineTests
                 "schema-aware verification compares every vector position");
             Assert(StoredVectorHash("""{"v":[0.1],"price":0.1}""") != StoredVectorHash("""{"v":[0.1],"price":0.10000000149011612}"""),
                 "Single vector normalization does not weaken other numeric field checks");
+            var originalCulture = CultureInfo.CurrentCulture;
+            try
+            {
+                var custom = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+                custom.NumberFormat.NegativeSign = "\u2212";
+                CultureInfo.CurrentCulture = custom;
+                Assert(Hash("""{"v":0.1}""") == Hash("""{"v":1e-1}"""),
+                    "number normalization remains valid JSON under non-ASCII negative-sign cultures");
+            }
+            finally
+            {
+                CultureInfo.CurrentCulture = originalCulture;
+            }
 
             var largeDocs = new JsonArray();
             for (var i = 0; i < 3; i++)

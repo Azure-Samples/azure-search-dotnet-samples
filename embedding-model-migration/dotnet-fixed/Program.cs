@@ -308,6 +308,8 @@ internal static class BackupRestore
         if (count < 0) throw new InvalidDataException("Document count cannot be negative.");
         if (key["retrievable"]?.GetValue<bool>() == false)
             throw new InvalidDataException("Document key must be retrievable.");
+        if (key["normalizer"] != null)
+            throw new InvalidDataException("Document key must be non-normalized to guarantee unique paging order.");
         var sortable = key["sortable"]?.GetValue<bool>() == true;
         if (!CanKeyset(key) && !sortable)
             throw new InvalidDataException("Document key must be sortable to guarantee stable paging order. Non-sortable keys are not supported.");
@@ -465,6 +467,7 @@ internal static class BackupRestore
         if (coefficient.Length == 0) return "0";
         var trimmed = coefficient.TrimEnd('0');
         exponent += coefficient.Length - trimmed.Length;
-        return $"{(negative ? "-" : "")}{trimmed}e{exponent}";
+        return (negative ? "-" : "") + trimmed + "e" +
+            exponent.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 }
