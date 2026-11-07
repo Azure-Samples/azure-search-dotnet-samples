@@ -278,7 +278,7 @@ internal sealed class SearchApi(HttpClient http, Uri endpoint, string indexName,
     }
 
     private static int PayloadSize(JsonArray batch) =>
-        Encoding.UTF8.GetByteCount(new JsonObject { ["value"] = batch }.ToJsonString());
+        Encoding.UTF8.GetByteCount(new JsonObject { ["value"] = batch.DeepClone() }.ToJsonString());
 
     private string IndexPath() => $"indexes('{_index}')";
     private static string EscapeOData(string value) => value.Replace("'", "''", StringComparison.Ordinal);

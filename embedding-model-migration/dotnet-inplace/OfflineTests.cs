@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using System.Reflection;
 
 namespace DotnetInPlaceMigration;
 
@@ -15,6 +16,7 @@ internal static class OfflineTests
         TestRejectsMarkerAlias();
         TestAddsDestinationFieldAndVectorizer();
         TestAddsMarkerFieldWhenConfigured();
+        TestPayloadSizeDoesNotParentBatch();
         Console.WriteLine($"PASS: {_pass}/{_total}");
     }
 
@@ -131,6 +133,25 @@ internal static class OfflineTests
         var marker = plan.UpdatedSchema["fields"]!.AsArray().Single(f => f?["name"]?.GetValue<string>() == "migrationMarker");
         Assert(marker?["type"]?.GetValue<string>() == "Edm.String", "Marker field must be Edm.String.");
         Assert(marker?["filterable"]?.GetValue<bool>() == true, "Marker field must be filterable.");
+        _pass++;
+    }
+
+    private static void TestPayloadSizeDoesNotParentBatch()
+    {
+        _total++;
+        var batch = new JsonArray
+        {
+            new JsonObject
+            {
+                ["@search.action"] = "merge",
+                ["id"] = "1"
+            }
+        };
+
+        var payloadSize = typeof(SearchApi).GetMethod("PayloadSize", BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new InvalidOperationException("PayloadSize helper not found.");
+        _ = payloadSize.Invoke(null, [batch]);
+        Assert(batch.Parent is null, "PayloadSize must not parent the live batch array.");
         _pass++;
     }
 
