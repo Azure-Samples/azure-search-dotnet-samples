@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureSearchBackupRestoreIndex", "dotnet-fixed\AzureSearchBackupRestoreIndex.csproj", "{74DFA64E-DE50-4032-991B-546D93AEB383}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetEmbeddingMigration", "dotnet-migration\DotnetEmbeddingMigration.csproj", "{94BEA17C-CF66-4922-A5F3-0EA744D617D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74DFA64E-DE50-4032-991B-546D93AEB383}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74DFA64E-DE50-4032-991B-546D93AEB383}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74DFA64E-DE50-4032-991B-546D93AEB383}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74DFA64E-DE50-4032-991B-546D93AEB383}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94BEA17C-CF66-4922-A5F3-0EA744D617D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94BEA17C-CF66-4922-A5F3-0EA744D617D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94BEA17C-CF66-4922-A5F3-0EA744D617D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94BEA17C-CF66-4922-A5F3-0EA744D617D7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
