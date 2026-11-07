@@ -21,6 +21,9 @@ This sample provides a keyless .NET migration workflow with two focused tools:
 2. **Embedding migration (`dotnet-migration`)**: regenerate vectors against a new embedding model and produce a migration-ready backup.
 3. **Optional publish step**: restore migrated output into a new target index.
 
+> [!IMPORTANT]
+> This is a reference sample, not a production-ready drop-in. Validate E2E behavior in a representative test environment that mirrors your tenant auth, network, model deployments, quotas, and index schema before rollout.
+
 ## Choose your path
 
 | If you need to... | Use |
@@ -88,3 +91,4 @@ Execution contract:
 - Baseline backup fails on incomplete snapshots and credential-bearing schemas.
 - Migration requires a complete baseline backup (`manifest.json` present and valid).
 - This sample does not back up skillsets, data sources, indexers, aliases, or external model resources.
+- Review and adjust settings, retry policies, naming, and operational controls to your environment and requirements.
