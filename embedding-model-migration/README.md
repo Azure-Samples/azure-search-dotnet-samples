@@ -15,11 +15,12 @@ urlFragment: csharp-embedding-model-migration
 
 ![Flask sample MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This sample provides a keyless .NET migration workflow with two focused tools:
+This sample provides a keyless .NET migration workflow with three focused tools:
 
 1. **Baseline integrity (`dotnet-fixed`)**: back up and restore an index with strict schema/document validation.
 2. **Embedding migration (`dotnet-migration`)**: regenerate vectors against a new embedding model and produce a migration-ready backup.
-3. **Optional publish step**: restore migrated output into a new target index.
+3. **In-place additive migration (`dotnet-inplace`)**: keep the same index and add a new vector field/profile/vectorizer, then backfill vectors.
+4. **Optional publish step**: restore migrated output into a new target index.
 
 **Important naming note:** `dotnet-fixed` in this folder is a migration companion baseline tool. It does **not** replace the existing backup/restore sample elsewhere in this repository.
 
@@ -28,7 +29,12 @@ This sample provides a keyless .NET migration workflow with two focused tools:
 
 ## Problem this sample solves
 
-When customers need to move from one embedding model/dimension setup to another, a direct in-place change can break query compatibility and make rollback hard. They need a safe way to:
+When customers need to move from one embedding model/dimension setup to another, they often need one of two safe patterns:
+
+- create a **new target index** and cut over when validated, or
+- run an **in-place additive migration** that keeps the same index and adds a new vector field.
+
+For new-target migrations, customers need a safe way to:
 
 1. create a verified baseline copy,
 2. regenerate vectors with the new model path, and
@@ -74,6 +80,7 @@ Example: customer has `products-v1` with old vectors and wants `fast` model vect
 |--------|-------------|
 | Prove source backup fidelity and run identical restore | [`dotnet-fixed`](dotnet-fixed/README.md) |
 | Regenerate vectors for Fast/Pro and create a migration artifact | [`dotnet-migration`](dotnet-migration/README.md) |
+| Keep the same index and add/backfill a new vector field | [`dotnet-inplace`](dotnet-inplace/README.md) |
 | Set all common env vars in one place | [`sample.env`](sample.env) |
 
 ## What "`fixed`" vs "`migration`" means
@@ -82,6 +89,8 @@ Example: customer has `products-v1` with old vectors and wants `fast` model vect
   Use it when you want an identical copy path (same schema/data, no model change) and strong verification.
 - **`dotnet-migration`** means "model-migration behavior."  
   Use it when you intentionally change vector generation (model/dimensions/vectorizer route) and need a new migrated target index.
+- **`dotnet-inplace`** means "same-index additive migration behavior."  
+  Use it when you need to keep index identity and incrementally introduce a new vector field/profile/vectorizer. It requires a filterable marker field and a source-write freeze during backfill.
 
 Typical sequence:
 
@@ -104,7 +113,8 @@ Typical sequence:
 
 - `dotnet-fixed/`: baseline backup/restore executable
 - `dotnet-migration/`: embedding regeneration executable
-- `embedding-model-migration.sln`: solution containing both projects
+- `dotnet-inplace/`: in-place additive migration executable
+- `embedding-model-migration.sln`: solution containing all migration projects
 - `sample.env`: consolidated environment template
 
 ## Quickstart (humans)
@@ -114,6 +124,7 @@ Typical sequence:
 ```powershell
 dotnet run --project .\embedding-model-migration\dotnet-fixed\AzureSearchBackupRestoreIndex.csproj -- --self-test
 dotnet run --project .\embedding-model-migration\dotnet-migration\DotnetEmbeddingMigration.csproj -- --self-test
+dotnet run --project .\embedding-model-migration\dotnet-inplace\DotnetInPlaceMigration.csproj -- --self-test
 ```
 
 2. Run baseline backup/restore:
@@ -131,6 +142,9 @@ dotnet run --project .\embedding-model-migration\dotnet-migration\DotnetEmbeddin
 
 # Prepare + restore into a new target index
 dotnet run --project .\embedding-model-migration\dotnet-migration\DotnetEmbeddingMigration.csproj -- reembed
+
+# Additive in-place migration in the same index
+dotnet run --project .\embedding-model-migration\dotnet-inplace\DotnetInPlaceMigration.csproj -- migrate
 ```
 
 ## Quickstart (agents/automation)

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureSearchBackupRestoreInd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetEmbeddingMigration", "dotnet-migration\DotnetEmbeddingMigration.csproj", "{94BEA17C-CF66-4922-A5F3-0EA744D617D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetInPlaceMigration", "dotnet-inplace\DotnetInPlaceMigration.csproj", "{23731D9C-87F3-4A49-BE1E-1E7C341E2A79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{94BEA17C-CF66-4922-A5F3-0EA744D617D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94BEA17C-CF66-4922-A5F3-0EA744D617D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94BEA17C-CF66-4922-A5F3-0EA744D617D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23731D9C-87F3-4A49-BE1E-1E7C341E2A79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23731D9C-87F3-4A49-BE1E-1E7C341E2A79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23731D9C-87F3-4A49-BE1E-1E7C341E2A79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23731D9C-87F3-4A49-BE1E-1E7C341E2A79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
