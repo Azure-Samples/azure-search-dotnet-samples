@@ -10,7 +10,9 @@ internal static class OfflineTests
     public static void Run()
     {
         TestRejectsNormalizedKey();
+        TestRejectsEqualSourceAndDestinationFields();
         TestAcceptsExistingDestinationField();
+        TestRejectsMarkerAlias();
         TestAddsDestinationFieldAndVectorizer();
         TestAddsMarkerFieldWhenConfigured();
         Console.WriteLine($"PASS: {_pass}/{_total}");
@@ -32,6 +34,20 @@ internal static class OfflineTests
         }
     }
 
+    private static void TestRejectsEqualSourceAndDestinationFields()
+    {
+        _total++;
+        try
+        {
+            _ = SchemaPlanner.Build(MinimalSchema(), SettingsForTests(sourceVectorField: "contentVector", newVectorField: "contentVector"));
+            throw new InvalidOperationException("Expected equal source/destination rejection.");
+        }
+        catch (InvalidDataException)
+        {
+            _pass++;
+        }
+    }
+
     private static void TestAcceptsExistingDestinationField()
     {
         _total++;
@@ -41,12 +57,53 @@ internal static class OfflineTests
             ["name"] = "contentVectorV2",
             ["type"] = "Collection(Edm.Single)",
             ["searchable"] = true,
+            ["retrievable"] = true,
+            ["stored"] = true,
             ["dimensions"] = 1024,
-            ["vectorSearchProfile"] = "profile-v1"
+            ["vectorSearchProfile"] = "migration-contentVectorV2-profile"
+        });
+        schema["fields"]!.AsArray().Add(new JsonObject
+        {
+            ["name"] = "migrationMarker",
+            ["type"] = "Edm.String",
+            ["filterable"] = true,
+            ["retrievable"] = true,
+            ["searchable"] = false
+        });
+        schema["vectorSearch"]!["profiles"]!.AsArray().Add(new JsonObject
+        {
+            ["name"] = "migration-contentVectorV2-profile",
+            ["algorithm"] = "hnsw-default",
+            ["vectorizer"] = "migration-contentVectorV2-vectorizer"
+        });
+        schema["vectorSearch"]!["vectorizers"]!.AsArray().Add(new JsonObject
+        {
+            ["name"] = "migration-contentVectorV2-vectorizer",
+            ["kind"] = "customWebApi",
+            ["customWebApiParameters"] = new JsonObject
+            {
+                ["uri"] = "https://unit-func.azurewebsites.net/api/embed/fast/query",
+                ["httpMethod"] = "POST",
+                ["authResourceId"] = "api://00000000-0000-0000-0000-000000000000"
+            }
         });
         var plan = SchemaPlanner.Build(schema, SettingsForTests());
         Assert(plan.RequiresSchemaUpdate == false, "Schema update should not be required when destination field already exists.");
         _pass++;
+    }
+
+    private static void TestRejectsMarkerAlias()
+    {
+        _total++;
+        try
+        {
+            _ = SchemaPlanner.Build(MinimalSchema(), SettingsForTests(markerField: "id"));
+            throw new InvalidOperationException("Expected marker alias rejection.");
+        }
+        catch (InvalidDataException)
+        {
+            _pass++;
+        }
     }
 
     private static void TestAddsDestinationFieldAndVectorizer()
@@ -77,14 +134,17 @@ internal static class OfflineTests
         _pass++;
     }
 
-    private static Settings SettingsForTests(string? markerField = null) =>
+    private static Settings SettingsForTests(
+        string markerField = "migrationMarker",
+        string sourceVectorField = "contentVector",
+        string newVectorField = "contentVectorV2") =>
         new(
             new Uri("https://unit.search.windows.net/"),
             "products-v1",
             "2025-09-01",
             "content",
-            "contentVector",
-            "contentVectorV2",
+            sourceVectorField,
+            newVectorField,
             1024,
             "fast",
             new Uri("https://unit-func.azurewebsites.net/"),
@@ -93,7 +153,8 @@ internal static class OfflineTests
             240,
             "query",
             markerField,
-            "contentVectorV2:fast:1024");
+            "contentVectorV2:fast:1024",
+            true);
 
     private static JsonObject MinimalSchema() => JsonNode.Parse("""
 {

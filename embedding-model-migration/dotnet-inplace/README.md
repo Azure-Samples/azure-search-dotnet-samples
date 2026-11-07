@@ -4,9 +4,9 @@ This sample migrates embeddings **inside the same Azure AI Search index** by:
 
 1. Adding a new vector field and a migration-specific vector search profile/vectorizer.
 2. Re-embedding every document from an existing text field.
-3. Writing vectors into the new field with `mergeOrUpload`.
+3. Writing vectors into the new field with `merge` updates.
 4. Running before/after index calls and post-migration verification.
-5. Backfilling only pending records (`new-vector-field eq null`) or stale records (optional marker mode).
+5. Backfilling only pending records using a required marker field/value.
 
 ## When to use this sample
 
@@ -15,7 +15,7 @@ Use this approach when you want to keep the same index name and add a new embedd
 > [!IMPORTANT]
 > This is additive. It does **not** change the old vector field to non-searchable in place. If you need the old field removed or reconfigured, use the new-index migration flow (`dotnet-migration`) and swap indexes.
 
-To support dual-write without reprocessing the full corpus every run, set `MIGRATION_MARKER_FIELD` (and optionally `MIGRATION_MARKER_VALUE`). The sample then backfills only documents whose marker differs from the current marker value.
+Set `SOURCE_WRITES_FROZEN=true` only after pausing ingestion/updates for the source index. This sample does not perform version-aware write arbitration.
 
 ## Prerequisites
 
@@ -23,6 +23,7 @@ To support dual-write without reprocessing the full corpus every run, set `MIGRA
 - Existing Azure AI Search index
 - Existing embedding Function app from this sample set
 - Keyless auth enabled for Search + Function
+- Source index writes paused for the migration window
 
 ## Configuration
 

@@ -90,7 +90,7 @@ Example: customer has `products-v1` with old vectors and wants `fast` model vect
 - **`dotnet-migration`** means "model-migration behavior."  
   Use it when you intentionally change vector generation (model/dimensions/vectorizer route) and need a new migrated target index.
 - **`dotnet-inplace`** means "same-index additive migration behavior."  
-  Use it when you need to keep index identity and incrementally introduce a new vector field/profile/vectorizer. It supports idempotent reruns and optional marker-based backfill targeting for dual-write cutovers.
+  Use it when you need to keep index identity and incrementally introduce a new vector field/profile/vectorizer. It requires a filterable marker field and a source-write freeze during backfill.
 
 Typical sequence:
 
