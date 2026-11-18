@@ -4,7 +4,7 @@ languages:
   - csharp
 name: "Image serving for agentic retrieval (preview) using C#"
 description: |
-  Run an end-to-end Azure AI Search agentic retrieval image-serving workflow (preview) using C#.
+  Run an end-to-end Foundry IQ (Azure AI Search) agentic retrieval image-serving workflow (preview) using C#.
 products:
   - azure
   - azure-cognitive-search
@@ -15,7 +15,7 @@ urlFragment: csharp-image-serving-example
 
 ![MIT license badge](https://img.shields.io/badge/license-MIT-green.svg)
 
-This end-to-end console app creates a blob knowledge source that uses managed ingestion with Azure Content Understanding in Foundry Tools to create semantic chunks, preserve tables, describe document-embedded figures, and extract images. Azure AI Search stores extracted images in an asset store, stores `image_path` references in the generated index, and supplies image content associated with matching results to the multimodal model during answer synthesis.
+This end-to-end console app creates a blob knowledge source that uses managed ingestion with Azure Content Understanding in Foundry Tools to create semantic chunks, preserve tables, describe document-embedded figures, and extract images. Foundry IQ (Azure AI Search) stores extracted images in an asset store, stores `image_path` references in the generated index, and supplies image content associated with matching results to the multimodal model during answer synthesis.
 
 The retrieve response reports aggregate image-serving statistics, but it doesn't guarantee an extracted-image `image_path` or image bytes. Separately from retrieval, the app runs an ordinary wildcard search against the generated index to select an indexed `image_path`, and then downloads that asset to validate application access. The selected path isn't demonstrably associated with a chunk that contributed to the retrieve response.
 
@@ -58,4 +58,4 @@ For architecture, permissions, and service limitations, see [Surface document-em
 
 ## Next step
 
-You can learn more about Azure AI Search on the [official documentation site](https://learn.microsoft.com/azure/search).
+You can learn more about Foundry IQ on the [official documentation site](https://learn.microsoft.com/azure/search).
